@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Nodus.Client.ViewModels"
+             x:Class="Nodus.Client.Views.VotingPage"
+             Title="Evaluate Project">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20">
+        
+        <!-- Header -->
+        <VerticalStackLayout Grid.Row="0" Spacing="10">
+            <Label Text="{Binding CurrentProject.Name}" FontSize="24" FontAttributes="Bold" HorizontalOptions="Center" />
+            <Label Text="{Binding CurrentProject.Category}" FontSize="16" TextColor="Gray" HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+        <!-- Form -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="20" Padding="0,20">
+                
+                <Label Text="Design &amp; Creativity" FontSize="18" />
+                <Label Text="{Binding DesignScore, StringFormat='{0:F0}/10'}" FontSize="24" HorizontalOptions="Center" TextColor="{StaticResource Primary}" />
+                <Slider Value="{Binding DesignScore}" Minimum="1" Maximum="10" Step="1" />
+                
+                <BoxView HeightRequest="1" Color="LightGray" />
+
+                <Label Text="Functionality &amp; Innovation" FontSize="18" />
+                <Label Text="{Binding FunctionalityScore, StringFormat='{0:F0}/10'}" FontSize="24" HorizontalOptions="Center" TextColor="{StaticResource Primary}" />
+                <Slider Value="{Binding FunctionalityScore}" Minimum="1" Maximum="10" Step="1" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Footer -->
+        <VerticalStackLayout Grid.Row="2" Spacing="10">
+            <Label Text="{Binding StatusMessage}" HorizontalOptions="Center" TextColor="{Binding IsSubmitting, Converter={StaticResource BoolToColorConverter}}" />
+            <Button Text="Submit Vote" 
+                    Command="{Binding SubmitVoteCommand}" 
+                    IsEnabled="{Binding IsSubmitting, Converter={StaticResource InvertedBoolConverter}}"
+                    BackgroundColor="{StaticResource Primary}" 
+                    HeightRequest="50" CornerRadius="25"/>
+        </VerticalStackLayout>
+
+    </Grid>
+</ContentPage>

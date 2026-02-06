@@ -1,0 +1,13 @@
+C:\code\project_kiosko\nodusApp\src\Nodus.Shared\bin\Debug\net10.0\Nodus.Shared.deps.json
+C:\code\project_kiosko\nodusApp\src\Nodus.Shared\bin\Debug\net10.0\Nodus.Shared.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Shared\bin\Debug\net10.0\Nodus.Shared.pdb
+C:\code\project_kiosko\nodusApp\src\Nodus.Shared\obj\Debug\net10.0\Nodus.Shared.csproj.AssemblyReference.cache
+C:\code\project_kiosko\nodusApp\src\Nodus.Shared\obj\Debug\net10.0\Nodus.Shared.GeneratedMSBuildEditorConfig.editorconfig
+C:\code\project_kiosko\nodusApp\src\Nodus.Shared\obj\Debug\net10.0\Nodus.Shared.AssemblyInfoInputs.cache
+C:\code\project_kiosko\nodusApp\src\Nodus.Shared\obj\Debug\net10.0\Nodus.Shared.AssemblyInfo.cs
+C:\code\project_kiosko\nodusApp\src\Nodus.Shared\obj\Debug\net10.0\Nodus.Shared.csproj.CoreCompileInputs.cache
+C:\code\project_kiosko\nodusApp\src\Nodus.Shared\obj\Debug\net10.0\Nodus.Shared.sourcelink.json
+C:\code\project_kiosko\nodusApp\src\Nodus.Shared\obj\Debug\net10.0\Nodus.Shared.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Shared\obj\Debug\net10.0\refint\Nodus.Shared.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Shared\obj\Debug\net10.0\Nodus.Shared.pdb
+C:\code\project_kiosko\nodusApp\src\Nodus.Shared\obj\Debug\net10.0\ref\Nodus.Shared.dll

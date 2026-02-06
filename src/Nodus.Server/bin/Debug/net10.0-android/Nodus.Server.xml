@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Nodus.Server</name>
+    </assembly>
+    <members>
+        <member name="T:Nodus.Server.ViewModels.CreateEventViewModel">
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="P:Nodus.Server.ViewModels.CreateEventViewModel.EventName">
+            <inheritdoc cref="F:Nodus.Server.ViewModels.CreateEventViewModel._eventName"/>
+        </member>
+        <member name="P:Nodus.Server.ViewModels.CreateEventViewModel.JudgePassword">
+            <inheritdoc cref="F:Nodus.Server.ViewModels.CreateEventViewModel._judgePassword"/>
+        </member>
+        <member name="P:Nodus.Server.ViewModels.CreateEventViewModel.Categories">
+            <inheritdoc cref="F:Nodus.Server.ViewModels.CreateEventViewModel._categories"/>
+        </member>
+        <member name="P:Nodus.Server.ViewModels.CreateEventViewModel.JudgeQrCode">
+            <inheritdoc cref="F:Nodus.Server.ViewModels.CreateEventViewModel._judgeQrCode"/>
+        </member>
+        <member name="P:Nodus.Server.ViewModels.CreateEventViewModel.StudentQrCode">
+            <inheritdoc cref="F:Nodus.Server.ViewModels.CreateEventViewModel._studentQrCode"/>
+        </member>
+        <member name="P:Nodus.Server.ViewModels.CreateEventViewModel.IsGenerated">
+            <inheritdoc cref="F:Nodus.Server.ViewModels.CreateEventViewModel._isGenerated"/>
+        </member>
+        <member name="F:Nodus.Server.ViewModels.CreateEventViewModel.createAndGenerateCommand">
+            <summary>The backing field for <see cref="P:Nodus.Server.ViewModels.CreateEventViewModel.CreateAndGenerateCommand"/>.</summary>
+        </member>
+        <member name="P:Nodus.Server.ViewModels.CreateEventViewModel.CreateAndGenerateCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:Nodus.Server.ViewModels.CreateEventViewModel.CreateAndGenerate"/>.</summary>
+        </member>
+        <member name="T:Nodus.Server.Resource">
+            <summary>
+            Android Resource Designer class.
+            Exposes the Android Resource designer assembly into the project Namespace.
+            </summary>
+        </member>
+        <member name="T:CommunityToolkit.Mvvm.Messaging.__Internals.__IMessengerExtensions">
+            <summary>
+            A helper type with generated registration stubs for types implementing <see cref="T:CommunityToolkit.Mvvm.Messaging.IRecipient`1"/>.
+            </summary>
+            <inheritdoc/>
+        </member>
+        <member name="M:CommunityToolkit.Mvvm.Messaging.__Internals.__IMessengerExtensions.CreateAllMessagesRegistrator(Nodus.Server.ViewModels.ResultsViewModel)">
+            <summary>
+            Creates a message registration stub for <see cref="T:Nodus.Server.ViewModels.ResultsViewModel"/> objects.
+            </summary>
+            <param name="_">Dummy parameter, only used to disambiguate the method signature.</param>
+            <returns>A message registration stub for <see cref="T:Nodus.Server.ViewModels.ResultsViewModel"/> objects.</returns>
+        </member>
+        <member name="M:CommunityToolkit.Mvvm.Messaging.__Internals.__IMessengerExtensions.CreateAllMessagesRegistratorWithToken``1(Nodus.Server.ViewModels.ResultsViewModel)">
+            <summary>
+            Creates a message registration stub for <see cref="T:Nodus.Server.ViewModels.ResultsViewModel"/> objects.
+            </summary>
+            <typeparam name="TToken">The type of tokens that will be used to register messages.</typeparam>
+            <param name="_">Dummy parameter, only used to disambiguate the method signature.</param>
+            <returns>A message registration stub for <see cref="T:Nodus.Server.ViewModels.ResultsViewModel"/> objects.</returns>
+        </member>
+        <member name="T:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs">
+            <summary>
+            A helper type providing cached, reusable <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instances
+            for all properties generated with <see cref="T:CommunityToolkit.Mvvm.ComponentModel.ObservablePropertyAttribute"/>.
+            </summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.EventName">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "EventName" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.JudgePassword">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "JudgePassword" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.Categories">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "Categories" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.JudgeQrCode">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "JudgeQrCode" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.StudentQrCode">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "StudentQrCode" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsGenerated">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsGenerated" generated properties.</summary>
+        </member>
+        <member name="T:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs">
+            <summary>
+            A helper type providing cached, reusable <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instances
+            for all properties generated with <see cref="T:CommunityToolkit.Mvvm.ComponentModel.ObservablePropertyAttribute"/>.
+            </summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.EventName">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "EventName" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.JudgePassword">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "JudgePassword" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.Categories">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "Categories" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.JudgeQrCode">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "JudgeQrCode" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.StudentQrCode">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "StudentQrCode" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsGenerated">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsGenerated" generated properties.</summary>
+        </member>
+    </members>
+</doc>

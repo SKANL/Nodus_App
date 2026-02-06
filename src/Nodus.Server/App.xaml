@@ -1,0 +1,18 @@
+﻿<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:Nodus.Server"
+             xmlns:converters="clr-namespace:Nodus.Server.Converters"
+             x:Class="Nodus.Server.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <converters:BoolToColorConverter x:Key="BoolToColorConverter" TrueColor="{StaticResource Primary}" FalseColor="Transparent" />
+            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+            <converters:StatusToColorConverter x:Key="StatusToColorConverter" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

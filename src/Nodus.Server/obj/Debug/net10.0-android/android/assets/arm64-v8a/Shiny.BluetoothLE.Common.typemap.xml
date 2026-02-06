@@ -1,0 +1,8 @@
+<api type="debug" assembly-name="Shiny.BluetoothLE.Common" mvid="287c5c96cd7e418ab33c5340985465e9">
+  <java-to-managed>
+    <entry java-name="org/shiny/bluetoothle/ShinyBleAdapterStateBroadcastReceiver" managed-name="Shiny.BluetoothLE.ShinyBleAdapterStateBroadcastReceiver, Shiny.BluetoothLE.Common" managed-type-token-id="33554439" />
+  </java-to-managed>
+  <managed-to-java>
+    <entry java-name="org/shiny/bluetoothle/ShinyBleAdapterStateBroadcastReceiver" managed-name="Shiny.BluetoothLE.ShinyBleAdapterStateBroadcastReceiver, Shiny.BluetoothLE.Common" managed-type-token-id="33554439" />
+  </managed-to-java>
+</api>

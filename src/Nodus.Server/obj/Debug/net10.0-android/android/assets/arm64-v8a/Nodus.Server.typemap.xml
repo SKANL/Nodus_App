@@ -1,0 +1,10 @@
+<api type="debug" assembly-name="Nodus.Server" mvid="126502a0641443a1b18540267abe290c">
+  <java-to-managed>
+    <entry java-name="crc6467b6ab04c4767b33/MainActivity" managed-name="Nodus.Server.MainActivity, Nodus.Server" managed-type-token-id="33554444" />
+    <entry java-name="crc6467b6ab04c4767b33/MainApplication" managed-name="Nodus.Server.MainApplication, Nodus.Server" managed-type-token-id="33554445" />
+  </java-to-managed>
+  <managed-to-java>
+    <entry java-name="crc6467b6ab04c4767b33/MainActivity" managed-name="Nodus.Server.MainActivity, Nodus.Server" managed-type-token-id="33554444" />
+    <entry java-name="crc6467b6ab04c4767b33/MainApplication" managed-name="Nodus.Server.MainApplication, Nodus.Server" managed-type-token-id="33554445" />
+  </managed-to-java>
+</api>

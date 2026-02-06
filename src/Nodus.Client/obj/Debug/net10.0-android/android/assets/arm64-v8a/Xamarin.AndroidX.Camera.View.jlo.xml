@@ -1,0 +1,49 @@
+<api>
+  <jcw-types>
+    <type name="PreviewView_OnFrameUpdateListenerImplementor" package="mono.androidx.camera.view" application_java_class="android.app.Application" mono_runtime_initialization="mono.MonoPackageManager.LoadApplication (context);" extends_type="java.lang.Object" partial_assembly_qualified_name="AndroidX.Camera.View.PreviewView+IOnFrameUpdateListenerImplementor, Xamarin.AndroidX.Camera.View">
+      <implemented_interfaces>
+        <interface name="androidx.camera.view.PreviewView.OnFrameUpdateListener" />
+      </implemented_interfaces>
+      <constructors>
+        <constructor name="PreviewView_OnFrameUpdateListenerImplementor" method="n_.ctor:()V:" jni_signature="()V" managed_parameters="" retval="void" is_dynamically_registered="True" />
+      </constructors>
+      <methods>
+        <method name="onFrameUpdate" method="n_onFrameUpdate:(J)V:GetOnFrameUpdate_JHandler:AndroidX.Camera.View.PreviewView+IOnFrameUpdateListenerInvoker, Xamarin.AndroidX.Camera.View" jni_signature="(J)V" params="long p0" retval="void" is_dynamically_registered="True" super_call="p0" activate_call="p0" />
+      </methods>
+    </type>
+    <type name="RotationProvider_ListenerImplementor" package="mono.androidx.camera.view" application_java_class="android.app.Application" mono_runtime_initialization="mono.MonoPackageManager.LoadApplication (context);" extends_type="java.lang.Object" partial_assembly_qualified_name="AndroidX.Camera.View.RotationProvider+IListenerImplementor, Xamarin.AndroidX.Camera.View">
+      <implemented_interfaces>
+        <interface name="androidx.camera.view.RotationProvider.Listener" />
+      </implemented_interfaces>
+      <constructors>
+        <constructor name="RotationProvider_ListenerImplementor" method="n_.ctor:()V:" jni_signature="()V" managed_parameters="" retval="void" is_dynamically_registered="True" />
+      </constructors>
+      <methods>
+        <method name="onRotationChanged" method="n_onRotationChanged:(I)V:GetOnRotationChanged_IHandler:AndroidX.Camera.View.RotationProvider+IListenerInvoker, Xamarin.AndroidX.Camera.View" jni_signature="(I)V" params="int p0" retval="void" is_dynamically_registered="True" super_call="p0" activate_call="p0" />
+      </methods>
+    </type>
+    <type name="ZoomGestureDetector_OnZoomGestureListenerImplementor" package="mono.androidx.camera.view.impl" application_java_class="android.app.Application" mono_runtime_initialization="mono.MonoPackageManager.LoadApplication (context);" extends_type="java.lang.Object" partial_assembly_qualified_name="AndroidX.Camera.View.Impl.ZoomGestureDetector+IOnZoomGestureListenerImplementor, Xamarin.AndroidX.Camera.View">
+      <implemented_interfaces>
+        <interface name="androidx.camera.view.impl.ZoomGestureDetector.OnZoomGestureListener" />
+      </implemented_interfaces>
+      <constructors>
+        <constructor name="ZoomGestureDetector_OnZoomGestureListenerImplementor" method="n_.ctor:()V:" jni_signature="()V" managed_parameters="" retval="void" is_dynamically_registered="True" />
+      </constructors>
+      <methods>
+        <method name="onZoomEvent" method="n_onZoomEvent:(Landroidx/camera/view/impl/ZoomGestureDetector$ZoomEvent;)Z:GetOnZoomEvent_Landroidx_camera_view_impl_ZoomGestureDetector_ZoomEvent_Handler:AndroidX.Camera.View.Impl.ZoomGestureDetector+IOnZoomGestureListenerInvoker, Xamarin.AndroidX.Camera.View" jni_signature="(Landroidx/camera/view/impl/ZoomGestureDetector$ZoomEvent;)Z" params="androidx.camera.view.impl.ZoomGestureDetector.ZoomEvent p0" retval="boolean" is_dynamically_registered="True" super_call="p0" activate_call="p0" />
+      </methods>
+    </type>
+  </jcw-types>
+  <acw-types partial-assembly-name="Xamarin.AndroidX.Camera.View" module-name="Xamarin.AndroidX.Camera.View.dll">
+    <type assembly-qualified-name="AndroidX.Camera.View.CameraController+OutputSize+IOutputAspectRatio, Xamarin.AndroidX.Camera.View, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" compat-jni-name="androidx.camera.view.CameraController$OutputSize$OutputAspectRatio" java-key="androidx.camera.view.CameraController$OutputSize$OutputAspectRatio" managed-key="AndroidX.Camera.View.CameraController.OutputSize.IOutputAspectRatio" partial-assembly-qualified-name="AndroidX.Camera.View.CameraController+OutputSize+IOutputAspectRatio, Xamarin.AndroidX.Camera.View" />
+    <type assembly-qualified-name="AndroidX.Camera.View.CameraController+IUseCases, Xamarin.AndroidX.Camera.View, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" compat-jni-name="androidx.camera.view.CameraController$UseCases" java-key="androidx.camera.view.CameraController$UseCases" managed-key="AndroidX.Camera.View.CameraController.IUseCases" partial-assembly-qualified-name="AndroidX.Camera.View.CameraController+IUseCases, Xamarin.AndroidX.Camera.View" />
+    <type assembly-qualified-name="AndroidX.Camera.View.IExperimentalPreviewViewScreenFlash, Xamarin.AndroidX.Camera.View, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" compat-jni-name="androidx.camera.view.ExperimentalPreviewViewScreenFlash" java-key="androidx.camera.view.ExperimentalPreviewViewScreenFlash" managed-key="AndroidX.Camera.View.IExperimentalPreviewViewScreenFlash" partial-assembly-qualified-name="AndroidX.Camera.View.IExperimentalPreviewViewScreenFlash, Xamarin.AndroidX.Camera.View" />
+    <type assembly-qualified-name="AndroidX.Camera.View.ITransformExperimental, Xamarin.AndroidX.Camera.View, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" compat-jni-name="androidx.camera.view.TransformExperimental" java-key="androidx.camera.view.TransformExperimental" managed-key="AndroidX.Camera.View.ITransformExperimental" partial-assembly-qualified-name="AndroidX.Camera.View.ITransformExperimental, Xamarin.AndroidX.Camera.View" />
+    <type assembly-qualified-name="AndroidX.Camera.View.PreviewView+IOnFrameUpdateListener, Xamarin.AndroidX.Camera.View, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" compat-jni-name="androidx.camera.view.PreviewView$OnFrameUpdateListener" java-key="androidx.camera.view.PreviewView$OnFrameUpdateListener" managed-key="AndroidX.Camera.View.PreviewView.IOnFrameUpdateListener" partial-assembly-qualified-name="AndroidX.Camera.View.PreviewView+IOnFrameUpdateListener, Xamarin.AndroidX.Camera.View" />
+    <type assembly-qualified-name="AndroidX.Camera.View.PreviewView+IOnFrameUpdateListenerImplementor, Xamarin.AndroidX.Camera.View, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" compat-jni-name="mono.androidx.camera.view.PreviewView_OnFrameUpdateListenerImplementor" java-key="mono.androidx.camera.view.PreviewView_OnFrameUpdateListenerImplementor" managed-key="AndroidX.Camera.View.PreviewView.IOnFrameUpdateListenerImplementor" partial-assembly-qualified-name="AndroidX.Camera.View.PreviewView+IOnFrameUpdateListenerImplementor, Xamarin.AndroidX.Camera.View" />
+    <type assembly-qualified-name="AndroidX.Camera.View.RotationProvider+IListener, Xamarin.AndroidX.Camera.View, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" compat-jni-name="androidx.camera.view.RotationProvider$Listener" java-key="androidx.camera.view.RotationProvider$Listener" managed-key="AndroidX.Camera.View.RotationProvider.IListener" partial-assembly-qualified-name="AndroidX.Camera.View.RotationProvider+IListener, Xamarin.AndroidX.Camera.View" />
+    <type assembly-qualified-name="AndroidX.Camera.View.RotationProvider+IListenerImplementor, Xamarin.AndroidX.Camera.View, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" compat-jni-name="mono.androidx.camera.view.RotationProvider_ListenerImplementor" java-key="mono.androidx.camera.view.RotationProvider_ListenerImplementor" managed-key="AndroidX.Camera.View.RotationProvider.IListenerImplementor" partial-assembly-qualified-name="AndroidX.Camera.View.RotationProvider+IListenerImplementor, Xamarin.AndroidX.Camera.View" />
+    <type assembly-qualified-name="AndroidX.Camera.View.Impl.ZoomGestureDetector+IOnZoomGestureListener, Xamarin.AndroidX.Camera.View, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" compat-jni-name="androidx.camera.view.impl.ZoomGestureDetector$OnZoomGestureListener" java-key="androidx.camera.view.impl.ZoomGestureDetector$OnZoomGestureListener" managed-key="AndroidX.Camera.View.Impl.ZoomGestureDetector.IOnZoomGestureListener" partial-assembly-qualified-name="AndroidX.Camera.View.Impl.ZoomGestureDetector+IOnZoomGestureListener, Xamarin.AndroidX.Camera.View" />
+    <type assembly-qualified-name="AndroidX.Camera.View.Impl.ZoomGestureDetector+IOnZoomGestureListenerImplementor, Xamarin.AndroidX.Camera.View, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" compat-jni-name="mono.androidx.camera.view.impl.ZoomGestureDetector_OnZoomGestureListenerImplementor" java-key="mono.androidx.camera.view.impl.ZoomGestureDetector_OnZoomGestureListenerImplementor" managed-key="AndroidX.Camera.View.Impl.ZoomGestureDetector.IOnZoomGestureListenerImplementor" partial-assembly-qualified-name="AndroidX.Camera.View.Impl.ZoomGestureDetector+IOnZoomGestureListenerImplementor, Xamarin.AndroidX.Camera.View" />
+  </acw-types>
+</api>

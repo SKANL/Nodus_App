@@ -1,0 +1,73 @@
+@page "/register"
+@inject NavigationManager Nav
+
+<div class="registration-container">
+    <div class="header">
+        <h1>Nodus Registration</h1>
+        <p>Register your project for the event.</p>
+    </div>
+
+    <EditForm Model="@Model" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label class="form-label">Project Name</label>
+            <InputText class="form-control" @bind-Value="Model.Name" placeholder="e.g. EcoSpark" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Category</label>
+            <InputSelect class="form-select" @bind-Value="Model.Category">
+                <option value="">Select Category...</option>
+                <option value="Software">Software</option>
+                <option value="Hardware">Hardware</option>
+                <option value="Social">Social Impact</option>
+                <option value="Research">Research</option>
+            </InputSelect>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <InputTextArea class="form-control" @bind-Value="Model.Description" rows="3" placeholder="Short pitch..." />
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Get Boarding Pass</button>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "event")]
+    public string EventId { get; set; } = "";
+
+    private Project Model = new();
+
+    protected override void OnInitialized()
+    {
+        Model.EventId = EventId;
+    }
+
+    private void HandleSubmit()
+    {
+        // 1. Generate Deterministic ID (Simulation)
+        // In real app, we might check server or use a strong hash.
+        // Here we use a random but short ID for QR readability.
+        Model.Id = "PROJ-" + Guid.NewGuid().ToString("N").Substring(0, 4).ToUpper();
+
+        // 2. Encode for URL
+        var nameEnc = System.Web.HttpUtility.UrlEncode(Model.Name);
+        var catEnc = System.Web.HttpUtility.UrlEncode(Model.Category);
+
+        // 3. Navigate to Boarding Pass
+        Nav.NavigateTo($"/boarding-pass/{Model.Id}?name={nameEnc}&cat={catEnc}");
+    }
+}
+
+<style>
+    .registration-container {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+</style>

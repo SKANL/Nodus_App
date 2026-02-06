@@ -1,0 +1,12 @@
+<api>
+  <jcw-types>
+    <type name="ShinyBleAdapterStateBroadcastReceiver" package="org.shiny.bluetoothle" application_java_class="android.app.Application" mono_runtime_initialization="mono.MonoPackageManager.LoadApplication (context);" extends_type="crc643387a08acbe69b14.ShinyBroadcastReceiver" partial_assembly_qualified_name="Shiny.BluetoothLE.ShinyBleAdapterStateBroadcastReceiver, Shiny.BluetoothLE.Common">
+      <constructors>
+        <constructor name="ShinyBleAdapterStateBroadcastReceiver" method="n_.ctor:()V:" jni_signature="()V" managed_parameters="" retval="void" is_dynamically_registered="True" />
+      </constructors>
+    </type>
+  </jcw-types>
+  <acw-types partial-assembly-name="Shiny.BluetoothLE.Common" module-name="Shiny.BluetoothLE.Common.dll">
+    <type assembly-qualified-name="Shiny.BluetoothLE.ShinyBleAdapterStateBroadcastReceiver, Shiny.BluetoothLE.Common, Version=3.3.4.1, Culture=neutral, PublicKeyToken=null" compat-jni-name="org.shiny.bluetoothle.ShinyBleAdapterStateBroadcastReceiver" java-key="org.shiny.bluetoothle.ShinyBleAdapterStateBroadcastReceiver" managed-key="Shiny.BluetoothLE.ShinyBleAdapterStateBroadcastReceiver" partial-assembly-qualified-name="Shiny.BluetoothLE.ShinyBleAdapterStateBroadcastReceiver, Shiny.BluetoothLE.Common" />
+  </acw-types>
+</api>

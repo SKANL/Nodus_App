@@ -1,0 +1,352 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Nodus.Client</name>
+    </assembly>
+    <members>
+        <member name="T:Nodus.Client.Abstractions.IBleClientService">
+            <summary>
+            Abstraction for BLE client operations with explicit error handling and cancellation support.
+            </summary>
+        </member>
+        <member name="P:Nodus.Client.Abstractions.IBleClientService.ConnectionState">
+            <summary>
+            Current connection state observable.
+            </summary>
+        </member>
+        <member name="P:Nodus.Client.Abstractions.IBleClientService.IsConnected">
+            <summary>
+            Indicates if currently connected to a server or relay.
+            </summary>
+        </member>
+        <member name="P:Nodus.Client.Abstractions.IBleClientService.LastRssi">
+            <summary>
+            Last measured RSSI value.
+            </summary>
+        </member>
+        <member name="E:Nodus.Client.Abstractions.IBleClientService.ServerDiscovered">
+            <summary>
+            Event raised when a server/relay is discovered during scanning.
+            </summary>
+        </member>
+        <member name="E:Nodus.Client.Abstractions.IBleClientService.ConnectionStatusChanged">
+            <summary>
+            Event raised when connection status changes.
+            </summary>
+        </member>
+        <member name="E:Nodus.Client.Abstractions.IBleClientService.LinkCountChanged">
+            <summary>
+            Event raised when nearby link count changes (for Trickle algorithm).
+            </summary>
+        </member>
+        <member name="M:Nodus.Client.Abstractions.IBleClientService.StartScanningForServerAsync(System.Threading.CancellationToken)">
+            <summary>
+            Starts scanning for Nodus servers and relays.
+            </summary>
+        </member>
+        <member name="M:Nodus.Client.Abstractions.IBleClientService.StopScanning">
+            <summary>
+            Stops scanning for servers.
+            </summary>
+        </member>
+        <member name="M:Nodus.Client.Abstractions.IBleClientService.ConnectAsync(Shiny.BluetoothLE.IPeripheral,System.Nullable{System.TimeSpan},System.Threading.CancellationToken)">
+            <summary>
+            Connects to a discovered peripheral with timeout.
+            </summary>
+        </member>
+        <member name="M:Nodus.Client.Abstractions.IBleClientService.SendVoteAsync(Nodus.Shared.Models.Vote,System.Threading.CancellationToken)">
+            <summary>
+            Sends a vote packet with encryption and signing.
+            </summary>
+        </member>
+        <member name="M:Nodus.Client.Abstractions.IBleClientService.RelayPacketAsync(Nodus.Shared.Protocol.NodusPacket,System.Threading.CancellationToken)">
+            <summary>
+            Relays a packet without modification (for relay nodes).
+            </summary>
+        </member>
+        <member name="M:Nodus.Client.Abstractions.IBleClientService.DisconnectAsync(System.Threading.CancellationToken)">
+            <summary>
+            Disconnects from the current peripheral.
+            </summary>
+        </member>
+        <member name="T:Nodus.Client.Services.BleClientService">
+            <summary>
+            Professional BLE Client Service with CancellationToken support, timeout handling,
+            connection state machine, and retry logic with exponential backoff.
+            Implements IBleClientService for testability.
+            </summary>
+        </member>
+        <member name="M:Nodus.Client.Services.BleClientService.SendPacketAsync(Nodus.Shared.Protocol.NodusPacket,System.Object,System.Threading.CancellationToken)">
+            <summary>
+            Sends a secure packet. Encrypts payload and signs the packet.
+            </summary>
+        </member>
+        <member name="M:Nodus.Client.Services.BleClientService.RelayPacketAsync(Nodus.Shared.Protocol.NodusPacket,System.Threading.CancellationToken)">
+            <summary>
+            Relays a packet exactly as received (Forwarding).
+            Does NOT re-encrypt or re-sign.
+            </summary>
+        </member>
+        <member name="M:Nodus.Client.Services.BleClientService.RetryWithBackoffAsync(System.Func{System.Threading.Tasks.Task{Nodus.Shared.Common.Result}},System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Retry logic with exponential backoff for transient BLE failures.
+            </summary>
+        </member>
+        <member name="T:Nodus.Client.Services.SwarmService">
+            <inheritdoc/>
+        </member>
+        <member name="P:Nodus.Client.Services.SwarmService.CurrentState">
+            <inheritdoc cref="F:Nodus.Client.Services.SwarmService._currentState"/>
+        </member>
+        <member name="P:Nodus.Client.Services.SwarmService.NeighborLinkCount">
+            <inheritdoc cref="F:Nodus.Client.Services.SwarmService._neighborLinkCount"/>
+        </member>
+        <member name="P:Nodus.Client.Services.SwarmService.IsMuleMode">
+            <inheritdoc cref="F:Nodus.Client.Services.SwarmService._isMuleMode"/>
+        </member>
+        <member name="T:Nodus.Client.ViewModels.HomeViewModel">
+            <summary>
+            Professional ViewModel for Home page with proper async patterns,
+            error handling, and cancellation support.
+            </summary>
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="M:Nodus.Client.ViewModels.HomeViewModel.UpdateStatusAsync(System.Threading.CancellationToken)">
+            <summary>
+            Updates the status message and color based on current state.
+            Called from UI lifecycle and service events.
+            </summary>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.HomeViewModel.StatusMessage">
+            <inheritdoc cref="F:Nodus.Client.ViewModels.HomeViewModel._statusMessage"/>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.HomeViewModel.StatusColor">
+            <inheritdoc cref="F:Nodus.Client.ViewModels.HomeViewModel._statusColor"/>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.HomeViewModel.JudgeName">
+            <inheritdoc cref="F:Nodus.Client.ViewModels.HomeViewModel._judgeName"/>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.HomeViewModel.IsSyncing">
+            <inheritdoc cref="F:Nodus.Client.ViewModels.HomeViewModel._isSyncing"/>
+        </member>
+        <member name="F:Nodus.Client.ViewModels.HomeViewModel.navigateToRegistrationCommand">
+            <summary>The backing field for <see cref="P:Nodus.Client.ViewModels.HomeViewModel.NavigateToRegistrationCommand"/>.</summary>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.HomeViewModel.NavigateToRegistrationCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:Nodus.Client.ViewModels.HomeViewModel.NavigateToRegistrationAsync(System.Threading.CancellationToken)"/>.</summary>
+        </member>
+        <member name="F:Nodus.Client.ViewModels.HomeViewModel.syncPendingVotesCommand">
+            <summary>The backing field for <see cref="P:Nodus.Client.ViewModels.HomeViewModel.SyncPendingVotesCommand"/>.</summary>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.HomeViewModel.SyncPendingVotesCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:Nodus.Client.ViewModels.HomeViewModel.SyncPendingVotesAsync(System.Threading.CancellationToken)"/>.</summary>
+        </member>
+        <member name="F:Nodus.Client.ViewModels.HomeViewModel.syncPendingVotesCancelCommand">
+            <summary>The backing field for <see cref="P:Nodus.Client.ViewModels.HomeViewModel.SyncPendingVotesCancelCommand"/>.</summary>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.HomeViewModel.SyncPendingVotesCancelCommand">
+            <summary>Gets an <see cref="T:System.Windows.Input.ICommand"/> instance that can be used to cancel <see cref="P:Nodus.Client.ViewModels.HomeViewModel.SyncPendingVotesCommand"/>.</summary>
+        </member>
+        <member name="T:Nodus.Client.ViewModels.JudgeRegistrationViewModel">
+            <summary>
+            Professional ViewModel for Judge Onboarding via QR code.
+            Implements robust error handling, AsyncRelayCommand, and proper service abstractions.
+            </summary>
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.JudgeRegistrationViewModel.IsScanning">
+            <inheritdoc cref="F:Nodus.Client.ViewModels.JudgeRegistrationViewModel._isScanning"/>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.JudgeRegistrationViewModel.ScanStatus">
+            <inheritdoc cref="F:Nodus.Client.ViewModels.JudgeRegistrationViewModel._scanStatus"/>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.JudgeRegistrationViewModel.IsValid">
+            <inheritdoc cref="F:Nodus.Client.ViewModels.JudgeRegistrationViewModel._isValid"/>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.JudgeRegistrationViewModel.JudgeName">
+            <inheritdoc cref="F:Nodus.Client.ViewModels.JudgeRegistrationViewModel._judgeName"/>
+        </member>
+        <member name="F:Nodus.Client.ViewModels.JudgeRegistrationViewModel.processScanResultCommand">
+            <summary>The backing field for <see cref="P:Nodus.Client.ViewModels.JudgeRegistrationViewModel.ProcessScanResultCommand"/>.</summary>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.JudgeRegistrationViewModel.ProcessScanResultCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand`1"/> instance wrapping <see cref="M:Nodus.Client.ViewModels.JudgeRegistrationViewModel.ProcessScanResultAsync(System.String,System.Threading.CancellationToken)"/>.</summary>
+        </member>
+        <member name="F:Nodus.Client.ViewModels.JudgeRegistrationViewModel.processScanResultCancelCommand">
+            <summary>The backing field for <see cref="P:Nodus.Client.ViewModels.JudgeRegistrationViewModel.ProcessScanResultCancelCommand"/>.</summary>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.JudgeRegistrationViewModel.ProcessScanResultCancelCommand">
+            <summary>Gets an <see cref="T:System.Windows.Input.ICommand"/> instance that can be used to cancel <see cref="P:Nodus.Client.ViewModels.JudgeRegistrationViewModel.ProcessScanResultCommand"/>.</summary>
+        </member>
+        <member name="T:Nodus.Client.ViewModels.ScanViewModel">
+            <summary>
+            Professional ScanViewModel with proper error handling and async patterns.
+            </summary>
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.ScanViewModel.IsScanning">
+            <inheritdoc cref="F:Nodus.Client.ViewModels.ScanViewModel._isScanning"/>
+        </member>
+        <member name="F:Nodus.Client.ViewModels.ScanViewModel.cancelCommand">
+            <summary>The backing field for <see cref="P:Nodus.Client.ViewModels.ScanViewModel.CancelCommand"/>.</summary>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.ScanViewModel.CancelCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:Nodus.Client.ViewModels.ScanViewModel.CancelAsync(System.Threading.CancellationToken)"/>.</summary>
+        </member>
+        <member name="T:Nodus.Client.ViewModels.VotingViewModel">
+            <summary>
+            Professional ViewModel for project voting.
+            Implements Result pattern, AsyncRelayCommand, and proper resource management.
+            </summary>
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.VotingViewModel.CurrentProject">
+            <inheritdoc cref="F:Nodus.Client.ViewModels.VotingViewModel._currentProject"/>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.VotingViewModel.DesignScore">
+            <inheritdoc cref="F:Nodus.Client.ViewModels.VotingViewModel._designScore"/>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.VotingViewModel.FunctionalityScore">
+            <inheritdoc cref="F:Nodus.Client.ViewModels.VotingViewModel._functionalityScore"/>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.VotingViewModel.StatusMessage">
+            <inheritdoc cref="F:Nodus.Client.ViewModels.VotingViewModel._statusMessage"/>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.VotingViewModel.IsSubmitting">
+            <inheritdoc cref="F:Nodus.Client.ViewModels.VotingViewModel._isSubmitting"/>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.VotingViewModel.ProjectId">
+            <inheritdoc cref="F:Nodus.Client.ViewModels.VotingViewModel._projectId"/>
+        </member>
+        <member name="M:Nodus.Client.ViewModels.VotingViewModel.OnProjectIdChanged(System.String)">
+            <summary>Executes the logic for when <see cref="P:Nodus.Client.ViewModels.VotingViewModel.ProjectId"/> just changed.</summary>
+            <param name="value">The new property value that was set.</param>
+            <remarks>This method is invoked right after the value of <see cref="P:Nodus.Client.ViewModels.VotingViewModel.ProjectId"/> is changed.</remarks>
+        </member>
+        <member name="F:Nodus.Client.ViewModels.VotingViewModel.submitVoteCommand">
+            <summary>The backing field for <see cref="P:Nodus.Client.ViewModels.VotingViewModel.SubmitVoteCommand"/>.</summary>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.VotingViewModel.SubmitVoteCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:Nodus.Client.ViewModels.VotingViewModel.SubmitVoteAsync(System.Threading.CancellationToken)"/>.</summary>
+        </member>
+        <member name="F:Nodus.Client.ViewModels.VotingViewModel.submitVoteCancelCommand">
+            <summary>The backing field for <see cref="P:Nodus.Client.ViewModels.VotingViewModel.SubmitVoteCancelCommand"/>.</summary>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.VotingViewModel.SubmitVoteCancelCommand">
+            <summary>Gets an <see cref="T:System.Windows.Input.ICommand"/> instance that can be used to cancel <see cref="P:Nodus.Client.ViewModels.VotingViewModel.SubmitVoteCommand"/>.</summary>
+        </member>
+        <member name="T:Nodus.Client.Resource">
+            <summary>
+            Android Resource Designer class.
+            Exposes the Android Resource designer assembly into the project Namespace.
+            </summary>
+        </member>
+        <member name="T:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs">
+            <summary>
+            A helper type providing cached, reusable <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instances
+            for all properties generated with <see cref="T:CommunityToolkit.Mvvm.ComponentModel.ObservablePropertyAttribute"/>.
+            </summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.CurrentState">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "CurrentState" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.NeighborLinkCount">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "NeighborLinkCount" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsMuleMode">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsMuleMode" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.StatusMessage">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "StatusMessage" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.StatusColor">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "StatusColor" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.JudgeName">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "JudgeName" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsSyncing">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsSyncing" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsScanning">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsScanning" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.ScanStatus">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "ScanStatus" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsValid">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsValid" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.CurrentProject">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "CurrentProject" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.DesignScore">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "DesignScore" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.FunctionalityScore">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "FunctionalityScore" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsSubmitting">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsSubmitting" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.ProjectId">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "ProjectId" generated properties.</summary>
+        </member>
+        <member name="T:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs">
+            <summary>
+            A helper type providing cached, reusable <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instances
+            for all properties generated with <see cref="T:CommunityToolkit.Mvvm.ComponentModel.ObservablePropertyAttribute"/>.
+            </summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.CurrentState">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "CurrentState" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.NeighborLinkCount">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "NeighborLinkCount" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsMuleMode">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsMuleMode" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.StatusMessage">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "StatusMessage" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.StatusColor">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "StatusColor" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.JudgeName">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "JudgeName" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsSyncing">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsSyncing" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsScanning">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsScanning" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.ScanStatus">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "ScanStatus" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsValid">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsValid" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.CurrentProject">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "CurrentProject" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.DesignScore">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "DesignScore" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.FunctionalityScore">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "FunctionalityScore" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsSubmitting">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsSubmitting" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.ProjectId">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "ProjectId" generated properties.</summary>
+        </member>
+    </members>
+</doc>

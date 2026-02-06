@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.Maui.Controls"
+             xmlns:vm="clr-namespace:Nodus.Client.ViewModels"
+             x:Class="Nodus.Client.Views.JudgeRegistrationPage"
+             Title="Scan Event QR"
+             Shell.NavBarIsVisible="False">
+
+    <Grid>
+        <!-- Camera View -->
+        <zxing:CameraBarcodeReaderView 
+            x:Name="CameraView"
+            IsDetecting="{Binding IsScanning}"
+            BarcodesDetected="CameraBarcodeReaderView_BarcodesDetected"
+            VerticalOptions="FillAndExpand" 
+            HorizontalOptions="FillAndExpand" />
+
+        <!-- Overlay -->
+        <Border Stroke="White" 
+                StrokeThickness="4" 
+                HeightRequest="250" 
+                WidthRequest="250" 
+                HorizontalOptions="Center" 
+                VerticalOptions="Center" 
+                BackgroundColor="Transparent">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20" />
+            </Border.StrokeShape>
+        </Border>
+
+        <Label Text="{Binding ScanStatus}" 
+               TextColor="White" 
+               BackgroundColor="#80000000"
+               Padding="10"
+               HorizontalOptions="Center" 
+               VerticalOptions="End" 
+               Margin="0,0,0,50" />
+
+        <Button Text="Cancel" 
+                VerticalOptions="Start" 
+                HorizontalOptions="End" 
+                Margin="20"
+                Clicked="OnCancelClicked" />
+    </Grid>
+
+</ContentPage>

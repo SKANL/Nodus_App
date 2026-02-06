@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Nodus.Client.ViewModels"
+             x:Class="Nodus.Client.Views.HomePage"
+             Title="Nodus Client">
+
+    <VerticalStackLayout Spacing="25" Padding="30" VerticalOptions="Center">
+
+        <Image Source="dotnet_bot.png"
+               HeightRequest="200"
+               HorizontalOptions="Center" />
+
+        <Label Text="{Binding JudgeName, StringFormat='Welcome, {0}'}"
+               Style="{StaticResource Headline}"
+               HorizontalOptions="Center" />
+
+        <Label Text="{Binding StatusMessage}"
+               HorizontalOptions="Center" 
+               TextColor="{Binding StatusColor}"
+               FontAttributes="Bold"
+               FontSize="18"/>
+
+        <Button Text="Scan Event QR"
+                Command="{Binding NavigateToRegistrationCommand}"
+                HorizontalOptions="Fill" />
+
+        <Button Text="Sync Pending Votes"
+                Command="{Binding SyncPendingVotesCommand}"
+                BackgroundColor="Orange"
+                TextColor="White"
+                HorizontalOptions="Fill" />
+
+    </VerticalStackLayout>
+
+</ContentPage>

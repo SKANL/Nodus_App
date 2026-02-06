@@ -1,0 +1,21 @@
+<api>
+  <jcw-types>
+    <type name="FrameAnalyzer" package="crc6477b0797571f03227" application_java_class="android.app.Application" mono_runtime_initialization="mono.MonoPackageManager.LoadApplication (context);" extends_type="java.lang.Object" partial_assembly_qualified_name="ZXing.Net.Maui.FrameAnalyzer, ZXing.Net.MAUI">
+      <implemented_interfaces>
+        <interface name="androidx.camera.core.ImageAnalysis.Analyzer" />
+      </implemented_interfaces>
+      <constructors>
+        <constructor name="FrameAnalyzer" method="n_.ctor:()V:" jni_signature="()V" managed_parameters="" retval="void" is_dynamically_registered="True" />
+      </constructors>
+      <methods>
+        <method name="getDefaultTargetResolution" method="n_getDefaultTargetResolution:()Landroid/util/Size;:GetGetDefaultTargetResolutionHandler:AndroidX.Camera.Core.ImageAnalysis+IAnalyzer, Xamarin.AndroidX.Camera.Core" jni_signature="()Landroid/util/Size;" retval="android.util.Size" is_dynamically_registered="True" />
+        <method name="getTargetCoordinateSystem" method="n_getTargetCoordinateSystem:()I:GetGetTargetCoordinateSystemHandler:AndroidX.Camera.Core.ImageAnalysis+IAnalyzer, Xamarin.AndroidX.Camera.Core" jni_signature="()I" retval="int" is_dynamically_registered="True" />
+        <method name="analyze" method="n_analyze:(Landroidx/camera/core/ImageProxy;)V:GetAnalyze_Landroidx_camera_core_ImageProxy_Handler:AndroidX.Camera.Core.ImageAnalysis+IAnalyzerInvoker, Xamarin.AndroidX.Camera.Core" jni_signature="(Landroidx/camera/core/ImageProxy;)V" params="androidx.camera.core.ImageProxy p0" retval="void" is_dynamically_registered="True" super_call="p0" activate_call="p0" />
+        <method name="updateTransform" method="n_updateTransform:(Landroid/graphics/Matrix;)V:GetUpdateTransform_Landroid_graphics_Matrix_Handler:AndroidX.Camera.Core.ImageAnalysis+IAnalyzer, Xamarin.AndroidX.Camera.Core" jni_signature="(Landroid/graphics/Matrix;)V" params="android.graphics.Matrix p0" retval="void" is_dynamically_registered="True" super_call="p0" activate_call="p0" />
+      </methods>
+    </type>
+  </jcw-types>
+  <acw-types partial-assembly-name="ZXing.Net.MAUI" module-name="ZXing.Net.MAUI.dll">
+    <type assembly-qualified-name="ZXing.Net.Maui.FrameAnalyzer, ZXing.Net.MAUI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" compat-jni-name="zxing.net.maui.FrameAnalyzer" java-key="crc6477b0797571f03227.FrameAnalyzer" managed-key="ZXing.Net.Maui.FrameAnalyzer" partial-assembly-qualified-name="ZXing.Net.Maui.FrameAnalyzer, ZXing.Net.MAUI" />
+  </acw-types>
+</api>
