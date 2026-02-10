@@ -333,3 +333,7 @@ C:\code\project_kiosko\nodusApp\src\Nodus.Client\obj\Debug\net10.0-ios\iossimula
 C:\code\project_kiosko\nodusApp\src\Nodus.Client\obj\Debug\net10.0-ios\iossimulator-x64\Nodus.Client.pdb
 C:\code\project_kiosko\nodusApp\src\Nodus.Client\obj\Debug\net10.0-ios\iossimulator-x64\Nodus.Client.genruntimeconfig.cache
 C:\code\project_kiosko\nodusApp\src\Nodus.Client\obj\Debug\net10.0-ios\iossimulator-x64\ref\Nodus.Client.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Client\bin\Debug\net10.0-ios\iossimulator-x64\SkiaSharp.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Client\bin\Debug\net10.0-ios\iossimulator-x64\Info.plist
+C:\code\project_kiosko\nodusApp\src\Nodus.Client\bin\Debug\net10.0-ios\iossimulator-x64\CodeResources
+C:\code\project_kiosko\nodusApp\src\Nodus.Client\bin\Debug\net10.0-ios\iossimulator-x64\libSkiaSharp

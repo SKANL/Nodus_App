@@ -1,0 +1,15 @@
+<api>
+  <jcw-types>
+    <type name="MainActivity" package="crc6467b6ab04c4767b33" application_java_class="android.app.Application" mono_runtime_initialization="mono.MonoPackageManager.LoadApplication (context);" extends_type="crc6488302ad6e9e4df1a.MauiAppCompatActivity" partial_assembly_qualified_name="Nodus.Server.MainActivity, Nodus.Server">
+      <constructors>
+        <constructor name="MainActivity" method="n_.ctor:()V:" jni_signature="()V" managed_parameters="" retval="void" is_dynamically_registered="True" />
+        <constructor name="MainActivity" method="n_.ctor:(I)V:" jni_signature="(I)V" managed_parameters="System.Int32, System.Private.CoreLib" params="int p0" retval="void" is_dynamically_registered="True" super_call="p0" activate_call="p0" />
+      </constructors>
+    </type>
+    <type name="MainApplication" package="crc6467b6ab04c4767b33" application_java_class="android.app.Application" mono_runtime_initialization="mono.MonoPackageManager.LoadApplication (context);" extends_type="crc6488302ad6e9e4df1a.MauiApplication" is_application="True" partial_assembly_qualified_name="Nodus.Server.MainApplication, Nodus.Server" application_constructor="MainApplication" />
+  </jcw-types>
+  <acw-types partial-assembly-name="Nodus.Server" module-name="Nodus.Server.dll">
+    <type assembly-qualified-name="Nodus.Server.MainActivity, Nodus.Server, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" compat-jni-name="nodus.server.MainActivity" java-key="crc6467b6ab04c4767b33.MainActivity" managed-key="Nodus.Server.MainActivity" partial-assembly-qualified-name="Nodus.Server.MainActivity, Nodus.Server" />
+    <type assembly-qualified-name="Nodus.Server.MainApplication, Nodus.Server, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" compat-jni-name="nodus.server.MainApplication" java-key="crc6467b6ab04c4767b33.MainApplication" managed-key="Nodus.Server.MainApplication" partial-assembly-qualified-name="Nodus.Server.MainApplication, Nodus.Server" />
+  </acw-types>
+</api>

@@ -25,7 +25,11 @@ public static class MauiProgram
 
 // Database Service
 		var dbPath = Path.Combine(FileSystem.AppDataDirectory, "nodus.db");
-		builder.Services.AddSingleton(new Nodus.Shared.Services.DatabaseService(dbPath));
+		builder.Services.AddSingleton<Nodus.Shared.Services.DatabaseService>(sp =>
+		{
+			var logger = sp.GetRequiredService<ILogger<Nodus.Shared.Services.DatabaseService>>();
+			return new Nodus.Shared.Services.DatabaseService(dbPath, logger);
+		});
         builder.Services.AddSingleton<Nodus.Server.Services.BleServerService>();
 
         // Init Shiny

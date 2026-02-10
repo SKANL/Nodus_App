@@ -11,6 +11,15 @@ public partial class App : Application
 
 	protected override Window CreateWindow(IActivationState? activationState)
 	{
-		return new Window(new AppShell());
+		try
+		{
+			return new Window(new AppShell());
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"[CRITICAL] APP STARTUP CRASH: {ex}");
+			System.Diagnostics.Debug.WriteLine($"[CRITICAL] APP STARTUP CRASH: {ex}");
+			throw;
+		}
 	}
 }

@@ -1,0 +1,10 @@
+<api type="debug" assembly-name="Shiny.BluetoothLE.Hosting" mvid="6ed06ee0da7b477790ca3d79ce029ebb">
+  <java-to-managed>
+    <entry java-name="crc649c2b63f7b27652b1/AdvertisementCallbacks" managed-name="Shiny.BluetoothLE.Hosting.Internals.AdvertisementCallbacks, Shiny.BluetoothLE.Hosting" managed-type-token-id="33554458" />
+    <entry java-name="crc649c2b63f7b27652b1/GattServerContext" managed-name="Shiny.BluetoothLE.Hosting.Internals.GattServerContext, Shiny.BluetoothLE.Hosting" managed-type-token-id="33554466" />
+  </java-to-managed>
+  <managed-to-java>
+    <entry java-name="crc649c2b63f7b27652b1/AdvertisementCallbacks" managed-name="Shiny.BluetoothLE.Hosting.Internals.AdvertisementCallbacks, Shiny.BluetoothLE.Hosting" managed-type-token-id="33554458" />
+    <entry java-name="crc649c2b63f7b27652b1/GattServerContext" managed-name="Shiny.BluetoothLE.Hosting.Internals.GattServerContext, Shiny.BluetoothLE.Hosting" managed-type-token-id="33554466" />
+  </managed-to-java>
+</api>

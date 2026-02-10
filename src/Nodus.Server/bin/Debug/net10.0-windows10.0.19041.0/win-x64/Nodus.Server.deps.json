@@ -639,6 +639,7 @@
       "Nodus.Shared/1.0.0": {
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "runtime": {

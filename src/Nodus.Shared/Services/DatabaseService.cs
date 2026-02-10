@@ -39,6 +39,9 @@ public class DatabaseService : IDatabaseService
             await _db.CreateTableAsync<Project>();
             await _db.CreateTableAsync<Vote>();
             
+            // Performance Indices
+            await CreateIndicesAsync();
+            
             _isInitialized = true;
             _logger.LogInformation("Database schema initialized successfully");
             return Result.Success();
@@ -51,6 +54,26 @@ public class DatabaseService : IDatabaseService
         finally
         {
             _initLock.Release();
+        }
+    }
+    
+    private async Task CreateIndicesAsync()
+    {
+        try
+        {
+            // Index for pending votes query
+            await _db.ExecuteAsync(
+                "CREATE INDEX IF NOT EXISTS idx_votes_status ON Vote(Status)");
+            
+            // Index for pending media query
+            await _db.ExecuteAsync(
+                "CREATE INDEX IF NOT EXISTS idx_votes_media_pending ON Vote(LocalPhotoPath, IsMediaSynced) WHERE LocalPhotoPath IS NOT NULL AND IsMediaSynced = 0");
+            
+            _logger.LogInformation("Database indices created successfully");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to create indices (non-fatal)");
         }
     }
 
@@ -199,6 +222,26 @@ public class DatabaseService : IDatabaseService
         }
     }
 
+    public async Task<Result<Vote>> GetVoteByIdAsync(string id, CancellationToken ct = default)
+    {
+        var initResult = await EnsureInitializedAsync(ct);
+        if (initResult.IsFailure) 
+            return Result<Vote>.Failure(initResult.Error, initResult.Exception);
+
+        try
+        {
+            var vote = await _db.Table<Vote>().Where(v => v.Id == id).FirstOrDefaultAsync();
+            return vote != null 
+                ? Result<Vote>.Success(vote)
+                : Result<Vote>.Failure($"Vote with ID '{id}' not found");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve vote {VoteId}", id);
+            return Result<Vote>.Failure($"Failed to retrieve vote {id}", ex);
+        }
+    }
+
     public async Task<Result> SaveVoteAsync(Vote vote, CancellationToken ct = default)
     {
         var initResult = await EnsureInitializedAsync(ct);
@@ -242,6 +285,61 @@ public class DatabaseService : IDatabaseService
         {
             _logger.LogError(ex, "Failed to retrieve pending votes");
             return Result<List<Vote>>.Failure("Failed to retrieve pending votes", ex);
+        }
+    }
+
+    public async Task<Result<List<Vote>>> GetVotesWithPendingMediaAsync(CancellationToken ct = default)
+    {
+        var initResult = await EnsureInitializedAsync(ct);
+        if (initResult.IsFailure) 
+            return Result<List<Vote>>.Failure(initResult.Error, initResult.Exception);
+
+        try
+        {
+            // Pending media: Has local path, but !IsMediaSynced
+            var pending = await _db.Table<Vote>()
+                .Where(v => v.LocalPhotoPath != null && v.IsMediaSynced == false)
+                .ToListAsync();
+            
+            _logger.LogDebug("Retrieved {Count} votes with pending media", pending.Count);
+            return Result<List<Vote>>.Success(pending);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve votes with pending media");
+            return Result<List<Vote>>.Failure("Failed to retrieve votes with pending media", ex);
+        }
+    }
+    
+    /// <summary>
+    /// Get sync statistics for monitoring dashboard
+    /// </summary>
+    public async Task<Result<SyncStatistics>> GetSyncStatsAsync(CancellationToken ct = default)
+    {
+        var initResult = await EnsureInitializedAsync(ct);
+        if (initResult.IsFailure)
+            return Result<SyncStatistics>.Failure(initResult.Error, initResult.Exception);
+
+        try
+        {
+            var total = await _db.Table<Vote>().CountAsync();
+            var pending = await _db.Table<Vote>()
+                .Where(v => v.Status == SyncStatus.Pending)
+                .CountAsync();
+            var pendingMedia = await _db.Table<Vote>()
+                .Where(v => v.LocalPhotoPath != null && v.IsMediaSynced == false)
+                .CountAsync();
+            
+            var stats = SyncStatistics.Calculate(total, pending, pendingMedia);
+            _logger.LogDebug("Sync stats: {Total} total, {Pending} pending, {Media} pending media", 
+                total, pending, pendingMedia);
+            
+            return Result<SyncStatistics>.Success(stats);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve sync statistics");
+            return Result<SyncStatistics>.Failure("Failed to retrieve sync statistics", ex);
         }
     }
 

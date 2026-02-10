@@ -12,6 +12,11 @@ public static class NodusConstants
     public const string SERVICE_UUID = "d2b37f23-365d-48d6-bd81-37f23e206001";
     public const string CHARACTERISTIC_UUID = "d2b37f23-365d-48d6-bd81-37f23e206002";
 
+    // Packet Types
+    public const byte PACKET_TYPE_JSON = 0x01;
+    public const byte PACKET_TYPE_MEDIA = 0x02;
+    public const byte PACKET_TYPE_ACK = 0xA1;
+
     // Protocol Constraints
     public const int MTU_SIZE = 180; // Safe minimum for Application Data
     public const int MAX_HOPS_TTL = 2; // Prevent loops

@@ -1,0 +1,150 @@
+@page "/display/{ProjectId}"
+@inject Services.QrGeneratorService QrService
+@inject Services.ProjectService ProjectService
+@inject NavigationManager Nav
+
+<PageTitle>@ProjectName - Nodus Display</PageTitle>
+
+<div class="display-container">
+    @if (IsLoading)
+    {
+        <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading project...</p>
+        </div>
+    }
+    else if (Project == null)
+    {
+        <div class="error">
+            <h2>❌ Project Not Found</h2>
+            <p>Project ID: @ProjectId</p>
+            <button class="btn-primary" @onclick="GoHome">Go to Registration</button>
+        </div>
+    }
+    else
+    {
+        <div class="display-content">
+            <!-- Header -->
+            <div class="header">
+                <div class="logo">NODUS</div>
+                <div class="event-badge">@EventName</div>
+            </div>
+
+            <!-- Main Display Area -->
+            <div class="main-display">
+                <!-- Project ID Badge -->
+                <div class="project-id-badge">
+                    <span class="label">STAND</span>
+                    <span class="id">@Project.Id</span>
+                </div>
+
+                <!-- QR Code -->
+                <div class="qr-container">
+                    <img src="data:image/png;base64,@QrCodeBase64" alt="Voting QR Code" class="qr-code" />
+                    <div class="qr-instruction">
+                        <p class="scan-text">📱 SCAN TO VOTE</p>
+                    </div>
+                </div>
+
+                <div class="project-info">
+                    <h1 class="project-name">@Project.Name</h1>
+                    <div class="category-badge">@Project.Category</div>
+                    
+                    @if (!string.IsNullOrEmpty(Project.Description))
+                    {
+                        <p class="description">@Project.Description</p>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Project.Members))
+                    {
+                        <div class="members-section">
+                            <h5>Team:</h5>
+                            <p>@Project.Members</p>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Project.GithubUrl))
+                    {
+                         <div class="github-section">
+                            <a href="@Project.GithubUrl" target="_blank" class="github-link">
+                                <span>View on GitHub</span>
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <div class="refresh-indicator">
+                    <span class="pulse"></span>
+                    Auto-refresh active
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string ProjectId { get; set; } = string.Empty;
+
+    private Nodus.Shared.Models.Project? Project;
+    private string QrCodeBase64 = string.Empty;
+    private string ProjectName => Project?.Name ?? "Project";
+    private string EventName = "Hackathon 2026";
+    private bool IsLoading = true;
+
+    private System.Threading.Timer? _refreshTimer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProjectAsync();
+        
+        // Auto-refresh every 30 seconds to keep screen active
+        _refreshTimer = new System.Threading.Timer(async _ =>
+        {
+            await InvokeAsync(StateHasChanged);
+        }, null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
+    }
+
+    private async Task LoadProjectAsync()
+    {
+        IsLoading = true;
+        
+        try
+        {
+            Project = await ProjectService.GetProjectAsync(ProjectId);
+            
+            if (Project != null)
+            {
+                // Generate QR code
+                QrCodeBase64 = QrService.GenerateVotingQrCode(
+                    Project.Id, 
+                    Project.Category, 
+                    size: 25
+                );
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading project: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private void GoHome()
+    {
+        Nav.NavigateTo("/register");
+    }
+
+    public void Dispose()
+    {
+        _refreshTimer?.Dispose();
+    }
+}
+
+

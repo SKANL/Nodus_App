@@ -24,6 +24,21 @@ public interface IBleClientService
     /// Last measured RSSI value.
     /// </summary>
     int LastRssi { get; }
+
+    /// <summary>
+    /// Notifications received from the server (e.g., ACKs).
+    /// </summary>
+    IObservable<byte[]> Notifications { get; }
+
+    /// <summary>
+    /// Enables notifications on the characteristic.
+    /// </summary>
+    Task<Result> EnableNotificationsAsync(CancellationToken ct = default);
+
+    /// <summary>
+    /// Reads the current RSSI value.
+    /// </summary>
+    Task<int> ReadRssiAsync(CancellationToken ct = default);
     
     /// <summary>
     /// Event raised when a server/relay is discovered during scanning.
@@ -64,6 +79,11 @@ public interface IBleClientService
     /// Relays a packet without modification (for relay nodes).
     /// </summary>
     Task<Result> RelayPacketAsync(NodusPacket packet, CancellationToken ct = default);
+    
+    /// <summary>
+    /// Writes raw data to the characteristic (for chunked media transfer).
+    /// </summary>
+    Task<Result> WriteRawAsync(byte[] data, CancellationToken ct = default);
     
     /// <summary>
     /// Disconnects from the current peripheral.

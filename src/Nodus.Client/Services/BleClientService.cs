@@ -5,6 +5,7 @@ using Nodus.Shared;
 using Nodus.Shared.Common;
 using Nodus.Shared.Protocol;
 using Nodus.Shared.Security;
+using Nodus.Shared.Services;
 using Nodus.Client.Abstractions;
 using Shiny.BluetoothLE;
 
@@ -24,6 +25,7 @@ public class BleClientService : IBleClientService, IDisposable
     private IDisposable? _scanSubscription;
     private IPeripheral? _connectedServer;
     private CancellationTokenSource? _connectionCts;
+    private IDisposable? _notificationSubscription;
     
     // Neighbor Discovery (Trickle)
     private readonly Dictionary<string, DateTime> _nearbyLinks = new();
@@ -38,11 +40,124 @@ public class BleClientService : IBleClientService, IDisposable
     public event EventHandler<bool>? ConnectionStatusChanged;
     public event EventHandler<int>? LinkCountChanged;
 
-    public BleClientService(IBleManager bleManager, ILogger<BleClientService> logger)
+    private readonly ChunkerService _chunker;
+
+    public BleClientService(IBleManager bleManager, ChunkerService chunker, ILogger<BleClientService> logger)
     {
         _bleManager = bleManager;
+        _chunker = chunker;
         _logger = logger;
         _logger.LogInformation("BleClientService initialized");
+    }
+
+    // New Notifications Observable (Subject needed to push values)
+    private readonly System.Reactive.Subjects.Subject<byte[]> _notificationsSubject = new();
+    public IObservable<byte[]> Notifications => _notificationsSubject.AsObservable();
+
+    public async Task<Result> EnableNotificationsAsync(CancellationToken ct = default)
+    {
+        if (_connectedServer == null) return Result.Failure("Not connected");
+
+        try
+        {
+            // Subscribe to notifications using Shiny extension method pattern
+            _notificationSubscription?.Dispose();
+            _notificationSubscription = _connectedServer
+                .NotifyCharacteristic(NodusConstants.SERVICE_UUID, NodusConstants.CHARACTERISTIC_UUID)
+                .Subscribe(
+                    result => 
+                    {
+                        if (result.Data != null)
+                        {
+                            _notificationsSubject.OnNext(result.Data);
+                        }
+                    },
+                    ex => _logger.LogError(ex, "Notification error")
+                );
+
+            _logger.LogInformation("Notifications enabled for characteristic {CharUuid}", NodusConstants.CHARACTERISTIC_UUID);
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to enable notifications");
+            return Result.Failure("Failed to enable notifications", ex);
+        }
+    }
+
+    public async Task<int> ReadRssiAsync(CancellationToken ct = default)
+    {
+        if (_connectedServer == null) return -999;
+        try
+        {
+            var rssi = await _connectedServer.ReadRssiAsync(ct);
+            LastRssi = rssi;
+            return rssi;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to read RSSI");
+            return LastRssi;
+        }
+    }
+
+    // ... (rest of class)
+
+    private async Task<Result> TransmitPacketAsync(NodusPacket packet, CancellationToken ct = default)
+    {
+        if (_connectedServer == null)
+        {
+            return Result.Failure("Connection lost");
+        }
+
+        try
+        {
+            // Serialize Wrapper
+            var wrapperJson = packet.ToJson();
+            var jsonBytes = System.Text.Encoding.UTF8.GetBytes(wrapperJson);
+            
+            // Add Prefix 0x01 (JSON)
+            var payload = new byte[jsonBytes.Length + 1];
+            payload[0] = 0x01; 
+            Array.Copy(jsonBytes, 0, payload, 1, jsonBytes.Length);
+            
+            // Chunking & Send
+            // Message ID: Use Packet ID hash or random? 
+            // Packet.Id is string (Guid).
+            byte msgId = (byte)(packet.Id.GetHashCode() & 0xFF);
+            
+            var chunks = _chunker.Split(payload, msgId);
+
+            foreach (var chunk in chunks)
+            {
+                ct.ThrowIfCancellationRequested();
+
+                if (_connectedServer == null)
+                {
+                    return Result.Failure("Connection lost during transmission");
+                }
+                
+                await _connectedServer.WriteCharacteristicAsync(
+                    NodusConstants.SERVICE_UUID, 
+                    NodusConstants.CHARACTERISTIC_UUID, 
+                    chunk, 
+                    withResponse: false
+                );
+                
+                await Task.Delay(20, ct); // Throttle
+            }
+
+            return Result.Success();
+        }
+        catch (OperationCanceledException)
+        {
+            return Result.Failure("Transmission cancelled");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Transmission failed");
+            return Result.Failure("Transmission failed", ex);
+        }
     }
 
     public IObservable<ConnectionState> ConnectionState => 
@@ -347,53 +462,29 @@ public class BleClientService : IBleClientService, IDisposable
         }
     }
 
-    private async Task<Result> TransmitPacketAsync(NodusPacket packet, CancellationToken ct = default)
+    public async Task<Result> WriteRawAsync(byte[] data, CancellationToken ct = default)
     {
         if (_connectedServer == null)
-        {
-            return Result.Failure("Connection lost");
-        }
+            return Result.Failure("Not connected");
 
         try
         {
-            // Serialize Wrapper
-            var wrapperJson = packet.ToJson();
-            var wrapperBytes = System.Text.Encoding.UTF8.GetBytes(wrapperJson);
-            
-            // Chunking & Send
-            var chunks = ChunkHelper.Split(wrapperBytes, NodusConstants.MTU_SIZE);
-
-            foreach (var chunk in chunks)
-            {
-                ct.ThrowIfCancellationRequested();
-
-                if (_connectedServer == null)
-                {
-                    return Result.Failure("Connection lost during transmission");
-                }
-                
-                await _connectedServer.WriteCharacteristicAsync(
-                    NodusConstants.SERVICE_UUID, 
-                    NodusConstants.CHARACTERISTIC_UUID, 
-                    chunk, 
-                    withResponse: false
-                );
-                
-                await Task.Delay(20, ct); // Throttle to prevent BLE buffer overflow
-            }
-
+            await _connectedServer.WriteCharacteristicAsync(
+                NodusConstants.SERVICE_UUID,
+                NodusConstants.CHARACTERISTIC_UUID,
+                data,
+                withResponse: false,
+                ct
+            );
             return Result.Success();
-        }
-        catch (OperationCanceledException)
-        {
-            return Result.Failure("Transmission cancelled");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Transmission failed");
-            return Result.Failure("Transmission failed", ex);
+            return Result.Failure("Write failed", ex);
         }
     }
+
+
 
     public async Task<Result> DisconnectAsync(CancellationToken ct = default)
     {
@@ -498,9 +589,11 @@ public class BleClientService : IBleClientService, IDisposable
     public void Dispose()
     {
         StopScanning();
+        _notificationSubscription?.Dispose();
         _connectionCts?.Cancel();
         _connectionCts?.Dispose();
         _connectionLock.Dispose();
+        _notificationsSubject?.Dispose();
         _logger.LogInformation("BleClientService disposed");
     }
 }

@@ -1,12 +1,15 @@
 {
   "version": 2,
-  "dgSpecHash": "Vjux/t5e87k=",
+  "dgSpecHash": "PRqQ+5JJ2y8=",
   "success": true,
-  "projectFilePath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj",
+  "projectFilePath": "c:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\angua\\.nuget\\packages\\communitytoolkit.mvvm\\8.4.0\\communitytoolkit.mvvm.8.4.0.nupkg.sha512",
     "C:\\Users\\angua\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\9.0.0\\microsoft.extensions.dependencyinjection.abstractions.9.0.0.nupkg.sha512",
     "C:\\Users\\angua\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\9.0.0\\microsoft.extensions.logging.abstractions.9.0.0.nupkg.sha512",
+    "C:\\Users\\angua\\.nuget\\packages\\skiasharp\\3.119.2\\skiasharp.3.119.2.nupkg.sha512",
+    "C:\\Users\\angua\\.nuget\\packages\\skiasharp.nativeassets.macos\\3.119.2\\skiasharp.nativeassets.macos.3.119.2.nupkg.sha512",
+    "C:\\Users\\angua\\.nuget\\packages\\skiasharp.nativeassets.win32\\3.119.2\\skiasharp.nativeassets.win32.3.119.2.nupkg.sha512",
     "C:\\Users\\angua\\.nuget\\packages\\sqlite-net-pcl\\1.9.172\\sqlite-net-pcl.1.9.172.nupkg.sha512",
     "C:\\Users\\angua\\.nuget\\packages\\sqlitepclraw.bundle_green\\2.1.2\\sqlitepclraw.bundle_green.2.1.2.nupkg.sha512",
     "C:\\Users\\angua\\.nuget\\packages\\sqlitepclraw.core\\2.1.2\\sqlitepclraw.core.2.1.2.nupkg.sha512",

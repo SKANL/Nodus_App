@@ -28,6 +28,10 @@ public class Vote
 
     public SyncStatus Status { get; set; } = SyncStatus.Pending;
     
-    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
+    public long Timestamp { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+    
+    // Media Sync Fields
+    public string? LocalPhotoPath { get; set; }
+    public bool IsMediaSynced { get; set; }
     public DateTime? SyncedAtUtc { get; set; }
 }

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Nodus.Client.ViewModels"
+             x:Class="Nodus.Client.Views.SettingsPage"
+             Title="Settings">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="25" Padding="30">
+
+            <Label Text="Developer Options"
+                   Style="{StaticResource Headline}" />
+
+            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" ColumnSpacing="10" RowSpacing="10">
+                
+                <Label Grid.Row="0" Grid.Column="0" 
+                       Text="Media Sync (Force Mode)"
+                       VerticalOptions="Center" 
+                       FontSize="16"/>
+
+                <Button Grid.Row="0" Grid.Column="1"
+                        Text="Trigger Sync"
+                        Command="{Binding ForceMediaSyncCommand}"
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                        BackgroundColor="{StaticResource Primary}"
+                        TextColor="White"/>
+
+                <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                       Text="{Binding StatusMessage}"
+                       TextColor="Gray"
+                       FontSize="14"
+                       HorizontalOptions="End" />
+            
+            </Grid>
+
+            <BoxView HeightRequest="1" Color="LightGray" />
+
+            <Label Text="About"
+                   Style="{StaticResource SubHeadline}" />
+            
+            <Label Text="Nodus Client v1.0 (Offline Mode)" 
+                   HorizontalOptions="Center" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

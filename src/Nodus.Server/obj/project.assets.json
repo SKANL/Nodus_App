@@ -2730,6 +2730,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {
@@ -5453,6 +5454,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {
@@ -8176,6 +8178,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {
@@ -10899,6 +10902,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {
@@ -13622,6 +13626,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {
@@ -16345,6 +16350,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {
@@ -17052,6 +17058,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {
@@ -17743,6 +17750,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {
@@ -18434,6 +18442,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {
@@ -19125,6 +19134,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {
@@ -19816,6 +19826,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {
@@ -20507,6 +20518,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {
@@ -21308,6 +21320,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {
@@ -22006,6 +22019,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {
@@ -22704,6 +22718,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {
@@ -23399,6 +23414,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {
@@ -24097,6 +24113,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {
@@ -24795,6 +24812,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {
@@ -25850,6 +25868,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {
@@ -26740,6 +26759,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {
@@ -27630,6 +27650,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {
@@ -28517,6 +28538,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {
@@ -29407,6 +29429,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {
@@ -30307,6 +30330,7 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
           "sqlite-net-pcl": "1.9.172"
         },
         "compile": {

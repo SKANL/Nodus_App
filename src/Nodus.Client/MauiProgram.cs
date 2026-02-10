@@ -45,6 +45,9 @@ public static class MauiProgram
 #endif
 
         // Protocol Services
+        builder.Services.AddSingleton<Nodus.Shared.Services.ChunkerService>();
+        builder.Services.AddSingleton<Nodus.Shared.Services.ImageCompressionService>();
+        builder.Services.AddSingleton<Nodus.Client.Services.MediaSyncService>();
         builder.Services.AddSingleton<Nodus.Shared.Protocol.PacketTracker>();
         builder.Services.AddSingleton<IBleClientService, BleClientService>();
         builder.Services.AddSingleton<IRelayHostingService, RelayHostingService>();
@@ -59,6 +62,8 @@ public static class MauiProgram
 		builder.Services.AddTransient<Nodus.Client.ViewModels.VotingViewModel>();
 		builder.Services.AddTransient<Nodus.Client.Views.ScanPage>();
 		builder.Services.AddTransient<Nodus.Client.ViewModels.ScanViewModel>();
+        builder.Services.AddTransient<Nodus.Client.Views.SettingsPage>();
+        builder.Services.AddTransient<Nodus.Client.ViewModels.SettingsViewModel>();
 
 		return builder.Build();
 	}

@@ -6,9 +6,16 @@
     xmlns:local="clr-namespace:Nodus.Client"
     Title="Nodus.Client">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:Views.HomePage}"
-        Route="HomePage" />
+    <TabBar>
+        <ShellContent
+            Title="Home"
+            ContentTemplate="{DataTemplate local:Views.HomePage}"
+            Route="HomePage" />
+
+        <ShellContent
+            Title="Settings"
+            ContentTemplate="{DataTemplate local:Views.SettingsPage}"
+            Route="SettingsPage" />
+    </TabBar>
 
 </Shell>

@@ -24,6 +24,21 @@
             Last measured RSSI value.
             </summary>
         </member>
+        <member name="P:Nodus.Client.Abstractions.IBleClientService.Notifications">
+            <summary>
+            Notifications received from the server (e.g., ACKs).
+            </summary>
+        </member>
+        <member name="M:Nodus.Client.Abstractions.IBleClientService.EnableNotificationsAsync(System.Threading.CancellationToken)">
+            <summary>
+            Enables notifications on the characteristic.
+            </summary>
+        </member>
+        <member name="M:Nodus.Client.Abstractions.IBleClientService.ReadRssiAsync(System.Threading.CancellationToken)">
+            <summary>
+            Reads the current RSSI value.
+            </summary>
+        </member>
         <member name="E:Nodus.Client.Abstractions.IBleClientService.ServerDiscovered">
             <summary>
             Event raised when a server/relay is discovered during scanning.
@@ -62,6 +77,11 @@
         <member name="M:Nodus.Client.Abstractions.IBleClientService.RelayPacketAsync(Nodus.Shared.Protocol.NodusPacket,System.Threading.CancellationToken)">
             <summary>
             Relays a packet without modification (for relay nodes).
+            </summary>
+        </member>
+        <member name="M:Nodus.Client.Abstractions.IBleClientService.WriteRawAsync(System.Byte[],System.Threading.CancellationToken)">
+            <summary>
+            Writes raw data to the characteristic (for chunked media transfer).
             </summary>
         </member>
         <member name="M:Nodus.Client.Abstractions.IBleClientService.DisconnectAsync(System.Threading.CancellationToken)">
@@ -197,6 +217,22 @@
         <member name="P:Nodus.Client.ViewModels.ScanViewModel.CancelCommand">
             <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:Nodus.Client.ViewModels.ScanViewModel.CancelAsync(System.Threading.CancellationToken)"/>.</summary>
         </member>
+        <member name="T:Nodus.Client.ViewModels.SettingsViewModel">
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.SettingsViewModel.StatusMessage">
+            <inheritdoc cref="F:Nodus.Client.ViewModels.SettingsViewModel._statusMessage"/>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.SettingsViewModel.IsBusy">
+            <inheritdoc cref="F:Nodus.Client.ViewModels.SettingsViewModel._isBusy"/>
+        </member>
+        <member name="F:Nodus.Client.ViewModels.SettingsViewModel.forceMediaSyncCommand">
+            <summary>The backing field for <see cref="P:Nodus.Client.ViewModels.SettingsViewModel.ForceMediaSyncCommand"/>.</summary>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.SettingsViewModel.ForceMediaSyncCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:Nodus.Client.ViewModels.SettingsViewModel.ForceMediaSyncAsync"/>.</summary>
+        </member>
         <member name="T:Nodus.Client.ViewModels.VotingViewModel">
             <summary>
             Professional ViewModel for project voting.
@@ -282,6 +318,9 @@
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsValid">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsValid" generated properties.</summary>
         </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsBusy">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsBusy" generated properties.</summary>
+        </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.CurrentProject">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "CurrentProject" generated properties.</summary>
         </member>
@@ -332,6 +371,9 @@
         </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsValid">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsValid" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsBusy">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsBusy" generated properties.</summary>
         </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.CurrentProject">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "CurrentProject" generated properties.</summary>

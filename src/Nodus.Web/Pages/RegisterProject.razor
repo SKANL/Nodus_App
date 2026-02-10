@@ -1,0 +1,64 @@
+@page "/register"
+@using Nodus.Shared.Models
+@using Nodus.Web.Services
+@inject ProjectService ProjectService
+@inject NavigationManager Navigation
+
+<h3>Registro de Proyecto</h3>
+
+<EditForm Model="@projectModel" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="name" class="form-label">Nombre del Proyecto</label>
+        <InputText id="name" class="form-control" @bind-Value="projectModel.Name" />
+    </div>
+
+    <div class="mb-3">
+        <label for="category" class="form-label">Categoría</label>
+        <InputSelect id="category" class="form-select" @bind-Value="projectModel.Category">
+            <option value="">Seleccione...</option>
+            <option value="Software">Software</option>
+            <option value="Hardware">Hardware</option>
+            <option value="Innovación">Innovación</option>
+        </InputSelect>
+    </div>
+
+    <div class="mb-3">
+        <label for="description" class="form-label">Descripción Breve</label>
+        <InputTextArea id="description" class="form-control" @bind-Value="projectModel.Description" />
+    </div>
+
+    <div class="mb-3">
+        <label for="members" class="form-label">Integrantes (separados por coma)</label>
+        <InputText id="members" class="form-control" @bind-Value="projectModel.Members" />
+    </div>
+
+    <div class="mb-3">
+        <label for="github" class="form-label">GitHub URL (Opcional)</label>
+        <InputText id="github" class="form-control" @bind-Value="projectModel.GithubUrl" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Registrar Proyecto</button>
+</EditForm>
+
+@code {
+    private Project projectModel = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var existingProject = await ProjectService.GetCurrentProjectAsync();
+        if (existingProject != null)
+        {
+            // If already registered, redirect to display
+            Navigation.NavigateTo($"/display/{existingProject.Id}"); 
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        await ProjectService.SaveProjectAsync(projectModel);
+        Navigation.NavigateTo($"/display/{projectModel.Id}");
+    }
+}
