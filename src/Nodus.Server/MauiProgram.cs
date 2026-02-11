@@ -39,6 +39,7 @@ public static class MauiProgram
 
         // Services
         builder.Services.AddSingleton<Nodus.Server.Services.VoteAggregatorService>();
+        builder.Services.AddSingleton<Nodus.Server.Services.ExportService>();
 
         // Pages
         builder.Services.AddSingleton<MainPage>();

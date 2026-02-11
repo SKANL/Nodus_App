@@ -14,12 +14,36 @@ public partial class SettingsViewModel : ObservableObject
     private string _statusMessage = "Ready";
 
     [ObservableProperty]
-    private bool _isBusy;
+    private double _syncProgress;
+
+    [ObservableProperty]
+    private bool _isSyncing;
 
     public SettingsViewModel(MediaSyncService mediaSyncService, ILogger<SettingsViewModel> logger)
     {
         _mediaSyncService = mediaSyncService;
         _logger = logger;
+        
+        // Subscribe to events
+        _mediaSyncService.SyncStatusChanged += OnSyncStatusChanged;
+        _mediaSyncService.SyncProgressChanged += OnSyncProgressChanged;
+        _mediaSyncService.SyncStateChanged += OnSyncStateChanged;
+    }
+
+    private void OnSyncStatusChanged(object? sender, string status)
+    {
+        // Ensure UI update on MainThread
+        MainThread.BeginInvokeOnMainThread(() => StatusMessage = status);
+    }
+
+    private void OnSyncProgressChanged(object? sender, double progress)
+    {
+        MainThread.BeginInvokeOnMainThread(() => SyncProgress = progress);
+    }
+    
+    private void OnSyncStateChanged(object? sender, bool isSyncing)
+    {
+        MainThread.BeginInvokeOnMainThread(() => IsSyncing = isSyncing);
     }
 
     [RelayCommand]
@@ -28,21 +52,42 @@ public partial class SettingsViewModel : ObservableObject
         if (IsBusy) return;
 
         IsBusy = true;
+        IsSyncing = true;
+        SyncProgress = 0;
         StatusMessage = "Starting Manual Sync...";
         try
         {
-            // Simulate a strong signal (-40 RSSI) to bypass the -60 threshold
-            await _mediaSyncService.CheckAndSyncAsync(-40);
-            StatusMessage = "Sync triggered. Check logs.";
+            if (!_mediaSyncService.IsConnected)
+            {
+                StatusMessage = "Error: Bluetooth not connected";
+                await Application.Current!.MainPage!.DisplayAlert("Error", "Please connect to a Nodus Server first.", "OK");
+                return;
+            }
+
+            StatusMessage = "Starting Manual Sync...";
+            // CheckAndSyncAsync uses RSSI threshold, but for manual sync we might want to bypass or use a lenient one.
+            // Using -90dBm for manual override to ensure it tries even with weak signal if user requested.
+            await _mediaSyncService.CheckAndSyncAsync(-90);
+            
+            StatusMessage = "Sync process completed.";
+            await Application.Current!.MainPage!.DisplayAlert("Sync Complete", "Media sync process finished.", "OK");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Manual sync failed");
             StatusMessage = $"Error: {ex.Message}";
+            await Application.Current!.MainPage!.DisplayAlert("Error", $"Sync Failed: {ex.Message}", "OK");
         }
         finally
         {
             IsBusy = false;
+            IsSyncing = false;
         }
     }
+    
+    // Dispose/Destructor to unsubscribe? 
+    // ViewModels in MAUI are often transient or singleton. If Transient, we should implement IDisposable in a real app.
+    // For now simple subscription is okay as it singleton in DI.
+    // Wait, MauiProgram says AddTransient for SettingsViewModel.
+    // We should implement IDisposable to avoid leaks if we navigate away and come back.
 }

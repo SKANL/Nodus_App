@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj": {}
+    "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj": {}
   },
   "projects": {
-    "c:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
+    "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj",
+        "projectUniqueName": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj",
         "projectName": "Nodus.Shared",
-        "projectPath": "c:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj",
+        "projectPath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj",
         "packagesPath": "C:\\Users\\angua\\.nuget\\packages\\",
-        "outputPath": "c:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\obj\\",
+        "outputPath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -58,6 +58,10 @@
             "Microsoft.Extensions.Logging.Abstractions": {
               "target": "Package",
               "version": "[9.0.0, )"
+            },
+            "Shiny.BluetoothLE": {
+              "target": "Package",
+              "version": "[3.3.4, )"
             },
             "SkiaSharp": {
               "target": "Package",

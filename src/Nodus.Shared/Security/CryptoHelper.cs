@@ -21,8 +21,12 @@ public static class CryptoHelper
         if (string.IsNullOrEmpty(password)) throw new ArgumentNullException(nameof(password));
         if (salt == null || salt.Length != 16) throw new ArgumentException("Salt must be 16 bytes");
 
-        using var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 100_000, HashAlgorithmName.SHA256);
-        return pbkdf2.GetBytes(32); // AES-256
+        return Rfc2898DeriveBytes.Pbkdf2(
+            Encoding.UTF8.GetBytes(password),
+            salt,
+            100_000,
+            HashAlgorithmName.SHA256,
+            32); // AES-256 key size
     }
     
     /// <summary>

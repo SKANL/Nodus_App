@@ -15,11 +15,16 @@ public class MediaSyncService
     private readonly Nodus.Shared.Services.ImageCompressionService _compressor;
     private readonly ILogger<MediaSyncService> _logger;
     private bool _isSyncing;
-    private const int RssiThreshold = -60;
+    private const int RssiThreshold = -75; // Lowered to improve sync probability
     private CancellationTokenSource? _rssiCts;
+
+    public bool IsConnected => _bleService.IsConnected;
     
     // Store pending ACKs: VoteId -> TaskCompletionSource
     private readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> _pendingAcks = new();
+
+    public event EventHandler<string>? SyncStatusChanged;
+    public event EventHandler<double>? SyncProgressChanged;
 
     // ...
 
@@ -107,15 +112,17 @@ public class MediaSyncService
         }
     }
 
+    public event EventHandler<bool>? SyncStateChanged;
+
     // Explicit trigger method (e.g. called by a timer or UI Action)
     public async Task CheckAndSyncAsync(int currentRssi = -999)
     {
-        if (_isSyncing || !_bleService.IsConnected) return;
+        if (_isSyncing || !_bleService.IsConnected) return; // Prevent concurrent syncs
         
         // Use provided RSSI or LastRssi
         int rssi = currentRssi != -999 ? currentRssi : _bleService.LastRssi;
 
-        // Strict Check: RSSI > -60
+        // Strict Check: RSSI > -60 (or threshold)
         if (rssi < RssiThreshold) 
         {
              _logger.LogDebug("Signal too weak for Media Sync ({Rssi} < {Threshold})", rssi, RssiThreshold);
@@ -125,11 +132,13 @@ public class MediaSyncService
         try
         {
             _isSyncing = true;
+            SyncStateChanged?.Invoke(this, true);
             await SyncPendingMediaAsync();
         }
         finally
         {
             _isSyncing = false;
+            SyncStateChanged?.Invoke(this, false);
         }
     }
 
@@ -200,19 +209,30 @@ public class MediaSyncService
                 if (completedTask == timeoutTask)
                 {
                     _pendingAcks.TryRemove(vote.Id, out _);
+                    SyncStatusChanged?.Invoke(this, $"Timeout waiting for ACK on vote {vote.Id}");
                     throw new TimeoutException("Timed out waiting for ACK");
                 }
 
                 // ACK Received
                 vote.IsMediaSynced = true;
                 await _databaseService.SaveVoteAsync(vote);
+                
                 _logger.LogInformation("Synced media for vote {Id}", vote.Id);
+                SyncStatusChanged?.Invoke(this, $"Synced media for vote {vote.Id}");
+                
+                // Calculate and report progress
+                double progress = (double)(pendingVotes.IndexOf(vote) + 1) / pendingVotes.Count;
+                SyncProgressChanged?.Invoke(this, progress);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to sync media for vote {Id}", vote.Id);
+                SyncStatusChanged?.Invoke(this, $"Failed to sync vote {vote.Id}: {ex.Message}");
                 // Break or continue? Continue to try next.
             }
         }
+        
+        SyncStatusChanged?.Invoke(this, "Sync complete");
+        _isSyncing = false;
     }
 }

@@ -2964,6 +2964,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },
@@ -5923,6 +5924,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },
@@ -8882,6 +8884,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },
@@ -11838,6 +11841,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },
@@ -14794,6 +14798,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },
@@ -17750,6 +17755,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },
@@ -18501,6 +18507,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },
@@ -19226,6 +19233,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },
@@ -19951,6 +19959,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },
@@ -20681,6 +20690,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },
@@ -21411,6 +21421,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },
@@ -22136,6 +22147,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },
@@ -22961,6 +22973,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },
@@ -23693,6 +23706,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },
@@ -24425,6 +24439,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },
@@ -25154,6 +25169,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },
@@ -25889,6 +25905,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },
@@ -26621,6 +26638,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },
@@ -27717,6 +27735,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },
@@ -28638,6 +28657,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },
@@ -29559,6 +29579,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },
@@ -30477,6 +30498,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },
@@ -31398,6 +31420,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },
@@ -32333,6 +32356,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
         },

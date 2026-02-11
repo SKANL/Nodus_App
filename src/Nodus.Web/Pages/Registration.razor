@@ -149,6 +149,12 @@
                 return;
             }
 
+            // Map additional fields
+            Model.Members = TeamMembers;
+            
+            // Allow ProjectService to set default if empty or "default-event"
+            if (Model.EventId == "default-event") Model.EventId = "";
+
             // Register project
             var registeredProject = await ProjectService.RegisterProjectAsync(Model);
 

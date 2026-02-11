@@ -15,6 +15,7 @@ public interface IDatabaseService
 
     // Projects
     Task<Result<List<Project>>> GetProjectsAsync(string eventId, CancellationToken ct = default);
+    Task<Result<List<Project>>> GetAllProjectsAsync(CancellationToken ct = default);
     Task<Result<Project>> GetProjectAsync(string id, CancellationToken ct = default);
     Task<Result> SaveProjectAsync(Project project, CancellationToken ct = default);
 

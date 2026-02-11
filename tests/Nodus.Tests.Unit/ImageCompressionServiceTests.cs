@@ -60,10 +60,11 @@ public class ImageCompressionServiceTests
         canvas.Clear(SKColors.Red); // Solid color compresses well, maybe too well?
         
         // Add some noise/detail to make it compress less efficiently
-        using var paint = new SKPaint { Color = SKColors.Blue, TextSize = 100 };
+        using var paint = new SKPaint { Color = SKColors.Blue };
+        using var font = new SKFont(SKTypeface.Default, 100);
         for(int i=0; i<50; i++)
         {
-            canvas.DrawText("Nodus", i*40, i*40, paint);
+            canvas.DrawText("Nodus", i*40, i*40, SKTextAlign.Left, font, paint);
         }
 
         using var stream = new MemoryStream();

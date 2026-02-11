@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Nodus.Shared.Security;
 using Xunit;
 
@@ -5,155 +6,146 @@ namespace Nodus.Tests.Unit.Security;
 
 public class CryptoHelperTests
 {
-    [Fact]
-    public void GenerateAesKey_ReturnsValidBase64Key()
+    private byte[] GenerateRandomKey()
     {
-        // Act
-        var key = CryptoHelper.GenerateAesKey();
-
-        // Assert
-        Assert.NotNull(key);
-        Assert.NotEmpty(key);
-        var bytes = Convert.FromBase64String(key);
-        Assert.Equal(32, bytes.Length); // 256 bits
+        var key = new byte[32];
+        RandomNumberGenerator.Fill(key);
+        return key;
     }
 
     [Fact]
-    public void GenerateEd25519KeyPair_ReturnsValidKeys()
+    public void GenerateSigningKeys_ReturnsValidBase64Keys()
     {
         // Act
-        var (privateKey, publicKey) = CryptoHelper.GenerateEd25519KeyPair();
+        var (publicKey, privateKey) = CryptoHelper.GenerateSigningKeys();
 
         // Assert
-        Assert.NotNull(privateKey);
         Assert.NotNull(publicKey);
-        Assert.NotEmpty(privateKey);
+        Assert.NotNull(privateKey);
         Assert.NotEmpty(publicKey);
+        Assert.NotEmpty(privateKey);
         
-        var privBytes = Convert.FromBase64String(privateKey);
         var pubBytes = Convert.FromBase64String(publicKey);
+        var privBytes = Convert.FromBase64String(privateKey);
         
-        Assert.Equal(32, privBytes.Length);
-        Assert.Equal(32, pubBytes.Length);
+        // ECDsa P-256 keys are usually around ~91 bytes (DER encoded) but variable
+        Assert.True(pubBytes.Length > 0);
+        Assert.True(privBytes.Length > 0);
     }
 
     [Fact]
     public void EncryptDecrypt_RoundTrip_Success()
     {
         // Arrange
-        var aesKey = CryptoHelper.GenerateAesKey();
+        var aesKey = GenerateRandomKey();
         var plaintext = "Hello, Nodus!";
         var plaintextBytes = System.Text.Encoding.UTF8.GetBytes(plaintext);
 
         // Act
-        var ciphertext = CryptoHelper.EncryptAesGcm(plaintextBytes, aesKey);
-        var decrypted = CryptoHelper.DecryptAesGcm(ciphertext, aesKey);
+        var ciphertext = CryptoHelper.Encrypt(plaintextBytes, aesKey);
+        var decryptedBytes = CryptoHelper.Decrypt(ciphertext, aesKey);
 
         // Assert
         Assert.NotNull(ciphertext);
-        Assert.NotNull(decrypted);
-        Assert.True(decrypted.IsSuccess);
+        Assert.NotNull(decryptedBytes);
         
-        var decryptedText = System.Text.Encoding.UTF8.GetString(decrypted.Value);
+        var decryptedText = System.Text.Encoding.UTF8.GetString(decryptedBytes);
         Assert.Equal(plaintext, decryptedText);
     }
 
     [Fact]
-    public void EncryptAesGcm_DifferentNonces_ProducesDifferentCiphertext()
+    public void Encrypt_DifferentNonces_ProducesDifferentCiphertext()
     {
         // Arrange
-        var aesKey = CryptoHelper.GenerateAesKey();
+        var aesKey = GenerateRandomKey();
         var plaintext = System.Text.Encoding.UTF8.GetBytes("Test message");
 
         // Act
-        var ciphertext1 = CryptoHelper.EncryptAesGcm(plaintext, aesKey);
-        var ciphertext2 = CryptoHelper.EncryptAesGcm(plaintext, aesKey);
+        var ciphertext1 = CryptoHelper.Encrypt(plaintext, aesKey);
+        var ciphertext2 = CryptoHelper.Encrypt(plaintext, aesKey);
 
         // Assert
         Assert.NotEqual(ciphertext1, ciphertext2); // Different nonces
     }
 
     [Fact]
-    public void DecryptAesGcm_WrongKey_Fails()
+    public void Decrypt_WrongKey_ThrowsException()
     {
         // Arrange
-        var aesKey1 = CryptoHelper.GenerateAesKey();
-        var aesKey2 = CryptoHelper.GenerateAesKey();
+        var aesKey1 = GenerateRandomKey();
+        var aesKey2 = GenerateRandomKey();
         var plaintext = System.Text.Encoding.UTF8.GetBytes("Secret");
-        var ciphertext = CryptoHelper.EncryptAesGcm(plaintext, aesKey1);
+        var ciphertext = CryptoHelper.Encrypt(plaintext, aesKey1);
 
-        // Act
-        var result = CryptoHelper.DecryptAesGcm(ciphertext, aesKey2);
-
-        // Assert
-        Assert.False(result.IsSuccess);
-        Assert.Contains("decrypt", result.Error.ToLower());
+        // Act & Assert
+        Assert.ThrowsAny<CryptographicException>(() => CryptoHelper.Decrypt(ciphertext, aesKey2));
     }
 
     [Fact]
     public void SignVerify_RoundTrip_Success()
     {
         // Arrange
-        var (privateKey, publicKey) = CryptoHelper.GenerateEd25519KeyPair();
+        var (publicKey, privateKey) = CryptoHelper.GenerateSigningKeys();
         var message = System.Text.Encoding.UTF8.GetBytes("Sign this message");
 
         // Act
-        var signature = CryptoHelper.SignEd25519(message, privateKey);
-        var isValid = CryptoHelper.VerifyEd25519(message, signature, publicKey);
+        var signature = CryptoHelper.SignData(message, privateKey);
+        var isValid = CryptoHelper.VerifyData(message, signature, publicKey);
 
         // Assert
         Assert.NotNull(signature);
-        Assert.Equal(64, signature.Length); // Ed25519 signature size
+        Assert.True(signature.Length > 0);
         Assert.True(isValid);
     }
 
     [Fact]  
-    public void VerifyEd25519_WrongSignature_Fails()
+    public void VerifyData_WrongSignature_Fails()
     {
         // Arrange
-        var (privateKey, publicKey) = CryptoHelper.GenerateEd25519KeyPair();
+        var (publicKey, privateKey) = CryptoHelper.GenerateSigningKeys();
         var message = System.Text.Encoding.UTF8.GetBytes("Original message");
-        var signature = CryptoHelper.SignEd25519(message, privateKey);
+        var signature = CryptoHelper.SignData(message, privateKey);
 
         // Tamper with signature
-        signature[0] ^= 0xFF;
+        if (signature.Length > 0)
+            signature[0] ^= 0xFF;
 
         // Act
-        var isValid = CryptoHelper.VerifyEd25519(message, signature, publicKey);
+        var isValid = CryptoHelper.VerifyData(message, signature, publicKey);
 
         // Assert
         Assert.False(isValid);
     }
 
     [Fact]
-    public void VerifyEd25519_WrongPublicKey_Fails()
+    public void VerifyData_WrongPublicKey_Fails()
     {
         // Arrange
-        var (privateKey1, publicKey1) = CryptoHelper.GenerateEd25519KeyPair();
-        var (_, publicKey2) = CryptoHelper.GenerateEd25519KeyPair();
+        var (publicKey1, privateKey1) = CryptoHelper.GenerateSigningKeys();
+        var (publicKey2, _) = CryptoHelper.GenerateSigningKeys();
         var message = System.Text.Encoding.UTF8.GetBytes("Message");
-        var signature = CryptoHelper.SignEd25519(message, privateKey1);
+        var signature = CryptoHelper.SignData(message, privateKey1);
 
         // Act
-        var isValid = CryptoHelper.VerifyEd25519(message, signature, publicKey2);
+        var isValid = CryptoHelper.VerifyData(message, signature, publicKey2);
 
         // Assert
         Assert.False(isValid);
     }
 
     [Fact]
-    public void VerifyEd25519_TamperedMessage_Fails()
+    public void VerifyData_TamperedMessage_Fails()
     {
         // Arrange
-        var (privateKey, publicKey) = CryptoHelper.GenerateEd25519KeyPair();
+        var (publicKey, privateKey) = CryptoHelper.GenerateSigningKeys();
         var message = System.Text.Encoding.UTF8.GetBytes("Original message");
-        var signature = CryptoHelper.SignEd25519(message, privateKey);
+        var signature = CryptoHelper.SignData(message, privateKey);
 
         // Tamper with message
         var tamperedMessage = System.Text.Encoding.UTF8.GetBytes("Tampered message");
 
         // Act
-        var isValid = CryptoHelper.VerifyEd25519(tamperedMessage, signature, publicKey);
+        var isValid = CryptoHelper.VerifyData(tamperedMessage, signature, publicKey);
 
         // Assert
         Assert.False(isValid);

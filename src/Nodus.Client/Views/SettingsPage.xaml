@@ -25,11 +25,22 @@
                         BackgroundColor="{StaticResource Primary}"
                         TextColor="White"/>
 
-                <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-                       Text="{Binding StatusMessage}"
-                       TextColor="Gray"
-                       FontSize="14"
-                       HorizontalOptions="End" />
+                <StackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Spacing="5">
+                    <ProgressBar Progress="{Binding SyncProgress}" 
+                                 IsVisible="{Binding IsSyncing}"
+                                 ProgressColor="{StaticResource Primary}" />
+                    
+                    <StackLayout Orientation="Horizontal" HorizontalOptions="End" Spacing="10">
+                        <ActivityIndicator IsRunning="{Binding IsSyncing}" 
+                                           IsVisible="{Binding IsSyncing}"
+                                           HeightRequest="20" WidthRequest="20" 
+                                           Color="{StaticResource Primary}"/>
+                        <Label Text="{Binding StatusMessage}"
+                               TextColor="Gray"
+                               FontSize="14"
+                               VerticalOptions="Center" />
+                    </StackLayout>
+                </StackLayout>
             
             </Grid>
 

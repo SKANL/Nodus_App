@@ -5,13 +5,25 @@
              x:Class="Nodus.Server.Views.ResultsPage"
              Title="Live Results">
 
-    <Grid RowDefinitions="Auto, *">
-        <Label Text="Incoming Votes" 
+    <Grid RowDefinitions="Auto, Auto, *">
+        <Label Grid.Row="0"
+               Text="Incoming Votes" 
                FontSize="24" 
                FontAttributes="Bold" 
                Padding="20"/>
 
-        <CollectionView Grid.Row="1" ItemsSource="{Binding Votes}">
+        <StackLayout Grid.Row="1" Orientation="Horizontal" Spacing="10" Padding="20,0,20,10">
+            <Button Text="Export CSV" 
+                    Command="{Binding ExportCsvCommand}" 
+                    BackgroundColor="{StaticResource Secondary}"
+                    TextColor="White"/>
+            <Button Text="Export Excel" 
+                    Command="{Binding ExportExcelCommand}" 
+                    BackgroundColor="{StaticResource Secondary}"
+                    TextColor="White"/>
+        </StackLayout>
+
+        <CollectionView Grid.Row="2" ItemsSource="{Binding Votes}">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <Grid Padding="10" ColumnDefinitions="*, Auto">

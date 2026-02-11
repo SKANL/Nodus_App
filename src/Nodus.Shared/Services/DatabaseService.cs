@@ -78,6 +78,8 @@ public class DatabaseService : IDatabaseService
     }
 
     // Events
+    
+    /// <inheritdoc/>
     public async Task<Result<List<Event>>> GetEventsAsync(CancellationToken ct = default)
     {
         var initResult = await EnsureInitializedAsync(ct);
@@ -96,6 +98,7 @@ public class DatabaseService : IDatabaseService
         }
     }
 
+    /// <inheritdoc/>
     public async Task<Result<Event>> GetEventAsync(string id, CancellationToken ct = default)
     {
         var initResult = await EnsureInitializedAsync(ct);
@@ -116,6 +119,9 @@ public class DatabaseService : IDatabaseService
         }
     }
 
+    /// <summary>
+    /// Saves an event to the local database.
+    /// </summary>
     public async Task<Result> SaveEventAsync(Event evt, CancellationToken ct = default)
     {
         var initResult = await EnsureInitializedAsync(ct);
@@ -139,6 +145,8 @@ public class DatabaseService : IDatabaseService
     }
 
     // Projects
+    
+    /// <inheritdoc/>
     public async Task<Result<List<Project>>> GetProjectsAsync(string eventId, CancellationToken ct = default)
     {
         var initResult = await EnsureInitializedAsync(ct);
@@ -159,6 +167,26 @@ public class DatabaseService : IDatabaseService
         }
     }
 
+    /// <inheritdoc/>
+    public async Task<Result<List<Project>>> GetAllProjectsAsync(CancellationToken ct = default)
+    {
+        var initResult = await EnsureInitializedAsync(ct);
+        if (initResult.IsFailure) 
+            return Result<List<Project>>.Failure(initResult.Error, initResult.Exception);
+
+        try
+        {
+            var projects = await _db.Table<Project>().ToListAsync();
+            return Result<List<Project>>.Success(projects);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve all projects");
+            return Result<List<Project>>.Failure("Failed to retrieve all projects", ex);
+        }
+    }
+
+    /// <inheritdoc/>
     public async Task<Result<Project>> GetProjectAsync(string id, CancellationToken ct = default)
     {
         var initResult = await EnsureInitializedAsync(ct);
@@ -179,6 +207,12 @@ public class DatabaseService : IDatabaseService
         }
     }
 
+    /// <summary>
+    /// Saves a project to the local database.
+    /// </summary>
+    /// <param name="project">The project to save.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Success or failure result.</returns>
     public async Task<Result> SaveProjectAsync(Project project, CancellationToken ct = default)
     {
         var initResult = await EnsureInitializedAsync(ct);
@@ -201,7 +235,7 @@ public class DatabaseService : IDatabaseService
         }
     }
 
-    // Votes (Critical Transaction Integrity)
+    /// <inheritdoc/>
     public async Task<Result<List<Vote>>> GetVotesAsync(string projectId, CancellationToken ct = default)
     {
         var initResult = await EnsureInitializedAsync(ct);
@@ -222,6 +256,7 @@ public class DatabaseService : IDatabaseService
         }
     }
 
+    /// <inheritdoc/>
     public async Task<Result<Vote>> GetVoteByIdAsync(string id, CancellationToken ct = default)
     {
         var initResult = await EnsureInitializedAsync(ct);
@@ -242,6 +277,13 @@ public class DatabaseService : IDatabaseService
         }
     }
 
+    /// <summary>
+    /// Saves a vote securely within a transaction.
+    /// Ensures atomicity for data integrity as per Offline-First spec.
+    /// </summary>
+    /// <param name="vote">The vote entity to save or update.</param>
+    /// <param name="ct">Cancellation token (note: not fully supported by sqlite-net-pcl transaction).</param>
+    /// <returns>Success result or failure with exception.</returns>
     public async Task<Result> SaveVoteAsync(Vote vote, CancellationToken ct = default)
     {
         var initResult = await EnsureInitializedAsync(ct);

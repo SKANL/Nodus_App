@@ -5,6 +5,9 @@ using Nodus.Shared.Abstractions;
 using Nodus.Shared.Services;
 using Nodus.Client.Abstractions;
 using Nodus.Client.Services;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("Nodus.Tests.Unit")]
 
 namespace Nodus.Client;
 
@@ -37,12 +40,16 @@ public static class MauiProgram
             var logger = sp.GetRequiredService<ILogger<DatabaseService>>();
             return new DatabaseService(dbPath, logger);
         });
+        
+        // Secure Storage
+        builder.Services.AddSingleton<ISecureStorageService, SecureStorageService>();
 
         // BLE Services (Shiny)
         builder.Services.AddBluetoothLE();
 #if ANDROID
         builder.Services.AddBluetoothLeHosting(); // For Relay role
 #endif
+        builder.Services.AddSingleton<ITimerFactory, MauiTimerFactory>();
 
         // Protocol Services
         builder.Services.AddSingleton<Nodus.Shared.Services.ChunkerService>();
@@ -51,6 +58,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<Nodus.Shared.Protocol.PacketTracker>();
         builder.Services.AddSingleton<IBleClientService, BleClientService>();
         builder.Services.AddSingleton<IRelayHostingService, RelayHostingService>();
+        builder.Services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
         builder.Services.AddSingleton<ISwarmService, SwarmService>();
 
 		// Pages & ViewModels (Transient for fresh state)

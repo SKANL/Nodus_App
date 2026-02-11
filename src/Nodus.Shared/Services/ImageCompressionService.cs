@@ -63,7 +63,7 @@ public class ImageCompressionService
                 int newWidth = (int)(bitmap.Width * 0.75);
                 int newHeight = (int)(bitmap.Height * 0.75);
                 
-                using var scaled = bitmap.Resize(new SKImageInfo(newWidth, newHeight), SKFilterQuality.Medium);
+                using var scaled = bitmap.Resize(new SKImageInfo(newWidth, newHeight), new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Nearest));
                 if (scaled != null)
                 {
                     outputStream.SetLength(0);

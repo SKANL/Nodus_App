@@ -1,0 +1,53 @@
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<div class="offline-indicator @(IsOnline ? "online" : "offline")">
+    @if (!IsOnline)
+    {
+        <span>🔴 Offline Mode</span>
+    }
+</div>
+
+@code {
+    private bool IsOnline = true;
+    private DotNetObjectReference<OfflineIndicator>? _dotNetRef;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _dotNetRef = DotNetObjectReference.Create(this);
+        await JS.InvokeVoidAsync("registerOnlineListener", _dotNetRef);
+    }
+
+    [JSInvokable]
+    public void UpdateOnlineStatus(bool online)
+    {
+        IsOnline = online;
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _dotNetRef?.Dispose();
+    }
+}
+
+<style>
+    .offline-indicator {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        z-index: 1000;
+        display: none; /* Hide when online */
+    }
+
+    .offline-indicator.offline {
+        display: block;
+        background-color: #e53e3e;
+        color: white;
+        box-shadow: 0 4px 12px rgba(229, 62, 62, 0.3);
+    }
+</style>
