@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "E2xhlfQyLU4=",
+  "dgSpecHash": "0EeijQw0hQQ=",
   "success": true,
   "projectFilePath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Web\\Nodus.Web.csproj",
   "expectedPackageFiles": [
@@ -40,6 +40,9 @@
     "C:\\Users\\angua\\.nuget\\packages\\microsoft.net.sdk.webassembly.pack\\10.0.2\\microsoft.net.sdk.webassembly.pack.10.0.2.nupkg.sha512",
     "C:\\Users\\angua\\.nuget\\packages\\microsoft.win32.systemevents\\6.0.0\\microsoft.win32.systemevents.6.0.0.nupkg.sha512",
     "C:\\Users\\angua\\.nuget\\packages\\qrcoder\\1.7.0\\qrcoder.1.7.0.nupkg.sha512",
+    "C:\\Users\\angua\\.nuget\\packages\\shiny.bluetoothle\\3.3.4\\shiny.bluetoothle.3.3.4.nupkg.sha512",
+    "C:\\Users\\angua\\.nuget\\packages\\shiny.bluetoothle.common\\3.3.4\\shiny.bluetoothle.common.3.3.4.nupkg.sha512",
+    "C:\\Users\\angua\\.nuget\\packages\\shiny.core\\3.3.4\\shiny.core.3.3.4.nupkg.sha512",
     "C:\\Users\\angua\\.nuget\\packages\\skiasharp\\3.119.2\\skiasharp.3.119.2.nupkg.sha512",
     "C:\\Users\\angua\\.nuget\\packages\\skiasharp.nativeassets.macos\\3.119.2\\skiasharp.nativeassets.macos.3.119.2.nupkg.sha512",
     "C:\\Users\\angua\\.nuget\\packages\\skiasharp.nativeassets.win32\\3.119.2\\skiasharp.nativeassets.win32.3.119.2.nupkg.sha512",
@@ -52,6 +55,7 @@
     "C:\\Users\\angua\\.nuget\\packages\\sqlitepclraw.lib.e_sqlite3\\2.1.2\\sqlitepclraw.lib.e_sqlite3.2.1.2.nupkg.sha512",
     "C:\\Users\\angua\\.nuget\\packages\\sqlitepclraw.provider.e_sqlite3\\3.0.2\\sqlitepclraw.provider.e_sqlite3.3.0.2.nupkg.sha512",
     "C:\\Users\\angua\\.nuget\\packages\\system.drawing.common\\6.0.0\\system.drawing.common.6.0.0.nupkg.sha512",
+    "C:\\Users\\angua\\.nuget\\packages\\system.reactive\\6.0.0\\system.reactive.6.0.0.nupkg.sha512",
     "C:\\Users\\angua\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\10.0.2\\microsoft.netcore.app.runtime.mono.browser-wasm.10.0.2.nupkg.sha512"
   ],
   "logs": []

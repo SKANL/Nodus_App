@@ -1,0 +1,5 @@
+<api>
+  <acw-types partial-assembly-name="Xamarin.AndroidX.Camera.Lifecycle" module-name="Xamarin.AndroidX.Camera.Lifecycle.dll">
+    <type assembly-qualified-name="AndroidX.Camera.Lifecycle.IExperimentalCameraProviderConfiguration, Xamarin.AndroidX.Camera.Lifecycle, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" compat-jni-name="androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration" java-key="androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration" managed-key="AndroidX.Camera.Lifecycle.IExperimentalCameraProviderConfiguration" partial-assembly-qualified-name="AndroidX.Camera.Lifecycle.IExperimentalCameraProviderConfiguration, Xamarin.AndroidX.Camera.Lifecycle" />
+  </acw-types>
+</api>

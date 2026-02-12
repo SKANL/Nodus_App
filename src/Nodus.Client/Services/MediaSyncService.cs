@@ -1,9 +1,10 @@
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
-using Nodus.Client.Abstractions;
+
 using Nodus.Shared;
 using Nodus.Shared.Models;
 using Nodus.Shared.Services;
+using Nodus.Shared.Abstractions;
 
 namespace Nodus.Client.Services;
 

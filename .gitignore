@@ -1,0 +1,18 @@
+
+# Build results
+[Bb]in/
+[Oo]bj/
+
+# Test results
+TestResults/
+*.dmp
+*.xml
+
+# User-specific files
+*.user
+*.suo
+*.userprefs
+
+# OS generated files
+.DS_Store
+Thumbs.db

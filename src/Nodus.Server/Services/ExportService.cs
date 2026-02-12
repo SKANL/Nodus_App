@@ -1,7 +1,6 @@
 using ClosedXML.Excel;
 using System.Text;
 using Nodus.Shared.Services;
-using CommunityToolkit.Maui.Storage;
 using Microsoft.Extensions.Logging;
 
 namespace Nodus.Server.Services;
@@ -19,7 +18,7 @@ public class ExportService
 
     public async Task<byte[]> ExportToCsvAsync(string eventId)
     {
-        var votesResult = await _db.GetVotesAsync();
+        var votesResult = await _db.GetAllVotesAsync();
         if (votesResult.IsFailure) return Array.Empty<byte>();
 
         var votes = votesResult.Value
@@ -35,7 +34,7 @@ public class ExportService
             var payload = vote.PayloadJson.Replace("\"", "\"\"");
             
             csv.AppendLine($"{vote.Id},{vote.ProjectId},{vote.JudgeId}," +
-                          $"\"{payload}\",{vote.CreatedAtUtc}," +
+                          $"\"{payload}\",{DateTimeOffset.FromUnixTimeSeconds(vote.Timestamp).UtcDateTime}," +
                           $"{vote.SyncedAtUtc}");
         }
 
@@ -44,7 +43,7 @@ public class ExportService
 
     public async Task<byte[]> ExportToExcelAsync(string eventId)
     {
-        var votesResult = await _db.GetVotesAsync();
+        var votesResult = await _db.GetAllVotesAsync();
         if (votesResult.IsFailure) return Array.Empty<byte>();
 
         var votes = votesResult.Value
@@ -72,7 +71,7 @@ public class ExportService
             worksheet.Cell(row, 2).Value = vote.ProjectId;
             worksheet.Cell(row, 3).Value = vote.JudgeId;
             worksheet.Cell(row, 4).Value = vote.PayloadJson;
-            worksheet.Cell(row, 5).Value = vote.CreatedAtUtc;
+            worksheet.Cell(row, 5).Value = DateTimeOffset.FromUnixTimeSeconds(vote.Timestamp).UtcDateTime;
             worksheet.Cell(row, 6).Value = vote.SyncedAtUtc; // Might need nullable check
         }
 

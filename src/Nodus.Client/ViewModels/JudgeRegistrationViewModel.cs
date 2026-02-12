@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
-using Nodus.Client.Abstractions;
+
 using Nodus.Shared.Abstractions;
 using Nodus.Shared.Common;
 using Nodus.Shared;

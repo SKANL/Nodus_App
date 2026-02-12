@@ -195,7 +195,7 @@ public class DatabaseServiceTests : IDisposable
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.Contains("Failed to save vote", result.Error);
+        Assert.Contains("Vote cannot be null", result.Error);
     }
 
     // [Fact]

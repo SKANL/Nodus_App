@@ -3,7 +3,6 @@ using ZXing.Net.Maui.Controls;
 using Shiny;
 using Nodus.Shared.Abstractions;
 using Nodus.Shared.Services;
-using Nodus.Client.Abstractions;
 using Nodus.Client.Services;
 using System.Runtime.CompilerServices;
 

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Client\\Nodus.Client.csproj": {}
+    "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Client\\Nodus.Client.csproj": {}
   },
   "projects": {
-    "c:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Client\\Nodus.Client.csproj": {
+    "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Client\\Nodus.Client.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Client\\Nodus.Client.csproj",
+        "projectUniqueName": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Client\\Nodus.Client.csproj",
         "projectName": "Nodus.Client",
-        "projectPath": "c:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Client\\Nodus.Client.csproj",
+        "projectPath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Client\\Nodus.Client.csproj",
         "packagesPath": "C:\\Users\\angua\\.nuget\\packages\\",
-        "outputPath": "c:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Client\\obj\\",
+        "outputPath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Client\\obj\\",
         "projectStyle": "PackageReference",
         "crossTargeting": true,
         "fallbackFolders": [
@@ -37,32 +37,32 @@
           "net10.0-android36.0": {
             "targetAlias": "net10.0-android",
             "projectReferences": {
-              "c:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
-                "projectPath": "c:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj"
+              "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
+                "projectPath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj"
               }
             }
           },
           "net10.0-ios26.2": {
             "targetAlias": "net10.0-ios",
             "projectReferences": {
-              "c:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
-                "projectPath": "c:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj"
+              "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
+                "projectPath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj"
               }
             }
           },
           "net10.0-maccatalyst26.2": {
             "targetAlias": "net10.0-maccatalyst",
             "projectReferences": {
-              "c:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
-                "projectPath": "c:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj"
+              "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
+                "projectPath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj"
               }
             }
           },
           "net10.0-windows10.0.19041": {
             "targetAlias": "net10.0-windows10.0.19041.0",
             "projectReferences": {
-              "c:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
-                "projectPath": "c:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj"
+              "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
+                "projectPath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj"
               }
             }
           }
@@ -1457,14 +1457,14 @@
         }
       }
     },
-    "c:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
+    "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj",
+        "projectUniqueName": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj",
         "projectName": "Nodus.Shared",
-        "projectPath": "c:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj",
+        "projectPath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj",
         "packagesPath": "C:\\Users\\angua\\.nuget\\packages\\",
-        "outputPath": "c:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\obj\\",
+        "outputPath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

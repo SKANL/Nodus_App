@@ -19,6 +19,9 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private bool _isSyncing;
 
+    [ObservableProperty]
+    private bool _isBusy;
+
     public SettingsViewModel(MediaSyncService mediaSyncService, ILogger<SettingsViewModel> logger)
     {
         _mediaSyncService = mediaSyncService;

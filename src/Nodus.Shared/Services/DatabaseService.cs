@@ -124,6 +124,7 @@ public class DatabaseService : IDatabaseService
     /// </summary>
     public async Task<Result> SaveEventAsync(Event evt, CancellationToken ct = default)
     {
+        if (evt == null) return Result.Failure("Event cannot be null");
         var initResult = await EnsureInitializedAsync(ct);
         if (initResult.IsFailure) return initResult;
 
@@ -131,7 +132,7 @@ public class DatabaseService : IDatabaseService
         {
             await _db.RunInTransactionAsync(tran =>
             {
-                _db.InsertOrReplaceAsync(evt).Wait();
+                tran.InsertOrReplace(evt);
             });
             
             _logger.LogInformation("Event {EventId} saved successfully", evt.Id);
@@ -222,7 +223,7 @@ public class DatabaseService : IDatabaseService
         {
             await _db.RunInTransactionAsync(tran =>
             {
-                _db.InsertOrReplaceAsync(project).Wait();
+                tran.InsertOrReplace(project);
             });
             
             _logger.LogInformation("Project {ProjectId} saved successfully", project.Id);
@@ -257,6 +258,25 @@ public class DatabaseService : IDatabaseService
     }
 
     /// <inheritdoc/>
+    public async Task<Result<List<Vote>>> GetAllVotesAsync(CancellationToken ct = default)
+    {
+        var initResult = await EnsureInitializedAsync(ct);
+        if (initResult.IsFailure) 
+            return Result<List<Vote>>.Failure(initResult.Error, initResult.Exception);
+
+        try
+        {
+            var votes = await _db.Table<Vote>().ToListAsync();
+            return Result<List<Vote>>.Success(votes);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve all votes");
+            return Result<List<Vote>>.Failure("Failed to retrieve all votes", ex);
+        }
+    }
+
+    /// <inheritdoc/>
     public async Task<Result<Vote>> GetVoteByIdAsync(string id, CancellationToken ct = default)
     {
         var initResult = await EnsureInitializedAsync(ct);
@@ -286,6 +306,7 @@ public class DatabaseService : IDatabaseService
     /// <returns>Success result or failure with exception.</returns>
     public async Task<Result> SaveVoteAsync(Vote vote, CancellationToken ct = default)
     {
+        if (vote == null) return Result.Failure("Vote cannot be null");
         var initResult = await EnsureInitializedAsync(ct);
         if (initResult.IsFailure) return initResult;
 
@@ -294,7 +315,7 @@ public class DatabaseService : IDatabaseService
             // CRITICAL: Atomic write per spec (03.Data.Offline_First.md)
             await _db.RunInTransactionAsync(tran =>
             {
-                _db.InsertOrReplaceAsync(vote).Wait();
+                tran.InsertOrReplace(vote);
             });
             
             _logger.LogInformation("Vote {VoteId} saved successfully (Status: {Status})", 
@@ -394,6 +415,10 @@ public class DatabaseService : IDatabaseService
         {
             await _db.RunInTransactionAsync(tran =>
             {
+                // WARNING: executing async code here is dangerous. 
+                // Passed action should ideally use 'tran' but it is a Func<Task>.
+                // We are keeping this for now but it's risky. 
+                // Ideally ExecuteInTransactionAsync should accept Action<SQLiteConnection>.
                 action().Wait();
             });
             

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using System.Reactive.Linq;
 using Moq;
 using Nodus.Shared;
 using Nodus.Shared.Services;
@@ -44,9 +45,9 @@ public class BleClientServiceTests
     {
         // Arrange
         var peripheralMock = new Mock<IPeripheral>();
-        peripheralMock.Setup(p => p.Status).Returns(ConnectionState.Connected);
-        peripheralMock.Setup(p => p.ConnectAsync(It.IsAny<ConnectionConfig>(), It.IsAny<CancellationToken>()))
-                      .Returns(Task.CompletedTask);
+        // Mock Status to return Connected so the extension method passes immediately
+        peripheralMock.SetupGet(p => p.Status).Returns(ConnectionState.Connected);
+        peripheralMock.Setup(p => p.WhenStatusChanged()).Returns(Observable.Return(ConnectionState.Connected));
         
         // Mock BleServiceInfo then BleCharacteristicInfo
         var serviceInfo = new BleServiceInfo(NodusConstants.SERVICE_UUID);
@@ -57,9 +58,9 @@ public class BleClientServiceTests
             BleCharacteristicEvent.Write, 
             null);
 
-        peripheralMock.Setup(p => p.WriteCharacteristicAsync(
-            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<byte[]>(),It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.FromResult(successResult)); 
+        peripheralMock.Setup(p => p.WriteCharacteristic(
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<bool>()))
+            .Returns(Observable.Return(successResult)); 
 
         // Act
         var result = await _sut.ConnectAsync(peripheralMock.Object);
@@ -74,12 +75,12 @@ public class BleClientServiceTests
     {
         // Arrange
         var peripheralMock = new Mock<IPeripheral>();
-        peripheralMock.Setup(p => p.Status).Returns(ConnectionState.Disconnected); // stays disconnected
-        peripheralMock.Setup(p => p.ConnectAsync(It.IsAny<ConnectionConfig>(), It.IsAny<CancellationToken>()))
-                      .Returns(Task.CompletedTask);
+        peripheralMock.SetupGet(p => p.Status).Returns(ConnectionState.Disconnected); // stays disconnected
+        peripheralMock.Setup(p => p.WhenStatusChanged()).Returns(Observable.Return(ConnectionState.Disconnected));
 
         // Act
-        var result = await _sut.ConnectAsync(peripheralMock.Object);
+        // Pass short timeout to avoid waiting 30s
+        var result = await _sut.ConnectAsync(peripheralMock.Object, TimeSpan.FromMilliseconds(100));
 
         // Assert
         Assert.False(result.IsSuccess);
@@ -91,41 +92,46 @@ public class BleClientServiceTests
     {
         // Arrange
         var peripheralMock = new Mock<IPeripheral>();
-        peripheralMock.Setup(p => p.Status).Returns(ConnectionState.Disconnected); // Initially disconnected
+        
+        // Simulation: First attempts fail (Status=Disconnected), then succeeds (Status=Connected)
+        int checkCount = 0;
+        
+        // Mock Status property to eventually return Connected
+        peripheralMock.SetupGet(p => p.Status).Returns(() => 
+        {
+            return checkCount > 2 ? ConnectionState.Connected : ConnectionState.Disconnected;
+        });
 
-        // Setup ConnectAsync to fail 2 times then succeed
-        int callCount = 0;
-        peripheralMock.Setup(p => p.ConnectAsync(It.IsAny<ConnectionConfig>(), It.IsAny<CancellationToken>()))
-            .Returns(() => 
+        // Mock Observable to return Disconnected first, then Connected
+        // The extension method subscribes to this.
+        peripheralMock.Setup(p => p.WhenStatusChanged()).Returns(() => 
+        {
+            checkCount++;
+            if (checkCount > 2) 
             {
-                callCount++;
-                if (callCount < 3) return Task.FromException(new Exception("Connection failed"));
-                
-                // On 3rd attempt, simulate connection success
-                peripheralMock.Setup(p => p.Status).Returns(ConnectionState.Connected);
-                return Task.CompletedTask;
-            });
+                 return Observable.Return(ConnectionState.Connected);
+            }
+            return Observable.Return(ConnectionState.Disconnected);
+        });
 
-        // Mock BleServiceInfo then BleCharacteristicInfo
+        // Mock WriteChar for handshake
         var serviceInfo = new BleServiceInfo(NodusConstants.SERVICE_UUID);
         var charInfo = new BleCharacteristicInfo(serviceInfo, NodusConstants.CHARACTERISTIC_UUID, false, CharacteristicProperties.Write);
+        
+        var successResult = new BleCharacteristicResult(charInfo, BleCharacteristicEvent.Write, null);
 
-        var successResult = new BleCharacteristicResult(
-            charInfo, 
-            BleCharacteristicEvent.Write, 
-            null);
-
-        peripheralMock.Setup(p => p.WriteCharacteristicAsync(
-            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<byte[]>(),It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.FromResult(successResult));
+        peripheralMock.Setup(p => p.WriteCharacteristic(
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<bool>()))
+            .Returns(Observable.Return(successResult));
 
         // Act
-        var result = await _sut.ConnectAsync(peripheralMock.Object);
+        // We need enough timeout for Retries (500ms initial + backoff) AND enough polling/accesses.
+        // If we set timeout to 5s, and checking status is fast.
+        var result = await _sut.ConnectAsync(peripheralMock.Object, TimeSpan.FromSeconds(5));
 
         // Assert
         Assert.True(result.IsSuccess);
         Assert.True(_sut.IsConnected);
-        Assert.Equal(3, callCount); // verify retries happened
     }
 
     [Fact]

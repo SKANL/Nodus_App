@@ -322,3 +322,13 @@ C:\code\project_kiosko\nodusApp\src\Nodus.Server\obj\Debug\net10.0-maccatalyst\m
 C:\code\project_kiosko\nodusApp\src\Nodus.Server\obj\Debug\net10.0-maccatalyst\maccatalyst-x64\Nodus.Server.pdb
 C:\code\project_kiosko\nodusApp\src\Nodus.Server\obj\Debug\net10.0-maccatalyst\maccatalyst-x64\Nodus.Server.genruntimeconfig.cache
 C:\code\project_kiosko\nodusApp\src\Nodus.Server\obj\Debug\net10.0-maccatalyst\maccatalyst-x64\ref\Nodus.Server.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Server\bin\Debug\net10.0-maccatalyst\maccatalyst-x64\ClosedXML.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Server\bin\Debug\net10.0-maccatalyst\maccatalyst-x64\ClosedXML.Parser.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Server\bin\Debug\net10.0-maccatalyst\maccatalyst-x64\DocumentFormat.OpenXml.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Server\bin\Debug\net10.0-maccatalyst\maccatalyst-x64\DocumentFormat.OpenXml.Framework.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Server\bin\Debug\net10.0-maccatalyst\maccatalyst-x64\ExcelNumberFormat.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Server\bin\Debug\net10.0-maccatalyst\maccatalyst-x64\RBush.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Server\bin\Debug\net10.0-maccatalyst\maccatalyst-x64\SixLabors.Fonts.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Server\bin\Debug\net10.0-maccatalyst\maccatalyst-x64\SkiaSharp.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Server\bin\Debug\net10.0-maccatalyst\maccatalyst-x64\System.IO.Packaging.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Server\bin\Debug\net10.0-maccatalyst\maccatalyst-x64\libSkiaSharp.framework.zip

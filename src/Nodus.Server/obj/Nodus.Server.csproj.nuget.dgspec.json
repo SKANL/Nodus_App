@@ -83,6 +83,10 @@
         "net10.0-android36.0": {
           "targetAlias": "net10.0-android",
           "dependencies": {
+            "ClosedXML": {
+              "target": "Package",
+              "version": "[0.104.2, )"
+            },
             "CommunityToolkit.Mvvm": {
               "target": "Package",
               "version": "[8.4.0, )"
@@ -419,6 +423,10 @@
         "net10.0-ios26.2": {
           "targetAlias": "net10.0-ios",
           "dependencies": {
+            "ClosedXML": {
+              "target": "Package",
+              "version": "[0.104.2, )"
+            },
             "CommunityToolkit.Mvvm": {
               "target": "Package",
               "version": "[8.4.0, )"
@@ -755,6 +763,10 @@
         "net10.0-maccatalyst26.2": {
           "targetAlias": "net10.0-maccatalyst",
           "dependencies": {
+            "ClosedXML": {
+              "target": "Package",
+              "version": "[0.104.2, )"
+            },
             "CommunityToolkit.Mvvm": {
               "target": "Package",
               "version": "[8.4.0, )"
@@ -1092,6 +1104,10 @@
         "net10.0-windows10.0.19041": {
           "targetAlias": "net10.0-windows10.0.19041.0",
           "dependencies": {
+            "ClosedXML": {
+              "target": "Package",
+              "version": "[0.104.2, )"
+            },
             "CommunityToolkit.Mvvm": {
               "target": "Package",
               "version": "[8.4.0, )"
@@ -1495,6 +1511,14 @@
             "Microsoft.Extensions.Logging.Abstractions": {
               "target": "Package",
               "version": "[9.0.0, )"
+            },
+            "Shiny.BluetoothLE": {
+              "target": "Package",
+              "version": "[3.3.4, )"
+            },
+            "SkiaSharp": {
+              "target": "Package",
+              "version": "[3.119.2, )"
             },
             "sqlite-net-pcl": {
               "target": "Package",

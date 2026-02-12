@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Nodus.Server.Services;
 using Nodus.Shared.Models;
@@ -9,6 +10,7 @@ namespace Nodus.Server.ViewModels;
 public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceivedMessage>
 {
     private readonly ExportService _exportService;
+    private readonly VoteAggregatorService _aggregator;
     
     public ObservableCollection<Vote> Votes { get; } = new();
 
@@ -68,7 +70,9 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
     private async Task SaveFileAsync(string fileName, byte[] data)
     {
         using var stream = new MemoryStream(data);
-        var result = await CommunityToolkit.Maui.Storage.FileSaver.Default.SaveAsync(fileName, stream);
+        // FIXME: CommunityToolkit.Maui.Storage removed due to version conflicts. Implement alternative FileSaver.
+        // var result = await CommunityToolkit.Maui.Storage.FileSaver.Default.SaveAsync(fileName, stream);
+        var result = new { IsSuccessful = false, FilePath = "", Exception = new Exception("FileSaver not implemented") }; // Placeholder
         
         if (result.IsSuccessful)
         {

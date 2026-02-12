@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using Nodus.Shared.Models; // Assuming Node/Peer models exist or defining simple ones here
 

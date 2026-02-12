@@ -531,3 +531,13 @@ C:\code\project_kiosko\nodusApp\src\Nodus.Server\obj\Debug\net10.0-windows10.0.1
 C:\code\project_kiosko\nodusApp\src\Nodus.Server\obj\Debug\net10.0-windows10.0.19041.0\win-x64\qualifiers.txt
 C:\code\project_kiosko\nodusApp\src\Nodus.Server\obj\Debug\net10.0-windows10.0.19041.0\win-x64\qualifiers.txt.intermediate
 C:\code\project_kiosko\nodusApp\src\Nodus.Server\obj\Debug\net10.0-windows10.0.19041.0\win-x64\MultipleQualifiersPerDimensionFound.txt
+C:\code\project_kiosko\nodusApp\src\Nodus.Server\bin\Debug\net10.0-windows10.0.19041.0\win-x64\ClosedXML.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Server\bin\Debug\net10.0-windows10.0.19041.0\win-x64\ClosedXML.Parser.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Server\bin\Debug\net10.0-windows10.0.19041.0\win-x64\DocumentFormat.OpenXml.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Server\bin\Debug\net10.0-windows10.0.19041.0\win-x64\DocumentFormat.OpenXml.Framework.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Server\bin\Debug\net10.0-windows10.0.19041.0\win-x64\ExcelNumberFormat.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Server\bin\Debug\net10.0-windows10.0.19041.0\win-x64\RBush.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Server\bin\Debug\net10.0-windows10.0.19041.0\win-x64\SixLabors.Fonts.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Server\bin\Debug\net10.0-windows10.0.19041.0\win-x64\SkiaSharp.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Server\bin\Debug\net10.0-windows10.0.19041.0\win-x64\libSkiaSharp.dll
+C:\code\project_kiosko\nodusApp\src\Nodus.Server\bin\Debug\net10.0-windows10.0.19041.0\win-x64\libSkiaSharp.pdb

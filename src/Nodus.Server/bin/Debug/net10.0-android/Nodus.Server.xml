@@ -32,6 +32,22 @@
         <member name="P:Nodus.Server.ViewModels.CreateEventViewModel.CreateAndGenerateCommand">
             <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:Nodus.Server.ViewModels.CreateEventViewModel.CreateAndGenerate"/>.</summary>
         </member>
+        <member name="T:Nodus.Server.ViewModels.ResultsViewModel">
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="F:Nodus.Server.ViewModels.ResultsViewModel.exportCsvCommand">
+            <summary>The backing field for <see cref="P:Nodus.Server.ViewModels.ResultsViewModel.ExportCsvCommand"/>.</summary>
+        </member>
+        <member name="P:Nodus.Server.ViewModels.ResultsViewModel.ExportCsvCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:Nodus.Server.ViewModels.ResultsViewModel.ExportCsvAsync"/>.</summary>
+        </member>
+        <member name="F:Nodus.Server.ViewModels.ResultsViewModel.exportExcelCommand">
+            <summary>The backing field for <see cref="P:Nodus.Server.ViewModels.ResultsViewModel.ExportExcelCommand"/>.</summary>
+        </member>
+        <member name="P:Nodus.Server.ViewModels.ResultsViewModel.ExportExcelCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:Nodus.Server.ViewModels.ResultsViewModel.ExportExcelAsync"/>.</summary>
+        </member>
         <member name="T:Nodus.Server.Resource">
             <summary>
             Android Resource Designer class.

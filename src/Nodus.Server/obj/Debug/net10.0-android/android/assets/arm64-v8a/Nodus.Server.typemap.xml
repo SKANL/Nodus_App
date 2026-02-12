@@ -1,10 +1,10 @@
-<api type="debug" assembly-name="Nodus.Server" mvid="ccc7299d5b0a4b678b15eb63426bf220">
+<api type="debug" assembly-name="Nodus.Server" mvid="1f9df308d6224af084291b946c59bf7e">
   <java-to-managed>
-    <entry java-name="crc6467b6ab04c4767b33/MainActivity" managed-name="Nodus.Server.MainActivity, Nodus.Server" managed-type-token-id="33554444" />
-    <entry java-name="crc6467b6ab04c4767b33/MainApplication" managed-name="Nodus.Server.MainApplication, Nodus.Server" managed-type-token-id="33554445" />
+    <entry java-name="crc6467b6ab04c4767b33/MainActivity" managed-name="Nodus.Server.MainActivity, Nodus.Server" managed-type-token-id="33554445" />
+    <entry java-name="crc6467b6ab04c4767b33/MainApplication" managed-name="Nodus.Server.MainApplication, Nodus.Server" managed-type-token-id="33554446" />
   </java-to-managed>
   <managed-to-java>
-    <entry java-name="crc6467b6ab04c4767b33/MainActivity" managed-name="Nodus.Server.MainActivity, Nodus.Server" managed-type-token-id="33554444" />
-    <entry java-name="crc6467b6ab04c4767b33/MainApplication" managed-name="Nodus.Server.MainApplication, Nodus.Server" managed-type-token-id="33554445" />
+    <entry java-name="crc6467b6ab04c4767b33/MainActivity" managed-name="Nodus.Server.MainActivity, Nodus.Server" managed-type-token-id="33554445" />
+    <entry java-name="crc6467b6ab04c4767b33/MainApplication" managed-name="Nodus.Server.MainApplication, Nodus.Server" managed-type-token-id="33554446" />
   </managed-to-java>
 </api>

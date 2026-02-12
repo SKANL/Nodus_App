@@ -2,19 +2,17 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using Nodus.Shared;
 using Nodus.Shared.Protocol;
+using Nodus.Shared.Common;
 #if ANDROID
 using Shiny.BluetoothLE.Hosting;
 #endif
 
-using Nodus.Client.Abstractions;
+
+using Nodus.Shared.Abstractions;
 
 namespace Nodus.Client.Services;
 
-public interface IRelayHostingService
-{
-    Task StartAdvertisingAsync();
-    void StopAdvertising();
-}
+
 
 public class RelayHostingService : IRelayHostingService
 {
@@ -71,9 +69,11 @@ public class RelayHostingService : IRelayHostingService
         }
     }
 
-    public async Task StartAdvertisingAsync()
+    public bool IsAdvertising => _bleHosting?.IsAdvertising ?? false;
+
+    public async Task<Result> StartAdvertisingAsync(CancellationToken ct = default)
     {
-        if (_bleHosting.IsAdvertising) return;
+        if (_bleHosting.IsAdvertising) return Result.Success();
 
         try 
         {
@@ -99,10 +99,12 @@ public class RelayHostingService : IRelayHostingService
             ));
             
             _logger.LogInformation("Started advertising as Relay");
+            return Result.Success();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error starting relay advertising");
+            return Result.Failure("Error starting relay advertising", ex);
         }
     }
 
@@ -119,6 +121,8 @@ public class RelayHostingService : IRelayHostingService
 #else
     private readonly ILogger<RelayHostingService> _logger;
     
+    public bool IsAdvertising => false;
+
     public RelayHostingService(IBleClientService upstreamClient, PacketTracker packetTracker, ILogger<RelayHostingService> logger) 
     {
         _upstreamClient = upstreamClient;
@@ -127,10 +131,10 @@ public class RelayHostingService : IRelayHostingService
         _logger.LogWarning("Relay hosting not available on this platform");
     }
     
-    public Task StartAdvertisingAsync()
+    public Task<Result> StartAdvertisingAsync(CancellationToken ct = default)
     {
         _logger.LogWarning("StartAdvertising called but relay hosting is not supported on this platform");
-        return Task.CompletedTask;
+        return Task.FromResult(Result.Success());
     }
     
     public void StopAdvertising()

@@ -1,0 +1,18 @@
+<api type="debug" assembly-name="Xamarin.AndroidX.Camera.Lifecycle" mvid="e4292b3898214aafab23d801f690d167">
+  <java-to-managed>
+    <entry java-name="androidx/camera/lifecycle/ExperimentalCameraProviderConfiguration" managed-name="AndroidX.Camera.Lifecycle.IExperimentalCameraProviderConfiguration, Xamarin.AndroidX.Camera.Lifecycle" skip-in-java-to-managed="True" managed-type-token-id="33554439" />
+    <entry java-name="androidx/camera/lifecycle/ExperimentalCameraProviderConfiguration" managed-name="AndroidX.Camera.Lifecycle.IExperimentalCameraProviderConfigurationInvoker, Xamarin.AndroidX.Camera.Lifecycle" managed-type-token-id="33554440" />
+    <entry java-name="androidx/camera/lifecycle/LifecycleCamera" managed-name="AndroidX.Camera.Lifecycle.LifecycleCamera, Xamarin.AndroidX.Camera.Lifecycle" managed-type-token-id="33554441" />
+    <entry java-name="androidx/camera/lifecycle/ProcessCameraProvider" managed-name="AndroidX.Camera.Lifecycle.ProcessCameraProvider, Xamarin.AndroidX.Camera.Lifecycle" managed-type-token-id="33554442" />
+    <entry java-name="androidx/camera/lifecycle/ProcessCameraProvider$Companion" managed-name="AndroidX.Camera.Lifecycle.ProcessCameraProvider+Companion, Xamarin.AndroidX.Camera.Lifecycle" managed-type-token-id="33554445" />
+    <entry java-name="androidx/camera/lifecycle/ProcessCameraProviderExtKt" managed-name="AndroidX.Camera.Lifecycle.ProcessCameraProviderExtKt, Xamarin.AndroidX.Camera.Lifecycle" managed-type-token-id="33554443" />
+  </java-to-managed>
+  <managed-to-java>
+    <entry java-name="androidx/camera/lifecycle/ExperimentalCameraProviderConfiguration" managed-name="AndroidX.Camera.Lifecycle.IExperimentalCameraProviderConfiguration, Xamarin.AndroidX.Camera.Lifecycle" skip-in-java-to-managed="True" managed-type-token-id="33554439" />
+    <entry java-name="androidx/camera/lifecycle/ExperimentalCameraProviderConfiguration" managed-name="AndroidX.Camera.Lifecycle.IExperimentalCameraProviderConfigurationInvoker, Xamarin.AndroidX.Camera.Lifecycle" managed-type-token-id="33554440" />
+    <entry java-name="androidx/camera/lifecycle/LifecycleCamera" managed-name="AndroidX.Camera.Lifecycle.LifecycleCamera, Xamarin.AndroidX.Camera.Lifecycle" managed-type-token-id="33554441" />
+    <entry java-name="androidx/camera/lifecycle/ProcessCameraProvider" managed-name="AndroidX.Camera.Lifecycle.ProcessCameraProvider, Xamarin.AndroidX.Camera.Lifecycle" managed-type-token-id="33554442" />
+    <entry java-name="androidx/camera/lifecycle/ProcessCameraProvider$Companion" managed-name="AndroidX.Camera.Lifecycle.ProcessCameraProvider+Companion, Xamarin.AndroidX.Camera.Lifecycle" managed-type-token-id="33554445" />
+    <entry java-name="androidx/camera/lifecycle/ProcessCameraProviderExtKt" managed-name="AndroidX.Camera.Lifecycle.ProcessCameraProviderExtKt, Xamarin.AndroidX.Camera.Lifecycle" managed-type-token-id="33554443" />
+  </managed-to-java>
+</api>

@@ -64,8 +64,7 @@
 		<PackageReference Include="Shiny.BluetoothLE" Version="3.3.4" />
 		<PackageReference Include="Shiny.BluetoothLE.Hosting" Version="3.3.4" />
 		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
-		<PackageReference Include="ClosedXML" Version="0.102.1" />
-		<PackageReference Include="CommunityToolkit.Maui.Storage" Version="7.0.0" />
+		<PackageReference Include="ClosedXML" Version="0.104.2" />
 	</ItemGroup>
 
 	<ItemGroup>

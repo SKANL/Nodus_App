@@ -4,126 +4,6 @@
         <name>Nodus.Client</name>
     </assembly>
     <members>
-        <member name="T:Nodus.Client.Abstractions.IBleClientService">
-            <summary>
-            Abstraction for BLE client operations with explicit error handling and cancellation support.
-            </summary>
-        </member>
-        <member name="P:Nodus.Client.Abstractions.IBleClientService.ConnectionState">
-            <summary>
-            Current connection state observable.
-            </summary>
-        </member>
-        <member name="P:Nodus.Client.Abstractions.IBleClientService.IsConnected">
-            <summary>
-            Indicates if currently connected to a server or relay.
-            </summary>
-        </member>
-        <member name="P:Nodus.Client.Abstractions.IBleClientService.LastRssi">
-            <summary>
-            Last measured RSSI value.
-            </summary>
-        </member>
-        <member name="P:Nodus.Client.Abstractions.IBleClientService.Notifications">
-            <summary>
-            Notifications received from the server (e.g., ACKs).
-            </summary>
-        </member>
-        <member name="M:Nodus.Client.Abstractions.IBleClientService.EnableNotificationsAsync(System.Threading.CancellationToken)">
-            <summary>
-            Enables notifications on the characteristic.
-            </summary>
-        </member>
-        <member name="M:Nodus.Client.Abstractions.IBleClientService.ReadRssiAsync(System.Threading.CancellationToken)">
-            <summary>
-            Reads the current RSSI value.
-            </summary>
-        </member>
-        <member name="E:Nodus.Client.Abstractions.IBleClientService.ServerDiscovered">
-            <summary>
-            Event raised when a server/relay is discovered during scanning.
-            </summary>
-        </member>
-        <member name="E:Nodus.Client.Abstractions.IBleClientService.ConnectionStatusChanged">
-            <summary>
-            Event raised when connection status changes.
-            </summary>
-        </member>
-        <member name="E:Nodus.Client.Abstractions.IBleClientService.LinkCountChanged">
-            <summary>
-            Event raised when nearby link count changes (for Trickle algorithm).
-            </summary>
-        </member>
-        <member name="M:Nodus.Client.Abstractions.IBleClientService.StartScanningForServerAsync(System.Threading.CancellationToken)">
-            <summary>
-            Starts scanning for Nodus servers and relays.
-            </summary>
-        </member>
-        <member name="M:Nodus.Client.Abstractions.IBleClientService.StopScanning">
-            <summary>
-            Stops scanning for servers.
-            </summary>
-        </member>
-        <member name="M:Nodus.Client.Abstractions.IBleClientService.ConnectAsync(Shiny.BluetoothLE.IPeripheral,System.Nullable{System.TimeSpan},System.Threading.CancellationToken)">
-            <summary>
-            Connects to a discovered peripheral with timeout.
-            </summary>
-        </member>
-        <member name="M:Nodus.Client.Abstractions.IBleClientService.SendVoteAsync(Nodus.Shared.Models.Vote,System.Threading.CancellationToken)">
-            <summary>
-            Sends a vote packet with encryption and signing.
-            </summary>
-        </member>
-        <member name="M:Nodus.Client.Abstractions.IBleClientService.RelayPacketAsync(Nodus.Shared.Protocol.NodusPacket,System.Threading.CancellationToken)">
-            <summary>
-            Relays a packet without modification (for relay nodes).
-            </summary>
-        </member>
-        <member name="M:Nodus.Client.Abstractions.IBleClientService.WriteRawAsync(System.Byte[],System.Threading.CancellationToken)">
-            <summary>
-            Writes raw data to the characteristic (for chunked media transfer).
-            </summary>
-        </member>
-        <member name="M:Nodus.Client.Abstractions.IBleClientService.DisconnectAsync(System.Threading.CancellationToken)">
-            <summary>
-            Disconnects from the current peripheral.
-            </summary>
-        </member>
-        <member name="T:Nodus.Client.Services.BleClientService">
-            <summary>
-            Professional BLE Client Service with CancellationToken support, timeout handling,
-            connection state machine, and retry logic with exponential backoff.
-            Implements IBleClientService for testability.
-            </summary>
-        </member>
-        <member name="M:Nodus.Client.Services.BleClientService.SendPacketAsync(Nodus.Shared.Protocol.NodusPacket,System.Object,System.Threading.CancellationToken)">
-            <summary>
-            Sends a secure packet. Encrypts payload and signs the packet.
-            </summary>
-        </member>
-        <member name="M:Nodus.Client.Services.BleClientService.RelayPacketAsync(Nodus.Shared.Protocol.NodusPacket,System.Threading.CancellationToken)">
-            <summary>
-            Relays a packet exactly as received (Forwarding).
-            Does NOT re-encrypt or re-sign.
-            </summary>
-        </member>
-        <member name="M:Nodus.Client.Services.BleClientService.RetryWithBackoffAsync(System.Func{System.Threading.Tasks.Task{Nodus.Shared.Common.Result}},System.Int32,System.Threading.CancellationToken)">
-            <summary>
-            Retry logic with exponential backoff for transient BLE failures.
-            </summary>
-        </member>
-        <member name="T:Nodus.Client.Services.SwarmService">
-            <inheritdoc/>
-        </member>
-        <member name="P:Nodus.Client.Services.SwarmService.CurrentState">
-            <inheritdoc cref="F:Nodus.Client.Services.SwarmService._currentState"/>
-        </member>
-        <member name="P:Nodus.Client.Services.SwarmService.NeighborLinkCount">
-            <inheritdoc cref="F:Nodus.Client.Services.SwarmService._neighborLinkCount"/>
-        </member>
-        <member name="P:Nodus.Client.Services.SwarmService.IsMuleMode">
-            <inheritdoc cref="F:Nodus.Client.Services.SwarmService._isMuleMode"/>
-        </member>
         <member name="T:Nodus.Client.ViewModels.HomeViewModel">
             <summary>
             Professional ViewModel for Home page with proper async patterns,
@@ -224,6 +104,12 @@
         <member name="P:Nodus.Client.ViewModels.SettingsViewModel.StatusMessage">
             <inheritdoc cref="F:Nodus.Client.ViewModels.SettingsViewModel._statusMessage"/>
         </member>
+        <member name="P:Nodus.Client.ViewModels.SettingsViewModel.SyncProgress">
+            <inheritdoc cref="F:Nodus.Client.ViewModels.SettingsViewModel._syncProgress"/>
+        </member>
+        <member name="P:Nodus.Client.ViewModels.SettingsViewModel.IsSyncing">
+            <inheritdoc cref="F:Nodus.Client.ViewModels.SettingsViewModel._isSyncing"/>
+        </member>
         <member name="P:Nodus.Client.ViewModels.SettingsViewModel.IsBusy">
             <inheritdoc cref="F:Nodus.Client.ViewModels.SettingsViewModel._isBusy"/>
         </member>
@@ -288,15 +174,6 @@
             for all properties generated with <see cref="T:CommunityToolkit.Mvvm.ComponentModel.ObservablePropertyAttribute"/>.
             </summary>
         </member>
-        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.CurrentState">
-            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "CurrentState" generated properties.</summary>
-        </member>
-        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.NeighborLinkCount">
-            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "NeighborLinkCount" generated properties.</summary>
-        </member>
-        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsMuleMode">
-            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsMuleMode" generated properties.</summary>
-        </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.StatusMessage">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "StatusMessage" generated properties.</summary>
         </member>
@@ -317,6 +194,9 @@
         </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsValid">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsValid" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.SyncProgress">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "SyncProgress" generated properties.</summary>
         </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsBusy">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsBusy" generated properties.</summary>
@@ -342,15 +222,6 @@
             for all properties generated with <see cref="T:CommunityToolkit.Mvvm.ComponentModel.ObservablePropertyAttribute"/>.
             </summary>
         </member>
-        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.CurrentState">
-            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "CurrentState" generated properties.</summary>
-        </member>
-        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.NeighborLinkCount">
-            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "NeighborLinkCount" generated properties.</summary>
-        </member>
-        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsMuleMode">
-            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsMuleMode" generated properties.</summary>
-        </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.StatusMessage">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "StatusMessage" generated properties.</summary>
         </member>
@@ -371,6 +242,9 @@
         </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsValid">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsValid" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.SyncProgress">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "SyncProgress" generated properties.</summary>
         </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsBusy">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsBusy" generated properties.</summary>

@@ -63,4 +63,6 @@ public class ProjectService
             .Select(s => s[random.Next(s.Length)]).ToArray());
         return $"PROJ-{randomString}";
     }
+
+    public Task<Project> SaveProjectAsync(Project project) => RegisterProjectAsync(project);
 }
