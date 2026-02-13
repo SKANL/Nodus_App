@@ -4,6 +4,18 @@
         <name>Nodus.Server</name>
     </assembly>
     <members>
+        <member name="T:Nodus.Server.Services.DialogService">
+            <summary>
+            MAUI implementation of IDialogService for Nodus.Server.
+            Thread-safe and null-safe implementation for .NET 10.
+            </summary>
+        </member>
+        <member name="T:Nodus.Server.Services.FileSaverService">
+            <summary>
+            Native implementation of IFileSaverService for .NET MAUI.
+            Saves files to the app's Documents directory.
+            </summary>
+        </member>
         <member name="T:Nodus.Server.ViewModels.CreateEventViewModel">
             <inheritdoc/>
             <inheritdoc/>

@@ -406,7 +406,11 @@ public class DatabaseService : IDatabaseService
         }
     }
 
-    public async Task<Result> ExecuteInTransactionAsync(Func<Task> action, CancellationToken ct = default)
+    /// <summary>
+    /// Executes a synchronous action within a transaction.
+    /// IMPORTANT: The action must be synchronous to work with sqlite-net-pcl's transaction model.
+    /// </summary>
+    public async Task<Result> ExecuteInTransactionAsync(Action<SQLiteConnection> action, CancellationToken ct = default)
     {
         var initResult = await EnsureInitializedAsync(ct);
         if (initResult.IsFailure) return initResult;
@@ -415,11 +419,7 @@ public class DatabaseService : IDatabaseService
         {
             await _db.RunInTransactionAsync(tran =>
             {
-                // WARNING: executing async code here is dangerous. 
-                // Passed action should ideally use 'tran' but it is a Func<Task>.
-                // We are keeping this for now but it's risky. 
-                // Ideally ExecuteInTransactionAsync should accept Action<SQLiteConnection>.
-                action().Wait();
+                action(tran);
             });
             
             return Result.Success();

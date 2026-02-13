@@ -4,6 +4,12 @@
         <name>Nodus.Client</name>
     </assembly>
     <members>
+        <member name="T:Nodus.Client.Services.DialogService">
+            <summary>
+            MAUI implementation of IDialogService using Windows[0].Page.
+            Thread-safe and null-safe implementation for .NET 10.
+            </summary>
+        </member>
         <member name="T:Nodus.Client.ViewModels.HomeViewModel">
             <summary>
             Professional ViewModel for Home page with proper async patterns,

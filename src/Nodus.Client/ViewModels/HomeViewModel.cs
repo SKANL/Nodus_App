@@ -276,7 +276,11 @@ public partial class HomeViewModel : ObservableObject, IDisposable
         {
             if (!ct.IsCancellationRequested && Application.Current?.Windows.Count > 0)
             {
-                await Application.Current.Windows[0].Page!.DisplayAlert("Error", message, "OK");
+                var page = Application.Current.Windows[0].Page;
+                if (page != null)
+                {
+                    await page.DisplayAlertAsync("Error", message, "OK");
+                }
             }
         }
         catch (Exception ex)

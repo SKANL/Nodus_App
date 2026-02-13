@@ -1,18 +1,24 @@
 using Blazored.LocalStorage;
+using Microsoft.Extensions.Logging;
+using Nodus.Shared.Abstractions;
 using Nodus.Shared.Models;
 
 namespace Nodus.Web.Services;
 
 public class ProjectService
 {
-    private readonly Nodus.Shared.Abstractions.IDatabaseService _databaseService;
+    private readonly IDatabaseService _databaseService;
+    private readonly ISettingsService _settingsService;
+    private readonly ILogger<ProjectService> _logger;
 
-    // TODO: In a real scenario, this should come from a setting or user selection
-    private const string DEFAULT_EVENT_ID = "LOCAL-EVENT";
-
-    public ProjectService(Nodus.Shared.Abstractions.IDatabaseService databaseService)
+    public ProjectService(
+        IDatabaseService databaseService, 
+        ISettingsService settingsService,
+        ILogger<ProjectService> logger)
     {
         _databaseService = databaseService;
+        _settingsService = settingsService;
+        _logger = logger;
     }
 
     /// <summary>
@@ -43,10 +49,13 @@ public class ProjectService
             project.Id = GenerateProjectId();
         }
 
-        // Ensure EventId is set for consistency with Shared schema
+        // Get EventId from settings instead of hardcoded value
         if (string.IsNullOrEmpty(project.EventId))
         {
-            project.EventId = DEFAULT_EVENT_ID;
+            var eventId = await _settingsService.GetCurrentEventIdAsync();
+            project.EventId = eventId ?? "LOCAL-EVENT"; // Fallback if settings not available
+            _logger.LogInformation("Assigned Event ID {EventId} to project {ProjectId}", 
+                project.EventId, project.Id);
         }
 
         // DatabaseService handles InsertOrReplace

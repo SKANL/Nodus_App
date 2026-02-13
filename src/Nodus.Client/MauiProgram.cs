@@ -42,6 +42,9 @@ public static class MauiProgram
         
         // Secure Storage
         builder.Services.AddSingleton<ISecureStorageService, SecureStorageService>();
+        
+        // UI Services
+        builder.Services.AddSingleton<IDialogService, Nodus.Client.Services.DialogService>();
 
         // BLE Services (Shiny)
         builder.Services.AddBluetoothLE();

@@ -20,6 +20,9 @@ builder.Services.AddSingleton<Nodus.Shared.Abstractions.IDatabaseService>(sp =>
     return new Nodus.Shared.Services.DatabaseService("nodus_web.db", logger);
 });
 
+// Settings Service
+builder.Services.AddSingleton<Nodus.Shared.Abstractions.ISettingsService, SettingsService>();
+
 builder.Services.AddScoped<ProjectService>();
 builder.Services.AddScoped<QrGeneratorService>();
 builder.Services.AddBlazoredLocalStorage(); // Keep for legacy/migration if needed, or remove later

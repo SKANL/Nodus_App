@@ -62,7 +62,11 @@ public partial class JudgeRegistrationViewModel : ObservableObject, IDisposable
             IsScanning = true;
             
             await MainThread.InvokeOnMainThreadAsync(async () => {
-                await Application.Current!.Windows[0].Page!.DisplayAlert("Registration Error", result.Error, "OK");
+                var page = Application.Current?.Windows[0].Page;
+                if (page != null)
+                {
+                    await page.DisplayAlertAsync("Registration Error", result.Error, "OK");
+                }
             });
             return;
         }
@@ -71,8 +75,12 @@ public partial class JudgeRegistrationViewModel : ObservableObject, IDisposable
         ScanStatus = "Registration Successful!";
         
         await MainThread.InvokeOnMainThreadAsync(async () => {
-            await Application.Current!.Windows[0].Page!.DisplayAlert("Success", "Keys decrypted and stored securely.", "OK");
-            await Application.Current!.Windows[0].Page!.Navigation.PopAsync();
+            var page = Application.Current?.Windows[0].Page;
+            if (page != null)
+            {
+                await page.DisplayAlertAsync("Success", "Keys decrypted and stored securely.", "OK");
+                await page.Navigation.PopAsync();
+            }
         });
     }
 
@@ -97,12 +105,17 @@ public partial class JudgeRegistrationViewModel : ObservableObject, IDisposable
             }
 
             // 2. Security Check (Password)
-            string password = await MainThread.InvokeOnMainThreadAsync(async () => 
-                await Application.Current!.Windows[0].Page!.DisplayPromptAsync(
+            string password = await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                var page = Application.Current?.Windows[0].Page;
+                if (page == null) return string.Empty;
+                
+                return await page.DisplayPromptAsync(
                     "Security Check", 
                     "Enter Event Password to decrypt credentials:", 
                     "Unlock", 
-                    "Cancel"));
+                    "Cancel") ?? string.Empty;
+            });
             
             if (string.IsNullOrWhiteSpace(password))
             {

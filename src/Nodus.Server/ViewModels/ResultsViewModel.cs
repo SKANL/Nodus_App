@@ -1,7 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Extensions.Logging;
 using Nodus.Server.Services;
+using Nodus.Shared.Abstractions;
 using Nodus.Shared.Models;
 using System.Collections.ObjectModel;
 
@@ -11,13 +13,21 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
 {
     private readonly ExportService _exportService;
     private readonly VoteAggregatorService _aggregator;
+    private readonly IFileSaverService _fileSaver;
+    private readonly ILogger<ResultsViewModel> _logger;
     
     public ObservableCollection<Vote> Votes { get; } = new();
 
-    public ResultsViewModel(VoteAggregatorService aggregator, ExportService exportService)
+    public ResultsViewModel(
+        VoteAggregatorService aggregator, 
+        ExportService exportService,
+        IFileSaverService fileSaver,
+        ILogger<ResultsViewModel> logger)
     {
         _aggregator = aggregator;
         _exportService = exportService;
+        _fileSaver = fileSaver;
+        _logger = logger;
         
         // Initial Load (if any)
         var existing = _aggregator.GetAllVotes();
@@ -43,11 +53,15 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
             var eventId = Votes.FirstOrDefault()?.EventId ?? "default";
             var bytes = await _exportService.ExportToCsvAsync(eventId);
             var fileName = $"votes_{eventId}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-            await SaveFileAsync(fileName, bytes);
+            await SaveFileAsync(fileName, bytes, "text/csv");
         }
         catch (Exception ex)
         {
-            await Application.Current!.MainPage!.DisplayAlert("Error", $"Export failed: {ex.Message}", "OK");
+            var page = Application.Current?.Windows[0].Page;
+            if (page != null)
+            {
+                await page.DisplayAlertAsync("Error", $"Export failed: {ex.Message}", "OK");
+            }
         }
     }
 
@@ -59,30 +73,41 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
             var eventId = Votes.FirstOrDefault()?.EventId ?? "default";
             var bytes = await _exportService.ExportToExcelAsync(eventId);
             var fileName = $"votes_{eventId}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
-            await SaveFileAsync(fileName, bytes);
+            await SaveFileAsync(fileName, bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         }
         catch (Exception ex)
         {
-            await Application.Current!.MainPage!.DisplayAlert("Error", $"Export failed: {ex.Message}", "OK");
+            var page = Application.Current?.Windows[0].Page;
+            if (page != null)
+            {
+                await page.DisplayAlertAsync("Error", $"Export failed: {ex.Message}", "OK");
+            }
         }
     }
 
-    private async Task SaveFileAsync(string fileName, byte[] data)
+    private async Task SaveFileAsync(string fileName, byte[] data, string contentType)
     {
-        using var stream = new MemoryStream(data);
-        // FIXME: CommunityToolkit.Maui.Storage removed due to version conflicts. Implement alternative FileSaver.
-        // var result = await CommunityToolkit.Maui.Storage.FileSaver.Default.SaveAsync(fileName, stream);
-        var result = new { IsSuccessful = false, FilePath = "", Exception = new Exception("FileSaver not implemented") }; // Placeholder
+        var result = await _fileSaver.SaveAsync(fileName, data, contentType);
         
         if (result.IsSuccessful)
         {
-            await Application.Current!.MainPage!.DisplayAlert("Success", $"File saved to {result.FilePath}", "OK");
+            _logger.LogInformation("File exported successfully: {FilePath}", result.FilePath);
+            var page = Application.Current?.Windows[0].Page;
+            if (page != null)
+            {
+                await page.DisplayAlertAsync("Success", $"File saved to {result.FilePath}", "OK");
+            }
         }
         else
         {
+            _logger.LogError(result.Exception, "Failed to save file: {FileName}", fileName);
             if (result.Exception != null)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Error", $"Save failed: {result.Exception.Message}", "OK");
+                var page = Application.Current?.Windows[0].Page;
+                if (page != null)
+                {
+                    await page.DisplayAlertAsync("Error", $"Save failed: {result.Exception.Message}", "OK");
+                }
             }
         }
     }

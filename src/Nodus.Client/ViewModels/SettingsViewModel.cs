@@ -63,7 +63,11 @@ public partial class SettingsViewModel : ObservableObject
             if (!_mediaSyncService.IsConnected)
             {
                 StatusMessage = "Error: Bluetooth not connected";
-                await Application.Current!.MainPage!.DisplayAlert("Error", "Please connect to a Nodus Server first.", "OK");
+                var errorPage = Application.Current?.Windows[0].Page;
+                if (errorPage != null)
+                {
+                    await errorPage.DisplayAlertAsync("Error", "Please connect to a Nodus Server first.", "OK");
+                }
                 return;
             }
 
@@ -73,13 +77,21 @@ public partial class SettingsViewModel : ObservableObject
             await _mediaSyncService.CheckAndSyncAsync(-90);
             
             StatusMessage = "Sync process completed.";
-            await Application.Current!.MainPage!.DisplayAlert("Sync Complete", "Media sync process finished.", "OK");
+            var successPage = Application.Current?.Windows[0].Page;
+            if (successPage != null)
+            {
+                await successPage.DisplayAlertAsync("Sync Complete", "Media sync process finished.", "OK");
+            }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Manual sync failed");
             StatusMessage = $"Error: {ex.Message}";
-            await Application.Current!.MainPage!.DisplayAlert("Error", $"Sync Failed: {ex.Message}", "OK");
+            var exceptionPage = Application.Current?.Windows[0].Page;
+            if (exceptionPage != null)
+            {
+                await exceptionPage.DisplayAlertAsync("Error", $"Sync Failed: {ex.Message}", "OK");
+            }
         }
         finally
         {

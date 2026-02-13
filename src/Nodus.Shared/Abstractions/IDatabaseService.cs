@@ -28,6 +28,7 @@ public interface IDatabaseService
     
     /// <summary>
     /// Executes multiple operations in a single transaction.
+    /// The action receives the SQLiteConnection and must be synchronous.
     /// </summary>
-    Task<Result> ExecuteInTransactionAsync(Func<Task> action, CancellationToken ct = default);
+    Task<Result> ExecuteInTransactionAsync(Action<SQLite.SQLiteConnection> action, CancellationToken ct = default);
 }

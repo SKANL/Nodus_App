@@ -149,11 +149,12 @@ public class BleServerService
         var voteResult = await _db.GetVoteByIdAsync(voteId); 
         
         string targetFolder;
-        if (voteResult.IsSuccess)
+        if (voteResult.IsSuccess && voteResult.Value != null)
         {
             var vote = voteResult.Value;
             // Organize by EventId if possible
-            targetFolder = Path.Combine(FileSystem.AppDataDirectory, "Media", vote.EventId);
+            var eventId = string.IsNullOrEmpty(vote.EventId) ? "Unknown" : vote.EventId;
+            targetFolder = Path.Combine(FileSystem.AppDataDirectory, "Media", eventId);
         }
         else
         {
@@ -169,7 +170,7 @@ public class BleServerService
         _logger.LogInformation("Saved media to {Path}", path);
 
         // 2. Update Vote Record if it exists
-        if (voteResult.IsSuccess)
+        if (voteResult.IsSuccess && voteResult.Value != null)
         {
             var vote = voteResult.Value;
             vote.LocalPhotoPath = path;
@@ -224,6 +225,13 @@ public class BleServerService
              // ... existing decryption logic ...
              try 
              {
+                 // Additional null check for safety
+                 if (packet.EncryptedPayload == null)
+                 {
+                     _logger.LogWarning("EncryptedPayload is null despite previous check");
+                     return;
+                 }
+                 
                  var decryptedBytes = CryptoHelper.Decrypt(packet.EncryptedPayload, _currentEventAesKey);
                  var decryptedJson = Encoding.UTF8.GetString(decryptedBytes);
                  

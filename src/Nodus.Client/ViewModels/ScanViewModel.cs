@@ -197,13 +197,20 @@ public partial class ScanViewModel : ObservableObject
 
         try
         {
+            var page = Application.Current.Windows[0].Page;
+            if (page == null)
+            {
+                _logger.LogWarning("Cannot show alert: Page is null");
+                return false;
+            }
+
             if (cancel != null)
             {
-                return await Application.Current.Windows[0].Page!.DisplayAlert(title, message, accept, cancel);
+                return await page.DisplayAlertAsync(title, message, accept, cancel);
             }
             else
             {
-                await Application.Current.Windows[0].Page!.DisplayAlert(title, message, accept);
+                await page.DisplayAlertAsync(title, message, accept);
                 return true;
             }
         }
@@ -221,7 +228,14 @@ public partial class ScanViewModel : ObservableObject
 
         try
         {
-            return await Application.Current.Windows[0].Page!.DisplayPromptAsync(
+            var page = Application.Current.Windows[0].Page;
+            if (page == null)
+            {
+                _logger.LogWarning("Cannot show prompt: Page is null");
+                return null;
+            }
+
+            return await page.DisplayPromptAsync(
                 title, 
                 message, 
                 maxLength: maxLength, 

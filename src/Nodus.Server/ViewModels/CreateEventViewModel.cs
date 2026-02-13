@@ -35,7 +35,11 @@ public partial class CreateEventViewModel : ObservableObject
         if (string.IsNullOrWhiteSpace(EventName) || string.IsNullOrWhiteSpace(JudgePassword))
         {
             System.Diagnostics.Debug.WriteLine("[DEBUG] Validation Failed: Missing Name or Password");
-            await Application.Current!.Windows[0].Page!.DisplayAlert("Validation Error", "Please enter Event Name and Password", "OK");
+            var page = Application.Current?.Windows[0].Page;
+            if (page != null)
+            {
+                await page.DisplayAlertAsync("Validation Error", "Please enter Event Name and Password", "OK");
+            }
             return;
         }
 
@@ -75,8 +79,12 @@ public partial class CreateEventViewModel : ObservableObject
             var saveResult = await _db.SaveEventAsync(newEvent);
             if (saveResult.IsFailure)
             {
-                await Application.Current!.Windows[0].Page!.DisplayAlert("Error", 
-                    $"Failed to save event: {saveResult.Error}", "OK");
+                var page = Application.Current?.Windows[0].Page;
+                if (page != null)
+                {
+                    await page.DisplayAlertAsync("Error", 
+                        $"Failed to save event: {saveResult.Error}", "OK");
+                }
                 return;
             }
 
@@ -91,8 +99,12 @@ public partial class CreateEventViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current!.Windows[0].Page!.DisplayAlert("Error", 
-                $"Failed to create event: {ex.Message}", "OK");
+            var page = Application.Current?.Windows[0].Page;
+            if (page != null)
+            {
+                await page.DisplayAlertAsync("Error", 
+                    $"Failed to create event: {ex.Message}", "OK");
+            }
         }
     }
 
