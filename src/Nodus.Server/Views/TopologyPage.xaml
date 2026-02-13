@@ -3,43 +3,174 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Nodus.Server.ViewModels"
              x:Class="Nodus.Server.Views.TopologyPage"
-             Title="Swarm Topology">
+             Title="Network Telemetry">
 
-    <Grid RowDefinitions="Auto, *">
-        <VerticalStackLayout Padding="20" Spacing="5">
-            <Label Text="Active Swarm Nodes" FontSize="20" FontAttributes="Bold" />
-            <Label Text="Live view of connected Judges and Relays" TextColor="Gray" FontSize="12"/>
+    <Grid RowDefinitions="Auto,Auto,*" Padding="20" RowSpacing="15">
+        
+        <!-- Header -->
+        <VerticalStackLayout Spacing="5">
+            <Label Text="Network Topology &amp; Metrics" FontSize="24" FontAttributes="Bold" />
+            <Label Text="Real-time mesh network monitoring" TextColor="Gray" FontSize="14"/>
         </VerticalStackLayout>
 
-        <CollectionView Grid.Row="1" ItemsSource="{Binding Nodes}" Margin="20">
-            <CollectionView.ItemsLayout>
-                <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="10" VerticalItemSpacing="10" />
-            </CollectionView.ItemsLayout>
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Frame BorderColor="{Binding IsRelay, Converter={StaticResource BoolToColorConverter}}" 
-                           BackgroundColor="#F5F5F5"
-                           CornerRadius="10"
-                           HasShadow="True"
-                           Padding="15">
-                        <VerticalStackLayout Spacing="5">
-                            <Label Text="{Binding Label}" FontAttributes="Bold" HorizontalOptions="Center" />
-                            <Label Text="{Binding Id}" FontSize="10" TextColor="Gray" HorizontalOptions="Center"/>
-                            
-                            <!-- Status Indicator -->
-                            <BoxView Color="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
-                                     HeightRequest="10" WidthRequest="10"
-                                     CornerRadius="5"
-                                     HorizontalOptions="Center" />
-                            
-                            <Label Text="{Binding Rssi, StringFormat='RSSI: {0} dBm'}" 
-                                   FontSize="10" 
-                                   HorizontalOptions="Center"
-                                   IsVisible="{Binding IsRelay, Converter={StaticResource InvertedBoolConverter}}"/> <!-- Assuming server doesn't show RSSI to self -->
-                        </VerticalStackLayout>
-                    </Frame>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+        <!-- Summary Statistics Card -->
+        <Frame Grid.Row="1" 
+               BorderColor="{StaticResource Primary}" 
+               CornerRadius="10" 
+               Padding="15"
+               HasShadow="True">
+            <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="10">
+                <VerticalStackLayout Grid.Column="0" Spacing="3">
+                    <Label Text="Total Nodes" FontSize="12" TextColor="Gray" HorizontalOptions="Center"/>
+                    <Label Text="{Binding TotalNodes}" 
+                           FontSize="20" 
+                           FontAttributes="Bold" 
+                           TextColor="{StaticResource Primary}"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Grid.Column="1" Spacing="3">
+                    <Label Text="Active" FontSize="12" TextColor="Gray" HorizontalOptions="Center"/>
+                    <Label Text="{Binding ActiveNodes}" 
+                           FontSize="20" 
+                           FontAttributes="Bold" 
+                           TextColor="Green"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Grid.Column="2" Spacing="3">
+                    <Label Text="Relays" FontSize="12" TextColor="Gray" HorizontalOptions="Center"/>
+                    <Label Text="{Binding RelayNodes}" 
+                           FontSize="20" 
+                           FontAttributes="Bold" 
+                           TextColor="Orange"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Grid.Column="3" Spacing="3">
+                    <Label Text="Avg Quality" FontSize="12" TextColor="Gray" HorizontalOptions="Center"/>
+                    <Label Text="{Binding AverageConnectionQuality, StringFormat='{0:F0}%'}" 
+                           FontSize="20" 
+                           FontAttributes="Bold" 
+                           TextColor="{StaticResource Primary}"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </Grid>
+        </Frame>
+
+        <!-- Nodes List -->
+        <ScrollView Grid.Row="2">
+            <VerticalStackLayout Spacing="10">
+                <HorizontalStackLayout Spacing="10" HorizontalOptions="End">
+                    <Label Text="Last Update:" FontSize="12" TextColor="Gray" VerticalOptions="Center"/>
+                    <Label Text="{Binding LastUpdateTime}" FontSize="12" FontAttributes="Bold" VerticalOptions="Center"/>
+                    <Button Text="↻ Refresh" 
+                            Command="{Binding RefreshTopologyCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource Primary}"
+                            BorderColor="{StaticResource Primary}"
+                            BorderWidth="1"
+                            HeightRequest="30"
+                            WidthRequest="80"
+                            FontSize="12"/>
+                </HorizontalStackLayout>
+
+                <CollectionView ItemsSource="{Binding Nodes}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame BorderColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}" 
+                                   BackgroundColor="White"
+                                   CornerRadius="10"
+                                   HasShadow="True"
+                                   Padding="15"
+                                   Margin="0,5">
+                                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="8">
+                                    
+                                    <!-- Node Header -->
+                                    <HorizontalStackLayout Grid.Row="0" Grid.Column="0" Spacing="10">
+                                        <Label Text="{Binding NodeLabel}" 
+                                               FontAttributes="Bold" 
+                                               FontSize="16"
+                                               VerticalOptions="Center"/>
+                                        <Frame BackgroundColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
+                                               CornerRadius="10"
+                                               Padding="5,2"
+                                               HasShadow="False"
+                                               IsVisible="{Binding IsRelay}">
+                                            <Label Text="RELAY" 
+                                                   FontSize="10" 
+                                                   TextColor="White"
+                                                   FontAttributes="Bold"/>
+                                        </Frame>
+                                    </HorizontalStackLayout>
+                                    
+                                    <Label Grid.Row="0" Grid.Column="1"
+                                           Text="{Binding NodeId}" 
+                                           FontSize="10" 
+                                           TextColor="Gray"
+                                           VerticalOptions="Center"/>
+
+                                    <!-- Connection Metrics -->
+                                    <Grid Grid.Row="1" Grid.ColumnSpan="2" 
+                                          ColumnDefinitions="*,*,*" 
+                                          ColumnSpacing="10">
+                                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                            <Label Text="RSSI" FontSize="10" TextColor="Gray"/>
+                                            <Label Text="{Binding Rssi, StringFormat='{0} dBm'}" 
+                                                   FontSize="12" 
+                                                   FontAttributes="Bold"/>
+                                        </VerticalStackLayout>
+
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                            <Label Text="Latency" FontSize="10" TextColor="Gray"/>
+                                            <Label Text="{Binding AverageLatency, StringFormat='{0:F1} ms'}" 
+                                                   FontSize="12" 
+                                                   FontAttributes="Bold"/>
+                                        </VerticalStackLayout>
+
+                                        <VerticalStackLayout Grid.Column="2" Spacing="2">
+                                            <Label Text="Quality" FontSize="10" TextColor="Gray"/>
+                                            <Label Text="{Binding ConnectionQuality, StringFormat='{0:F0}%'}" 
+                                                   FontSize="12" 
+                                                   FontAttributes="Bold"
+                                                   TextColor="{Binding ConnectionQuality, Converter={StaticResource QualityToColorConverter}}"/>
+                                        </VerticalStackLayout>
+                                    </Grid>
+
+                                    <!-- Packet Statistics -->
+                                    <Grid Grid.Row="2" Grid.ColumnSpan="2" 
+                                          ColumnDefinitions="*,*,*" 
+                                          ColumnSpacing="10">
+                                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                            <Label Text="Packets Sent" FontSize="10" TextColor="Gray"/>
+                                            <Label Text="{Binding PacketsSent}" 
+                                                   FontSize="12" 
+                                                   FontAttributes="Bold"/>
+                                        </VerticalStackLayout>
+
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                            <Label Text="Received" FontSize="10" TextColor="Gray"/>
+                                            <Label Text="{Binding PacketsReceived}" 
+                                                   FontSize="12" 
+                                                   FontAttributes="Bold"/>
+                                        </VerticalStackLayout>
+
+                                        <VerticalStackLayout Grid.Column="2" Spacing="2">
+                                            <Label Text="Loss" FontSize="10" TextColor="Gray"/>
+                                            <Label Text="{Binding PacketLossPercentage, StringFormat='{0:F1}%'}" 
+                                                   FontSize="12" 
+                                                   FontAttributes="Bold"
+                                                   TextColor="{Binding PacketLossPercentage, Converter={StaticResource PacketLossToColorConverter}}"/>
+                                        </VerticalStackLayout>
+                                    </Grid>
+
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+
     </Grid>
 </ContentPage>

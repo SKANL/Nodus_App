@@ -35,13 +35,13 @@ public class StatusToColorConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is Nodus.Server.ViewModels.TopologyViewModel.NodeStatus status)
+        if (value is Nodus.Shared.Models.NodeStatus status)
         {
             return status switch
             {
-                Nodus.Server.ViewModels.TopologyViewModel.NodeStatus.Online => Colors.Green,
-                Nodus.Server.ViewModels.TopologyViewModel.NodeStatus.Warning => Colors.Orange,
-                Nodus.Server.ViewModels.TopologyViewModel.NodeStatus.Offline => Colors.Red,
+                Nodus.Shared.Models.NodeStatus.Online => Colors.Green,
+                Nodus.Shared.Models.NodeStatus.Warning => Colors.Orange,
+                Nodus.Shared.Models.NodeStatus.Offline => Colors.Red,
                 _ => Colors.Gray
             };
         }

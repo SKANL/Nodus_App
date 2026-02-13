@@ -8,6 +8,52 @@
     <ScrollView>
         <VerticalStackLayout Spacing="25" Padding="30">
 
+            <Label Text="Sync Status"
+                   Style="{StaticResource Headline}" />
+
+            <!-- Sync Statistics Card -->
+            <Frame BorderColor="{StaticResource Primary}" 
+                   CornerRadius="10" 
+                   Padding="15"
+                   HasShadow="True">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Sync Statistics" 
+                           FontSize="18" 
+                           FontAttributes="Bold" />
+                    
+                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="8">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Pending Votes:" />
+                        <Label Grid.Row="0" Grid.Column="1" 
+                               Text="{Binding PendingVotesCount}" 
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource Primary}" />
+                        
+                        <Label Grid.Row="1" Grid.Column="0" Text="Pending Media:" />
+                        <Label Grid.Row="1" Grid.Column="1" 
+                               Text="{Binding PendingMediaCount}" 
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource Primary}" />
+                        
+                        <Label Grid.Row="2" Grid.Column="0" Text="Overall Sync:" />
+                        <Label Grid.Row="2" Grid.Column="1" 
+                               Text="{Binding SyncStatsText}" 
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource Primary}" />
+                    </Grid>
+
+                    <Button Text="↻ Refresh Stats"
+                            Command="{Binding RefreshStatsCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource Primary}"
+                            BorderColor="{StaticResource Primary}"
+                            BorderWidth="1"
+                            HeightRequest="35"
+                            FontSize="14" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <BoxView HeightRequest="1" Color="LightGray" />
+
             <Label Text="Developer Options"
                    Style="{StaticResource Headline}" />
 

@@ -2,12 +2,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Nodus.Client.Services;
 using Microsoft.Extensions.Logging;
+using Nodus.Shared.Services;
 
 namespace Nodus.Client.ViewModels;
 
-public partial class SettingsViewModel : ObservableObject
+public partial class SettingsViewModel : ObservableObject, IDisposable
 {
     private readonly MediaSyncService _mediaSyncService;
+    private readonly DatabaseService _databaseService;
     private readonly ILogger<SettingsViewModel> _logger;
 
     [ObservableProperty]
@@ -22,21 +24,65 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private bool _isBusy;
 
-    public SettingsViewModel(MediaSyncService mediaSyncService, ILogger<SettingsViewModel> logger)
+    [ObservableProperty]
+    private int _pendingVotesCount;
+
+    [ObservableProperty]
+    private int _pendingMediaCount;
+
+    [ObservableProperty]
+    private string _syncStatsText = "Loading...";
+
+    public SettingsViewModel(
+        MediaSyncService mediaSyncService, 
+        DatabaseService databaseService,
+        ILogger<SettingsViewModel> logger)
     {
         _mediaSyncService = mediaSyncService;
+        _databaseService = databaseService;
         _logger = logger;
         
         // Subscribe to events
         _mediaSyncService.SyncStatusChanged += OnSyncStatusChanged;
         _mediaSyncService.SyncProgressChanged += OnSyncProgressChanged;
         _mediaSyncService.SyncStateChanged += OnSyncStateChanged;
+
+        // Load initial stats
+        _ = LoadSyncStatsAsync();
+    }
+
+    private async Task LoadSyncStatsAsync()
+    {
+        try
+        {
+            var statsResult = await _databaseService.GetSyncStatsAsync();
+            if (statsResult.IsSuccess && statsResult.Value != null)
+            {
+                var stats = statsResult.Value;
+                PendingVotesCount = stats.PendingVotes;
+                PendingMediaCount = stats.PendingMedia;
+                SyncStatsText = $"{stats.SyncedVotes}/{stats.TotalVotes} synced ({stats.SyncPercentage:F0}%)";
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to load sync stats");
+            SyncStatsText = "Error loading stats";
+        }
     }
 
     private void OnSyncStatusChanged(object? sender, string status)
     {
         // Ensure UI update on MainThread
-        MainThread.BeginInvokeOnMainThread(() => StatusMessage = status);
+        MainThread.BeginInvokeOnMainThread(() => 
+        {
+            StatusMessage = status;
+            // Reload stats when sync completes
+            if (status.Contains("complete", StringComparison.OrdinalIgnoreCase))
+            {
+                _ = LoadSyncStatsAsync();
+            }
+        });
     }
 
     private void OnSyncProgressChanged(object? sender, double progress)
@@ -97,12 +143,21 @@ public partial class SettingsViewModel : ObservableObject
         {
             IsBusy = false;
             IsSyncing = false;
+            await LoadSyncStatsAsync();
         }
     }
-    
-    // Dispose/Destructor to unsubscribe? 
-    // ViewModels in MAUI are often transient or singleton. If Transient, we should implement IDisposable in a real app.
-    // For now simple subscription is okay as it singleton in DI.
-    // Wait, MauiProgram says AddTransient for SettingsViewModel.
-    // We should implement IDisposable to avoid leaks if we navigate away and come back.
+
+    [RelayCommand]
+    private async Task RefreshStatsAsync()
+    {
+        await LoadSyncStatsAsync();
+    }
+
+    public void Dispose()
+    {
+        // Unsubscribe from events to prevent memory leaks
+        _mediaSyncService.SyncStatusChanged -= OnSyncStatusChanged;
+        _mediaSyncService.SyncProgressChanged -= OnSyncProgressChanged;
+        _mediaSyncService.SyncStateChanged -= OnSyncStateChanged;
+    }
 }

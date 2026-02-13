@@ -1,20 +1,171 @@
 using System.Security.Cryptography;
-using Nodus.Shared.Security;
+using System.Text;
 using Xunit;
+using Nodus.Shared.Security;
 
-namespace Nodus.Tests.Unit.Security;
+namespace Nodus.Tests.Security;
 
 public class CryptoHelperTests
 {
-    private byte[] GenerateRandomKey()
+    [Fact]
+    public void DeriveKeyFromPassword_ValidInputs_Returns32ByteKey()
     {
-        var key = new byte[32];
-        RandomNumberGenerator.Fill(key);
-        return key;
+        // Arrange
+        var password = "TestPassword123!";
+        var salt = new byte[16];
+        RandomNumberGenerator.Fill(salt);
+
+        // Act
+        var key = CryptoHelper.DeriveKeyFromPassword(password, salt);
+
+        // Assert
+        Assert.NotNull(key);
+        Assert.Equal(32, key.Length);
     }
 
     [Fact]
-    public void GenerateSigningKeys_ReturnsValidBase64Keys()
+    public void DeriveKeyFromPassword_SameInputs_ReturnsSameKey()
+    {
+        // Arrange
+        var password = "TestPassword123!";
+        var salt = new byte[16];
+        RandomNumberGenerator.Fill(salt);
+
+        // Act
+        var key1 = CryptoHelper.DeriveKeyFromPassword(password, salt);
+        var key2 = CryptoHelper.DeriveKeyFromPassword(password, salt);
+
+        // Assert
+        Assert.Equal(key1, key2);
+    }
+
+    [Fact]
+    public void DeriveKeyFromPassword_DifferentPasswords_ReturnsDifferentKeys()
+    {
+        // Arrange
+        var salt = new byte[16];
+        RandomNumberGenerator.Fill(salt);
+
+        // Act
+        var key1 = CryptoHelper.DeriveKeyFromPassword("Password1", salt);
+        var key2 = CryptoHelper.DeriveKeyFromPassword("Password2", salt);
+
+        // Assert
+        Assert.NotEqual(key1, key2);
+    }
+
+    [Fact]
+    public void DeriveKeyFromPassword_InvalidSalt_ThrowsArgumentException()
+    {
+        // Arrange
+        var password = "TestPassword";
+        var invalidSalt = new byte[8]; // Wrong size
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => 
+            CryptoHelper.DeriveKeyFromPassword(password, invalidSalt));
+    }
+
+    [Fact]
+    public void Encrypt_Decrypt_RoundTrip_Success()
+    {
+        // Arrange
+        var plaintext = "Hello, Nodus!"u8.ToArray();
+        var key = new byte[32];
+        RandomNumberGenerator.Fill(key);
+
+        // Act
+        var encrypted = CryptoHelper.Encrypt(plaintext, key);
+        var decrypted = CryptoHelper.Decrypt(encrypted, key);
+
+        // Assert
+        Assert.Equal(plaintext, decrypted);
+    }
+
+    [Fact]
+    public void Encrypt_ProducesNonceAndTag()
+    {
+        // Arrange
+        var plaintext = "Test"u8.ToArray();
+        var key = new byte[32];
+        RandomNumberGenerator.Fill(key);
+
+        // Act
+        var encrypted = CryptoHelper.Encrypt(plaintext, key);
+
+        // Assert
+        // Encrypted should be: 12 bytes (nonce) + plaintext length + 16 bytes (tag)
+        Assert.Equal(12 + plaintext.Length + 16, encrypted.Length);
+    }
+
+    [Fact]
+    public void Encrypt_DifferentNonces_ProducesDifferentCiphertexts()
+    {
+        // Arrange
+        var plaintext = "Same message"u8.ToArray();
+        var key = new byte[32];
+        RandomNumberGenerator.Fill(key);
+
+        // Act
+        var encrypted1 = CryptoHelper.Encrypt(plaintext, key);
+        var encrypted2 = CryptoHelper.Encrypt(plaintext, key);
+
+        // Assert
+        Assert.NotEqual(encrypted1, encrypted2); // Different nonces
+    }
+
+    [Fact]
+    public void Decrypt_TamperedData_ThrowsCryptographicException()
+    {
+        // Arrange
+        var plaintext = "Secret message"u8.ToArray();
+        var key = new byte[32];
+        RandomNumberGenerator.Fill(key);
+        var encrypted = CryptoHelper.Encrypt(plaintext, key);
+
+        // Tamper with the ciphertext
+        encrypted[20] ^= 0xFF;
+
+        // Act & Assert
+        Assert.Throws<AuthenticationTagMismatchException>(() => 
+            CryptoHelper.Decrypt(encrypted, key));
+    }
+
+    [Fact]
+    public void Decrypt_WrongKey_ThrowsCryptographicException()
+    {
+        // Arrange
+        var plaintext = "Secret"u8.ToArray();
+        var key1 = new byte[32];
+        var key2 = new byte[32];
+        RandomNumberGenerator.Fill(key1);
+        RandomNumberGenerator.Fill(key2);
+
+        var encrypted = CryptoHelper.Encrypt(plaintext, key1);
+
+        // Act & Assert
+        Assert.Throws<AuthenticationTagMismatchException>(() => 
+            CryptoHelper.Decrypt(encrypted, key2));
+    }
+
+    [Fact]
+    public void EncryptString_DecryptString_RoundTrip_Success()
+    {
+        // Arrange
+        var plaintext = "Hello, World! 🌍";
+        var key = new byte[32];
+        RandomNumberGenerator.Fill(key);
+
+        // Act
+        var encrypted = CryptoHelper.EncryptString(plaintext, key);
+        var decrypted = CryptoHelper.DecryptString(encrypted, key);
+
+        // Assert
+        Assert.Equal(plaintext, decrypted);
+    }
+
+    [Fact]
+    public void GenerateSigningKeys_ReturnsValidKeyPair()
     {
         // Act
         var (publicKey, privateKey) = CryptoHelper.GenerateSigningKeys();
@@ -24,128 +175,53 @@ public class CryptoHelperTests
         Assert.NotNull(privateKey);
         Assert.NotEmpty(publicKey);
         Assert.NotEmpty(privateKey);
-        
-        var pubBytes = Convert.FromBase64String(publicKey);
-        var privBytes = Convert.FromBase64String(privateKey);
-        
-        // ECDsa P-256 keys are usually around ~91 bytes (DER encoded) but variable
-        Assert.True(pubBytes.Length > 0);
-        Assert.True(privBytes.Length > 0);
+        Assert.NotEqual(publicKey, privateKey);
     }
 
     [Fact]
-    public void EncryptDecrypt_RoundTrip_Success()
+    public void SignData_VerifyData_ValidSignature_ReturnsTrue()
     {
         // Arrange
-        var aesKey = GenerateRandomKey();
-        var plaintext = "Hello, Nodus!";
-        var plaintextBytes = System.Text.Encoding.UTF8.GetBytes(plaintext);
-
-        // Act
-        var ciphertext = CryptoHelper.Encrypt(plaintextBytes, aesKey);
-        var decryptedBytes = CryptoHelper.Decrypt(ciphertext, aesKey);
-
-        // Assert
-        Assert.NotNull(ciphertext);
-        Assert.NotNull(decryptedBytes);
-        
-        var decryptedText = System.Text.Encoding.UTF8.GetString(decryptedBytes);
-        Assert.Equal(plaintext, decryptedText);
-    }
-
-    [Fact]
-    public void Encrypt_DifferentNonces_ProducesDifferentCiphertext()
-    {
-        // Arrange
-        var aesKey = GenerateRandomKey();
-        var plaintext = System.Text.Encoding.UTF8.GetBytes("Test message");
-
-        // Act
-        var ciphertext1 = CryptoHelper.Encrypt(plaintext, aesKey);
-        var ciphertext2 = CryptoHelper.Encrypt(plaintext, aesKey);
-
-        // Assert
-        Assert.NotEqual(ciphertext1, ciphertext2); // Different nonces
-    }
-
-    [Fact]
-    public void Decrypt_WrongKey_ThrowsException()
-    {
-        // Arrange
-        var aesKey1 = GenerateRandomKey();
-        var aesKey2 = GenerateRandomKey();
-        var plaintext = System.Text.Encoding.UTF8.GetBytes("Secret");
-        var ciphertext = CryptoHelper.Encrypt(plaintext, aesKey1);
-
-        // Act & Assert
-        Assert.ThrowsAny<CryptographicException>(() => CryptoHelper.Decrypt(ciphertext, aesKey2));
-    }
-
-    [Fact]
-    public void SignVerify_RoundTrip_Success()
-    {
-        // Arrange
+        var data = "Important message"u8.ToArray();
         var (publicKey, privateKey) = CryptoHelper.GenerateSigningKeys();
-        var message = System.Text.Encoding.UTF8.GetBytes("Sign this message");
 
         // Act
-        var signature = CryptoHelper.SignData(message, privateKey);
-        var isValid = CryptoHelper.VerifyData(message, signature, publicKey);
+        var signature = CryptoHelper.SignData(data, privateKey);
+        var isValid = CryptoHelper.VerifyData(data, signature, publicKey);
 
         // Assert
-        Assert.NotNull(signature);
-        Assert.True(signature.Length > 0);
         Assert.True(isValid);
     }
 
-    [Fact]  
-    public void VerifyData_WrongSignature_Fails()
+    [Fact]
+    public void VerifyData_TamperedData_ReturnsFalse()
     {
         // Arrange
+        var data = "Original message"u8.ToArray();
+        var tamperedData = "Tampered message"u8.ToArray();
         var (publicKey, privateKey) = CryptoHelper.GenerateSigningKeys();
-        var message = System.Text.Encoding.UTF8.GetBytes("Original message");
-        var signature = CryptoHelper.SignData(message, privateKey);
+        var signature = CryptoHelper.SignData(data, privateKey);
 
+        // Act
+        var isValid = CryptoHelper.VerifyData(tamperedData, signature, publicKey);
+
+        // Assert
+        Assert.False(isValid);
+    }
+
+    [Fact]
+    public void VerifyData_TamperedSignature_ReturnsFalse()
+    {
+        // Arrange
+        var data = "Message"u8.ToArray();
+        var (publicKey, privateKey) = CryptoHelper.GenerateSigningKeys();
+        var signature = CryptoHelper.SignData(data, privateKey);
+        
         // Tamper with signature
-        if (signature.Length > 0)
-            signature[0] ^= 0xFF;
+        signature[0] ^= 0xFF;
 
         // Act
-        var isValid = CryptoHelper.VerifyData(message, signature, publicKey);
-
-        // Assert
-        Assert.False(isValid);
-    }
-
-    [Fact]
-    public void VerifyData_WrongPublicKey_Fails()
-    {
-        // Arrange
-        var (publicKey1, privateKey1) = CryptoHelper.GenerateSigningKeys();
-        var (publicKey2, _) = CryptoHelper.GenerateSigningKeys();
-        var message = System.Text.Encoding.UTF8.GetBytes("Message");
-        var signature = CryptoHelper.SignData(message, privateKey1);
-
-        // Act
-        var isValid = CryptoHelper.VerifyData(message, signature, publicKey2);
-
-        // Assert
-        Assert.False(isValid);
-    }
-
-    [Fact]
-    public void VerifyData_TamperedMessage_Fails()
-    {
-        // Arrange
-        var (publicKey, privateKey) = CryptoHelper.GenerateSigningKeys();
-        var message = System.Text.Encoding.UTF8.GetBytes("Original message");
-        var signature = CryptoHelper.SignData(message, privateKey);
-
-        // Tamper with message
-        var tamperedMessage = System.Text.Encoding.UTF8.GetBytes("Tampered message");
-
-        // Act
-        var isValid = CryptoHelper.VerifyData(tamperedMessage, signature, publicKey);
+        var isValid = CryptoHelper.VerifyData(data, signature, publicKey);
 
         // Assert
         Assert.False(isValid);

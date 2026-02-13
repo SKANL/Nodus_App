@@ -1,48 +1,110 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
-using Nodus.Shared.Models; // Assuming Node/Peer models exist or defining simple ones here
+using Nodus.Shared.Models;
+using Nodus.Shared.Services;
+using Microsoft.Extensions.Logging;
 
 namespace Nodus.Server.ViewModels;
 
-public partial class TopologyViewModel : ObservableObject
+public partial class TopologyViewModel : ObservableObject, IDisposable
 {
-    public enum NodeStatus
+    private readonly TelemetryService _telemetryService;
+    private readonly ILogger<TopologyViewModel> _logger;
+    private System.Timers.Timer? _refreshTimer;
+
+    [ObservableProperty]
+    private ObservableCollection<NetworkMetrics> _nodes = new();
+
+    [ObservableProperty]
+    private int _totalNodes;
+
+    [ObservableProperty]
+    private int _activeNodes;
+
+    [ObservableProperty]
+    private int _relayNodes;
+
+    [ObservableProperty]
+    private double _averageConnectionQuality;
+
+    [ObservableProperty]
+    private string _lastUpdateTime = "Never";
+
+    public TopologyViewModel(TelemetryService telemetryService, ILogger<TopologyViewModel> logger)
     {
-        Online, // Green
-        Warning, // Yellow (Weak signal or stale)
-        Offline // Red
+        _telemetryService = telemetryService;
+        _logger = logger;
+
+        // Subscribe to telemetry updates
+        _telemetryService.TopologyUpdated += OnTopologyUpdated;
+        _telemetryService.NodeMetricsUpdated += OnNodeMetricsUpdated;
+
+        // Initial load
+        RefreshTopology();
+
+        // Auto-refresh every 2 seconds
+        _refreshTimer = new System.Timers.Timer(2000);
+        _refreshTimer.Elapsed += (s, e) => RefreshTopology();
+        _refreshTimer.Start();
     }
 
-    // Minimal Node representation for UI
-    public class NodeModel : ObservableObject
+    [RelayCommand]
+    private void RefreshTopology()
     {
-        public string Id { get; set; } = "";
-        public string Label { get; set; } = "";
-        public bool IsRelay { get; set; }
-        public DateTime LastSeen { get; set; }
-        public int Rssi { get; set; }
-
-        public NodeStatus Status
+        try
         {
-            get
+            var topology = _telemetryService.GetCurrentTopology();
+            
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                var timeSinceLastSeen = DateTime.Now - LastSeen;
-                if (timeSinceLastSeen.TotalSeconds > 30) return NodeStatus.Offline;
-                if (timeSinceLastSeen.TotalSeconds > 10 || Rssi < -85) return NodeStatus.Warning;
-                return NodeStatus.Online;
-            }
+                Nodes.Clear();
+                foreach (var node in topology.Nodes.OrderByDescending(n => n.IsRelay).ThenBy(n => n.NodeLabel))
+                {
+                    Nodes.Add(node);
+                }
+
+                TotalNodes = topology.TotalNodes;
+                ActiveNodes = topology.ActiveNodes;
+                RelayNodes = topology.RelayNodes;
+                AverageConnectionQuality = topology.AverageConnectionQuality;
+                LastUpdateTime = DateTime.Now.ToString("HH:mm:ss");
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to refresh topology");
         }
     }
 
-    public ObservableCollection<NodeModel> Nodes { get; } = new();
-
-    public TopologyViewModel()
+    private void OnTopologyUpdated(object? sender, NetworkTopology topology)
     {
-        // Mock Data for Visualization
-        Nodes.Add(new NodeModel { Id = "SVR", Label = "Server (You)", IsRelay = true, LastSeen = DateTime.Now, Rssi = -50 });
-        Nodes.Add(new NodeModel { Id = "J1", Label = "Judge 1", IsRelay = false, LastSeen = DateTime.Now, Rssi = -60 });
-        Nodes.Add(new NodeModel { Id = "J2", Label = "Judge 2", IsRelay = true, LastSeen = DateTime.Now.AddSeconds(-15), Rssi = -75 }); // Warning (Stale)
-        Nodes.Add(new NodeModel { Id = "J3", Label = "Judge 3", IsRelay = false, LastSeen = DateTime.Now.AddSeconds(-40), Rssi = -80 }); // Offline
+        // Topology already updated via timer, but we could add specific handling here
+    }
+
+    private void OnNodeMetricsUpdated(object? sender, NetworkMetrics metrics)
+    {
+        // Update specific node in collection
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            var existingNode = Nodes.FirstOrDefault(n => n.NodeId == metrics.NodeId);
+            if (existingNode != null)
+            {
+                var index = Nodes.IndexOf(existingNode);
+                Nodes[index] = metrics;
+            }
+            else
+            {
+                Nodes.Add(metrics);
+            }
+        });
+    }
+
+    public void Dispose()
+    {
+        _refreshTimer?.Stop();
+        _refreshTimer?.Dispose();
+        _telemetryService.TopologyUpdated -= OnTopologyUpdated;
+        _telemetryService.NodeMetricsUpdated -= OnNodeMetricsUpdated;
     }
 }

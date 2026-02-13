@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "jNqsuGwPTyE=",
+  "dgSpecHash": "qjwNgt2YMXA=",
   "success": true,
   "projectFilePath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Client\\Nodus.Client.csproj",
   "expectedPackageFiles": [
@@ -155,6 +155,10 @@
     "C:\\Users\\angua\\.nuget\\packages\\zxing.net\\0.16.11\\zxing.net.0.16.11.nupkg.sha512",
     "C:\\Users\\angua\\.nuget\\packages\\zxing.net.maui\\0.7.4\\zxing.net.maui.0.7.4.nupkg.sha512",
     "C:\\Users\\angua\\.nuget\\packages\\zxing.net.maui.controls\\0.7.4\\zxing.net.maui.controls.0.7.4.nupkg.sha512",
+    "C:\\Users\\angua\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\10.0.2\\microsoft.netcore.app.runtime.win-x64.10.0.2.nupkg.sha512",
+    "C:\\Users\\angua\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\10.0.2\\microsoft.windowsdesktop.app.runtime.win-x64.10.0.2.nupkg.sha512",
+    "C:\\Users\\angua\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\10.0.2\\microsoft.aspnetcore.app.runtime.win-x64.10.0.2.nupkg.sha512",
+    "C:\\Users\\angua\\.nuget\\packages\\microsoft.netcore.app.crossgen2.win-x64\\10.0.2\\microsoft.netcore.app.crossgen2.win-x64.10.0.2.nupkg.sha512",
     "C:\\Users\\angua\\.nuget\\packages\\microsoft.windows.sdk.net.ref\\10.0.19041.57\\microsoft.windows.sdk.net.ref.10.0.19041.57.nupkg.sha512"
   ],
   "logs": []

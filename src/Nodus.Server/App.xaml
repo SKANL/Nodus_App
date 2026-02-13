@@ -13,6 +13,8 @@
             <converters:BoolToColorConverter x:Key="BoolToColorConverter" TrueColor="{StaticResource Primary}" FalseColor="Transparent" />
             <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
             <converters:StatusToColorConverter x:Key="StatusToColorConverter" />
+            <converters:QualityToColorConverter x:Key="QualityToColorConverter" />
+            <converters:PacketLossToColorConverter x:Key="PacketLossToColorConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

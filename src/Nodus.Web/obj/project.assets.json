@@ -161,21 +161,6 @@
           }
         }
       },
-      "Microsoft.DotNet.HotReload.WebAssembly.Browser/10.0.102": {
-        "type": "package",
-        "compile": {
-          "lib/net10.0/Microsoft.DotNet.HotReload.WebAssembly.Browser.dll": {}
-        },
-        "runtime": {
-          "lib/net10.0/Microsoft.DotNet.HotReload.WebAssembly.Browser.dll": {}
-        },
-        "build": {
-          "buildTransitive/Microsoft.DotNet.HotReload.WebAssembly.Browser.props": {}
-        },
-        "buildMultiTargeting": {
-          "buildMultiTargeting/Microsoft.DotNet.HotReload.WebAssembly.Browser.props": {}
-        }
-      },
       "Microsoft.Extensions.Configuration/10.0.2": {
         "type": "package",
         "dependencies": {
@@ -1259,21 +1244,6 @@
           }
         }
       },
-      "Microsoft.DotNet.HotReload.WebAssembly.Browser/10.0.102": {
-        "type": "package",
-        "compile": {
-          "lib/net10.0/Microsoft.DotNet.HotReload.WebAssembly.Browser.dll": {}
-        },
-        "runtime": {
-          "lib/net10.0/Microsoft.DotNet.HotReload.WebAssembly.Browser.dll": {}
-        },
-        "build": {
-          "buildTransitive/Microsoft.DotNet.HotReload.WebAssembly.Browser.props": {}
-        },
-        "buildMultiTargeting": {
-          "buildMultiTargeting/Microsoft.DotNet.HotReload.WebAssembly.Browser.props": {}
-        }
-      },
       "Microsoft.Extensions.Configuration/10.0.2": {
         "type": "package",
         "dependencies": {
@@ -2306,25 +2276,6 @@
         "lib/netstandard2.0/Microsoft.AspNetCore.Metadata.xml",
         "microsoft.aspnetcore.metadata.10.0.2.nupkg.sha512",
         "microsoft.aspnetcore.metadata.nuspec"
-      ]
-    },
-    "Microsoft.DotNet.HotReload.WebAssembly.Browser/10.0.102": {
-      "sha512": "Y8Xq5gLe6l3bW82uGJODzom5Z7pn+Y71BHObnmWF0LqbKFqfOOVDg76a2vyJnRLHn0X1LmsXSec/QdCWFOPl4A==",
-      "type": "package",
-      "path": "microsoft.dotnet.hotreload.webassembly.browser/10.0.102",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "Icon.png",
-        "build/Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
-        "build/Microsoft.AspNetCore.StaticWebAssets.props",
-        "build/Microsoft.DotNet.HotReload.WebAssembly.Browser.props",
-        "buildMultiTargeting/Microsoft.DotNet.HotReload.WebAssembly.Browser.props",
-        "buildTransitive/Microsoft.DotNet.HotReload.WebAssembly.Browser.props",
-        "lib/net10.0/Microsoft.DotNet.HotReload.WebAssembly.Browser.dll",
-        "microsoft.dotnet.hotreload.webassembly.browser.10.0.102.nupkg.sha512",
-        "microsoft.dotnet.hotreload.webassembly.browser.nuspec",
-        "staticwebassets/Microsoft.DotNet.HotReload.WebAssembly.Browser.99zm1jdh75.lib.module.js"
       ]
     },
     "Microsoft.Extensions.Configuration/10.0.2": {
@@ -3553,7 +3504,6 @@
       "Microsoft.AspNetCore.App.Internal.Assets >= 10.0.2",
       "Microsoft.AspNetCore.Components.WebAssembly >= 10.0.2",
       "Microsoft.AspNetCore.Components.WebAssembly.DevServer >= 10.0.2",
-      "Microsoft.DotNet.HotReload.WebAssembly.Browser >= 10.0.102",
       "Microsoft.NET.ILLink.Tasks >= 10.0.2",
       "Microsoft.NET.Sdk.WebAssembly.Pack >= 10.0.2",
       "Nodus.Shared >= 1.0.0",
@@ -3635,11 +3585,6 @@
             "suppressParent": "All",
             "target": "Package",
             "version": "[10.0.2, )"
-          },
-          "Microsoft.DotNet.HotReload.WebAssembly.Browser": {
-            "target": "Package",
-            "version": "[10.0.102, )",
-            "autoReferenced": true
           },
           "Microsoft.NET.ILLink.Tasks": {
             "suppressParent": "All",
