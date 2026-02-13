@@ -6,14 +6,15 @@ using Nodus.Shared.Models;
 using Nodus.Shared.Services;
 using Nodus.Shared.Abstractions;
 
-namespace Nodus.Client.Services;
+namespace Nodus.Shared.Services;
 
 public class MediaSyncService
 {
     private readonly IBleClientService _bleService;
-    private readonly DatabaseService _databaseService; 
-    private readonly ChunkerService _chunker;
-    private readonly Nodus.Shared.Services.ImageCompressionService _compressor;
+    private readonly IDatabaseService _databaseService; 
+    private readonly IChunkerService _chunker;
+    private readonly IImageCompressionService _compressor;
+    private readonly IFileService _fileService;
     private readonly ILogger<MediaSyncService> _logger;
     private bool _isSyncing;
     private const int RssiThreshold = -75; // Lowered to improve sync probability
@@ -24,32 +25,32 @@ public class MediaSyncService
     // Store pending ACKs: VoteId -> TaskCompletionSource
     private readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> _pendingAcks = new();
 
+    // Configurable timeout for testing
+    public TimeSpan AckTimeout { get; set; } = TimeSpan.FromSeconds(10);
+
     public event EventHandler<string>? SyncStatusChanged;
     public event EventHandler<double>? SyncProgressChanged;
 
-    // ...
-
     public MediaSyncService(
         IBleClientService bleService, 
-        DatabaseService databaseService,
-        ChunkerService chunker,
-        Nodus.Shared.Services.ImageCompressionService compressor,
+        IDatabaseService databaseService,
+        IChunkerService chunker,
+        IImageCompressionService compressor,
+        IFileService fileService,
         ILogger<MediaSyncService> logger)
     {
         _bleService = bleService;
         _databaseService = databaseService;
         _chunker = chunker;
         _compressor = compressor;
+        _fileService = fileService;
         _logger = logger;
-        
         
         _bleService.ConnectionState.Subscribe(OnConnectionStateChanged);
         _bleService.Notifications.Subscribe(OnNotificationReceived);
     }
     
     // ...
-
-
 
     private void OnNotificationReceived(byte[] data)
     {
@@ -159,7 +160,7 @@ public class MediaSyncService
 
         foreach (var vote in pendingVotes)
         {
-            if (string.IsNullOrEmpty(vote.LocalPhotoPath) || !File.Exists(vote.LocalPhotoPath))
+            if (string.IsNullOrEmpty(vote.LocalPhotoPath) || !_fileService.Exists(vote.LocalPhotoPath))
             {
                 // Mark as synced? Or error?
                 _logger.LogWarning("Missing file for vote {Id}", vote.Id);
@@ -168,7 +169,7 @@ public class MediaSyncService
 
             try
             {
-                byte[] originalBytes = await File.ReadAllBytesAsync(vote.LocalPhotoPath);
+                byte[] originalBytes = await _fileService.ReadAllBytesAsync(vote.LocalPhotoPath);
                 
                 // Compress
                 byte[] imageBytes = _compressor.Compress(originalBytes);
@@ -203,8 +204,8 @@ public class MediaSyncService
                 var tcs = new TaskCompletionSource<bool>();
                 _pendingAcks[vote.Id] = tcs;
 
-                // Timeout after 10 seconds
-                var timeoutTask = Task.Delay(10000);
+                // Timeout
+                var timeoutTask = Task.Delay(AckTimeout);
                 var completedTask = await Task.WhenAny(tcs.Task, timeoutTask);
 
                 if (completedTask == timeoutTask)

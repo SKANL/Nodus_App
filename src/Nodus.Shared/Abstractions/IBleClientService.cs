@@ -68,7 +68,7 @@ public interface IBleClientService
     /// <summary>
     /// Connects to a discovered peripheral with timeout.
     /// </summary>
-    Task<Result> ConnectAsync(IPeripheral peripheral, TimeSpan? timeout = null, CancellationToken ct = default);
+    Task<Result> ConnectAsync(IBlePeripheralWrapper peripheral, TimeSpan? timeout = null, CancellationToken ct = default);
     
     /// <summary>
     /// Sends a vote packet with encryption and signing.

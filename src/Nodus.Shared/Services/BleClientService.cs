@@ -24,7 +24,7 @@ public class BleClientService : IBleClientService, IDisposable
     private readonly SemaphoreSlim _connectionLock = new(1, 1);
     
     private IDisposable? _scanSubscription;
-    private IPeripheral? _connectedServer;
+    private IBlePeripheralWrapper? _connectedServer;
     private CancellationTokenSource? _connectionCts;
     private IDisposable? _notificationSubscription;
     
@@ -108,9 +108,10 @@ public class BleClientService : IBleClientService, IDisposable
         // For testing/debugging state
     }
 
-    private async Task<Result> TransmitPacketAsync(NodusPacket packet, CancellationToken ct = default)
+    private async Task<Result> TransmitPacketAsync(NodusPacket packet, CancellationToken ct = default, IBlePeripheralWrapper? overridePeripheral = null)
     {
-        if (_connectedServer == null)
+        var target = overridePeripheral ?? _connectedServer;
+        if (target == null)
         {
             return Result.Failure("Connection lost");
         }
@@ -137,12 +138,12 @@ public class BleClientService : IBleClientService, IDisposable
             {
                 ct.ThrowIfCancellationRequested();
 
-                if (_connectedServer == null)
+                if (target.Status != Shiny.BluetoothLE.ConnectionState.Connected)
                 {
                     return Result.Failure("Connection lost during transmission");
                 }
                 
-                await _connectedServer.WriteCharacteristicAsync(
+                await target.WriteCharacteristicAsync(
                     NodusConstants.SERVICE_UUID, 
                     NodusConstants.CHARACTERISTIC_UUID, 
                     chunk, 
@@ -239,7 +240,9 @@ public class BleClientService : IBleClientService, IDisposable
             // Auto-Connect logic (only if not already connected)
             if (!IsConnected && (isServer || isRelay))
             {
-                _ = ConnectAsync(result.Peripheral, DefaultTimeout, ct);
+                // Wrap IPeripheral in testable wrapper
+                var wrapper = new BlePeripheralWrapper(result.Peripheral);
+                _ = ConnectAsync(wrapper, DefaultTimeout, ct);
             }
         }
         catch (Exception ex)
@@ -271,11 +274,19 @@ public class BleClientService : IBleClientService, IDisposable
         LinkCountChanged?.Invoke(this, _nearbyLinks.Count);
     }
 
-    public async Task<Result> ConnectAsync(IPeripheral peripheral, TimeSpan? timeout = null, CancellationToken ct = default)
+    public async Task<Result> ConnectAsync(IBlePeripheralWrapper peripheral, TimeSpan? timeout = null, CancellationToken ct = default)
     {
         timeout ??= DefaultTimeout;
 
-        await _connectionLock.WaitAsync(ct);
+        try
+        {
+            await _connectionLock.WaitAsync(ct);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result.Failure("Connection cancelled before acquiring lock");
+        }
+
         try
         {
             if (_connectedServer != null)
@@ -291,6 +302,8 @@ public class BleClientService : IBleClientService, IDisposable
             _connectionCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             _connectionCts.CancelAfter(timeout.Value);
 
+            _connectionCts.CancelAfter(timeout.Value);
+
             var connectResult = await RetryWithBackoffAsync(
                 async () => await ConnectWithHandshakeAsync(peripheral, _connectionCts.Token),
                 MaxRetries,
@@ -300,6 +313,7 @@ public class BleClientService : IBleClientService, IDisposable
             if (connectResult.IsSuccess)
             {
                 _connectedServer = peripheral;
+                ConnectionStatusChanged?.Invoke(this, true);
                 ConnectionStatusChanged?.Invoke(this, true);
                 _logger.LogInformation("Successfully connected to {Name}", peripheral.Name);
             }
@@ -326,7 +340,7 @@ public class BleClientService : IBleClientService, IDisposable
         }
     }
 
-    private async Task<Result> ConnectWithHandshakeAsync(IPeripheral peripheral, CancellationToken ct)
+    private async Task<Result> ConnectWithHandshakeAsync(IBlePeripheralWrapper peripheral, CancellationToken ct)
     {
         try
         {
@@ -352,7 +366,11 @@ public class BleClientService : IBleClientService, IDisposable
                 PublicKey = keys.PublicKey 
             };
             
-            await SendPacketAsync(handshake, payload, ct);
+            var sendResult = await SendPacketAsync(handshake, payload, ct, peripheral);
+            if (sendResult.IsFailure)
+            {
+                 return Result.Failure($"Handshake failed: {sendResult.Error}");
+            }
             
             return Result.Success();
         }
@@ -395,9 +413,11 @@ public class BleClientService : IBleClientService, IDisposable
     /// <summary>
     /// Sends a secure packet. Encrypts payload and signs the packet.
     /// </summary>
-    private async Task<Result> SendPacketAsync(NodusPacket packet, object payloadData, CancellationToken ct = default)
+    private async Task<Result> SendPacketAsync(NodusPacket packet, object payloadData, CancellationToken ct = default, IBlePeripheralWrapper? overridePeripheral = null)
     {
-        if (!IsConnected)
+        var target = overridePeripheral ?? _connectedServer;
+        // Logic check: if we have an override, we might not be "Connected" in the service sense, but connected physically.
+        if (target == null || target.Status != Shiny.BluetoothLE.ConnectionState.Connected)
         {
             return Result.Failure("Not connected");
         }
@@ -422,7 +442,7 @@ public class BleClientService : IBleClientService, IDisposable
             var signable = ConstructSignableBlock(packet);
             packet.Signature = CryptoHelper.SignData(signable, keys.PrivateKey);
             
-            var transmitResult = await TransmitPacketAsync(packet, ct);
+            var transmitResult = await TransmitPacketAsync(packet, ct, target);
             
             if (transmitResult.IsSuccess)
             {

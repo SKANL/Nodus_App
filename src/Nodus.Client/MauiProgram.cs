@@ -56,9 +56,10 @@ public static class MauiProgram
 
         // Protocol Services
         builder.Services.AddSingleton<Nodus.Shared.Services.TelemetryService>();
-        builder.Services.AddSingleton<Nodus.Shared.Services.ChunkerService>();
-        builder.Services.AddSingleton<Nodus.Shared.Services.ImageCompressionService>();
-        builder.Services.AddSingleton<Nodus.Client.Services.MediaSyncService>();
+        builder.Services.AddSingleton<IChunkerService, ChunkerService>();
+        builder.Services.AddSingleton<IImageCompressionService, ImageCompressionService>();
+        builder.Services.AddSingleton<IFileService, FileService>();
+        builder.Services.AddSingleton<MediaSyncService>();
         builder.Services.AddSingleton<Nodus.Shared.Protocol.PacketTracker>();
         builder.Services.AddSingleton<IBleClientService, BleClientService>();
         builder.Services.AddSingleton<IRelayHostingService, RelayHostingService>();

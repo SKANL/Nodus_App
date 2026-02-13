@@ -1,5 +1,7 @@
 using System.Runtime.InteropServices;
 
+using Nodus.Shared.Abstractions;
+
 namespace Nodus.Shared.Services;
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -11,7 +13,7 @@ public struct ChunkHeader
     public ushort PayloadLength; // Total bytes of the full payload
 }
 
-public class ChunkerService
+public class ChunkerService : IChunkerService
 {
     // Safe maximum payload for BLE characteristics to ensure high compatibility
     // Android can request 512, iOS ~185. We use 180 to stay safe.

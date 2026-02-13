@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Nodus.Shared")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+17a2905b227aeef28748933250b9de404357ace5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b538f7af21c67fdff963f012e4ab2313205bfa43")]
 [assembly: System.Reflection.AssemblyProductAttribute("Nodus.Shared")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Nodus.Shared")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

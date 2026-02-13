@@ -44,10 +44,14 @@ public class BleClientServiceTests
     public async Task ConnectAsync_Success_ReturnsSuccessResult()
     {
         // Arrange
-        var peripheralMock = new Mock<IPeripheral>();
+        var peripheralMock = new Mock<IBlePeripheralWrapper>();
         // Mock Status to return Connected so the extension method passes immediately
         peripheralMock.SetupGet(p => p.Status).Returns(ConnectionState.Connected);
         peripheralMock.Setup(p => p.WhenStatusChanged()).Returns(Observable.Return(ConnectionState.Connected));
+        
+        // Mock ConnectAsync
+        peripheralMock.Setup(p => p.ConnectAsync(It.IsAny<ConnectionConfig>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
         
         // Mock BleServiceInfo then BleCharacteristicInfo
         var serviceInfo = new BleServiceInfo(NodusConstants.SERVICE_UUID);
@@ -74,9 +78,11 @@ public class BleClientServiceTests
     public async Task ConnectAsync_ConnectionFails_ReturnsFailure()
     {
         // Arrange
-        var peripheralMock = new Mock<IPeripheral>();
+        var peripheralMock = new Mock<IBlePeripheralWrapper>();
         peripheralMock.SetupGet(p => p.Status).Returns(ConnectionState.Disconnected); // stays disconnected
         peripheralMock.Setup(p => p.WhenStatusChanged()).Returns(Observable.Return(ConnectionState.Disconnected));
+        peripheralMock.Setup(p => p.ConnectAsync(It.IsAny<ConnectionConfig>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         // Act
         // Pass short timeout to avoid waiting 30s
@@ -91,7 +97,7 @@ public class BleClientServiceTests
     public async Task ConnectAsync_WithRetry_SucceedsAfterFailures()
     {
         // Arrange
-        var peripheralMock = new Mock<IPeripheral>();
+        var peripheralMock = new Mock<IBlePeripheralWrapper>();
         
         // Simulation: First attempts fail (Status=Disconnected), then succeeds (Status=Connected)
         int checkCount = 0;
@@ -113,6 +119,10 @@ public class BleClientServiceTests
             }
             return Observable.Return(ConnectionState.Disconnected);
         });
+
+        // Mock ConnectAsync
+        peripheralMock.Setup(p => p.ConnectAsync(It.IsAny<ConnectionConfig>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         // Mock WriteChar for handshake
         var serviceInfo = new BleServiceInfo(NodusConstants.SERVICE_UUID);

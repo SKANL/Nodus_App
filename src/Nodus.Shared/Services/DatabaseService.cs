@@ -306,7 +306,22 @@ public class DatabaseService : IDatabaseService
     /// <returns>Success result or failure with exception.</returns>
     public async Task<Result> SaveVoteAsync(Vote vote, CancellationToken ct = default)
     {
-        if (vote == null) return Result.Failure("Vote cannot be null");
+        // Input validation - BUG-001, BUG-002, BUG-003 fixes
+        if (vote == null) 
+            return Result.Failure("Vote cannot be null");
+        
+        if (string.IsNullOrWhiteSpace(vote.EventId))
+            return Result.Failure("EventId cannot be null or empty");
+        
+        if (string.IsNullOrWhiteSpace(vote.ProjectId))
+            return Result.Failure("ProjectId cannot be null or empty");
+        
+        if (string.IsNullOrWhiteSpace(vote.JudgeId))
+            return Result.Failure("JudgeId cannot be null or empty");
+        
+        if (string.IsNullOrWhiteSpace(vote.PayloadJson))
+            return Result.Failure("PayloadJson cannot be null or empty");
+        
         var initResult = await EnsureInitializedAsync(ct);
         if (initResult.IsFailure) return initResult;
 

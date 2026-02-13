@@ -3,7 +3,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Nodus.Shared.Services;
 
-public class ImageCompressionService
+using Nodus.Shared.Abstractions;
+
+public class ImageCompressionService : IImageCompressionService
 {
     private readonly ILogger<ImageCompressionService> _logger;
     private const int TargetSize = 512 * 1024; // 512 KB

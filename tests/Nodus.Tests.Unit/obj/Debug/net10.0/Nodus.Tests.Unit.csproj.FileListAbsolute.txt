@@ -150,3 +150,7 @@ C:\code\project_kiosko\nodusApp\tests\Nodus.Tests.Unit\obj\Debug\net10.0\refint\
 C:\code\project_kiosko\nodusApp\tests\Nodus.Tests.Unit\obj\Debug\net10.0\Nodus.Tests.Unit.pdb
 C:\code\project_kiosko\nodusApp\tests\Nodus.Tests.Unit\obj\Debug\net10.0\Nodus.Tests.Unit.genruntimeconfig.cache
 C:\code\project_kiosko\nodusApp\tests\Nodus.Tests.Unit\obj\Debug\net10.0\ref\Nodus.Tests.Unit.dll
+C:\code\project_kiosko\nodusApp\tests\Nodus.Tests.Unit\bin\Debug\net10.0\AutoFixture.dll
+C:\code\project_kiosko\nodusApp\tests\Nodus.Tests.Unit\bin\Debug\net10.0\AutoFixture.Xunit2.dll
+C:\code\project_kiosko\nodusApp\tests\Nodus.Tests.Unit\bin\Debug\net10.0\Bogus.dll
+C:\code\project_kiosko\nodusApp\tests\Nodus.Tests.Unit\bin\Debug\net10.0\Fare.dll
