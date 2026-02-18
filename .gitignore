@@ -1,18 +1,246 @@
-
 # Build results
 [Bb]in/
 [Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]uild/
 
 # Test results
 TestResults/
 *.dmp
 *.xml
+*.trx
+*.coverage
+*.coveragexml
 
 # User-specific files
 *.user
 *.suo
 *.userprefs
+*.userosscache
+*.rsuser
+*.sln.docstates
 
-# OS generated files
-.DS_Store
-Thumbs.db
+# NuGet
+packages/
+*.nupkg
+project.lock.json
+project.fragment.lock.json
+project.assets.json
+project.assets.*.json
+
+# Visual Studio / IDE
+.vs/
+.vscode/
+*.suo
+*.suo.orig
+*.user
+*.userosscache
+*.rsuser
+*.sln.docstates
+*.rsuser
+.vs/
+*.rspscc
+*.userosscache
+*.userprefs
+*.cache
+*.pdb
+!*.pdb.info
+
+# MSBuild logs and temporary files
+*.log
+*.ipch
+*.lastcodeanalysis.result
+*.buildlog
+*.temp
+*.tlog
+
+# .NET SDK/CLI
+*.cache
+*.dll
+*.exe
+*.pdb
+*.rsp
+
+# .NETFramework
+[Tt]humbs.db
+*.stackdump
+*.NETFramework_UserConf*
+
+# Mono
+*.mdb
+
+# Android-specific
+android/
+Android/
+[Dd]ebug/
+[Rr]elease/
+build/
+[Bb]uild/
+*.apk
+*.aab
+*.jar
+*.packaged.resources
+*.ap_
+*.dex
+*.class
+*.smali
+*.keystore
+*.jks
+proguard/
+proguard-project.txt
+
+# iOS/Mac-specific
+*.mobileprovision
+*.entitlements
+*.provisionprofile
+[Dd]evice[Ll]ogs/
+ipch/
+*.dSYM.zip
+*.dSYM/
+*.app/
+*.app.dSYM/
+*.appiconset/
+*.ipa
+*.xcworkspace/
+*.xcworkspacedata
+DerivedData/
+build/
+[Bb]uild/
+build/
+*.hmap
+*.ipa
+*.mobileprovision
+
+# macOS build outputs
+[Dd]ebug/
+[Rr]elease/
+[Dd]ebug-*/
+[Rr]elease-*/
+build/
+[Bb]uild/
+*.app.dSYM
+*.dSYM/
+*.dSYM.zip
+
+# Windows Phone
+*.appx
+*.appxmanifest
+
+# UWP
+AppPackages/
+BundleArtifacts/
+*.appx
+*.appxbundle
+*.appxupload
+
+# Temporary/cache files
+*.tmp
+*.cache
+*~
+*.swp
+*.swo
+*~
+.DS_Store~
+Thumbs.db~
+Desktop.ini
+
+# Secrets/credentials (keep appsettings.json but ignore environment-specific)
+appsettings.*.json
+appsettings.*.config
+!appsettings.json
+!appsettings.*.json
+!appsettings.Development.json
+!appsettings.Production.json
+
+# Editor/IDE files
+.idea/
+*.swp
+*.swo
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Git internal files
+.git/
+!.gitignore
+
+# Common generated files
+*.sln.implementation
+*.sln.state
+*.suo
+
+# MAUI specific
+[Dd]ebug/
+[Rr]elease/
+*.runtimeconfig.json
+
+# NuGet packages directory
+packages/
+[Pp]ackages/
+
+# Rider
+.idea/
+*.iml
+
+# Visual Studio Code
+.vscode/
+
+# Build artifacts
+*.msi
+*.msm
+*.cab
+
+# ClickOnce
+*.application
+*.app
+
+# Web publish output
+[Dd]eploy*/
+[Pp]ublish*/
+
+# F# artifacts
+*.fsi
+*.fsx
+.fsharp/
+
+# NuGet Gallery symbols
+*.snupkg
+
+# Orleans
+*. Orleans/
+/OrleansData/
+/OrleansLogs/
+
+# WPF
+*.bmp
+*.gif
+*.ico
+*.jpeg
+*.jpg
+*.png
+*.tif
+*.tiff
+*.wav
+
+# Windows Azure
+[Aa][Pp][Ii]/
+csx/
+*.csx
+copylocal/
+remoteAdd/
+*.datasource
+*.rdl.data
+*.mdf
+*.ldf
+*.publishsettings
+node_modules/
