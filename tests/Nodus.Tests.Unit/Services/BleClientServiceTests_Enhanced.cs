@@ -153,6 +153,61 @@ public class BleClientServiceTests_Enhanced : IDisposable
 
     #endregion
 
+    #region Retry Logic Tests
+
+    [Fact]
+    public async Task ConnectAsync_WithRetry_SucceedsAfterFailures()
+    {
+        // Arrange
+        var peripheralMock = CreateMockPeripheral("RetryServer", ConnectionState.Connected);
+        int attempts = 0;
+
+        // Mock ConnectAsync to fail twice then succeed
+        peripheralMock.Setup(p => p.ConnectAsync(It.IsAny<ConnectionConfig>(), It.IsAny<CancellationToken>()))
+            .Returns((ConnectionConfig c, CancellationToken ct) => 
+            {
+                attempts++;
+                if (attempts <= 2)
+                {
+                    // Update status to mimic failure
+                    peripheralMock.SetupGet(p => p.Status).Returns(ConnectionState.Disconnected);
+                    return Task.CompletedTask; // Connect "completes" but status remains Disconnected
+                }
+                
+                // Success on 3rd attempt
+                peripheralMock.SetupGet(p => p.Status).Returns(ConnectionState.Connected);
+                return Task.CompletedTask;
+            });
+            
+        // Initial status Disconnected
+        peripheralMock.SetupGet(p => p.Status).Returns(ConnectionState.Disconnected);
+
+        // Act
+        // Use longer timeout to allow retries + backoff
+        // Initial delay 500ms. Jitter ~1x. Backoff *2.
+        // Attempt 1: Fail. Delay ~500ms.
+        // Attempt 2: Fail. Delay ~1000ms.
+        // Attempt 3: Success.
+        // Total delay ~1.5s. Timeout 5s should be safe.
+        var result = await _sut.ConnectAsync(peripheralMock.Object, TimeSpan.FromSeconds(5));
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        _sut.IsConnected.Should().BeTrue();
+        attempts.Should().Be(3);
+        
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Retrying")),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.AtLeast(2));
+    }
+
+    #endregion
+
     #region Data Transfer Tests
 
     [Fact]

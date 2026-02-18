@@ -1,4 +1,4 @@
-<api type="debug" assembly-name="Nodus.Client" mvid="55ff885071604fcea30b87915a644fb4">
+<api type="debug" assembly-name="Nodus.Client" mvid="59d17e83e93b4a1786d887edfa827018">
   <java-to-managed>
     <entry java-name="crc641f86f1a7d0a52809/MainActivity" managed-name="Nodus.Client.MainActivity, Nodus.Client" managed-type-token-id="33554443" />
     <entry java-name="crc641f86f1a7d0a52809/MainApplication" managed-name="Nodus.Client.MainApplication, Nodus.Client" managed-type-token-id="33554444" />

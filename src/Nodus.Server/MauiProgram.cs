@@ -30,6 +30,10 @@ public static class MauiProgram
 			var logger = sp.GetRequiredService<ILogger<Nodus.Shared.Services.DatabaseService>>();
 			return new Nodus.Shared.Services.DatabaseService(dbPath, logger);
 		});
+        // Register interface forwarding to the concrete implementation
+        builder.Services.AddSingleton<Nodus.Shared.Abstractions.IDatabaseService>(sp => 
+            sp.GetRequiredService<Nodus.Shared.Services.DatabaseService>());
+
         builder.Services.AddSingleton<Nodus.Server.Services.BleServerService>();
 
         // Init Shiny
@@ -38,8 +42,14 @@ public static class MauiProgram
 #endif
 
         // Services
+        builder.Services.AddSingleton<Nodus.Shared.Abstractions.IDateTimeProvider, Nodus.Shared.Services.SystemDateTimeProvider>();
+        builder.Services.AddSingleton<Nodus.Shared.Abstractions.IFileService, Nodus.Shared.Services.FileService>();
         builder.Services.AddSingleton<Nodus.Shared.Services.TelemetryService>();
-        builder.Services.AddSingleton<Nodus.Server.Services.VoteAggregatorService>();
+        builder.Services.AddSingleton<Nodus.Shared.Services.TelemetryService>();
+        builder.Services.AddSingleton<Nodus.Shared.Services.VoteAggregatorService>();
+        builder.Services.AddSingleton<Nodus.Shared.Services.VoteIngestionService>();
+        builder.Services.AddSingleton<Nodus.Shared.Services.VoteAggregatorService>();
+        builder.Services.AddSingleton<Nodus.Server.Services.ExportService>();
         builder.Services.AddSingleton<Nodus.Server.Services.ExportService>();
 
         // Pages

@@ -60,6 +60,34 @@
         <member name="P:Nodus.Server.ViewModels.ResultsViewModel.ExportExcelCommand">
             <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:Nodus.Server.ViewModels.ResultsViewModel.ExportExcelAsync"/>.</summary>
         </member>
+        <member name="T:Nodus.Server.ViewModels.TopologyViewModel">
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="P:Nodus.Server.ViewModels.TopologyViewModel.Nodes">
+            <inheritdoc cref="F:Nodus.Server.ViewModels.TopologyViewModel._nodes"/>
+        </member>
+        <member name="P:Nodus.Server.ViewModels.TopologyViewModel.TotalNodes">
+            <inheritdoc cref="F:Nodus.Server.ViewModels.TopologyViewModel._totalNodes"/>
+        </member>
+        <member name="P:Nodus.Server.ViewModels.TopologyViewModel.ActiveNodes">
+            <inheritdoc cref="F:Nodus.Server.ViewModels.TopologyViewModel._activeNodes"/>
+        </member>
+        <member name="P:Nodus.Server.ViewModels.TopologyViewModel.RelayNodes">
+            <inheritdoc cref="F:Nodus.Server.ViewModels.TopologyViewModel._relayNodes"/>
+        </member>
+        <member name="P:Nodus.Server.ViewModels.TopologyViewModel.AverageConnectionQuality">
+            <inheritdoc cref="F:Nodus.Server.ViewModels.TopologyViewModel._averageConnectionQuality"/>
+        </member>
+        <member name="P:Nodus.Server.ViewModels.TopologyViewModel.LastUpdateTime">
+            <inheritdoc cref="F:Nodus.Server.ViewModels.TopologyViewModel._lastUpdateTime"/>
+        </member>
+        <member name="F:Nodus.Server.ViewModels.TopologyViewModel.refreshTopologyCommand">
+            <summary>The backing field for <see cref="P:Nodus.Server.ViewModels.TopologyViewModel.RefreshTopologyCommand"/>.</summary>
+        </member>
+        <member name="P:Nodus.Server.ViewModels.TopologyViewModel.RefreshTopologyCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand"/> instance wrapping <see cref="M:Nodus.Server.ViewModels.TopologyViewModel.RefreshTopology"/>.</summary>
+        </member>
         <member name="T:Nodus.Server.Resource">
             <summary>
             Android Resource Designer class.
@@ -111,6 +139,24 @@
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsGenerated">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsGenerated" generated properties.</summary>
         </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.Nodes">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "Nodes" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.TotalNodes">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "TotalNodes" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.ActiveNodes">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "ActiveNodes" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.RelayNodes">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "RelayNodes" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.AverageConnectionQuality">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "AverageConnectionQuality" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.LastUpdateTime">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "LastUpdateTime" generated properties.</summary>
+        </member>
         <member name="T:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs">
             <summary>
             A helper type providing cached, reusable <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instances
@@ -134,6 +180,24 @@
         </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsGenerated">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsGenerated" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.Nodes">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "Nodes" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.TotalNodes">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "TotalNodes" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.ActiveNodes">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "ActiveNodes" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.RelayNodes">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "RelayNodes" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.AverageConnectionQuality">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "AverageConnectionQuality" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.LastUpdateTime">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "LastUpdateTime" generated properties.</summary>
         </member>
     </members>
 </doc>

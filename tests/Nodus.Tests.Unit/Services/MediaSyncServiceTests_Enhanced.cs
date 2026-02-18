@@ -226,12 +226,12 @@ public class MediaSyncServiceTests_Enhanced
         _databaseServiceMock.Verify(x => x.SaveVoteAsync(It.IsAny<Vote>(), It.IsAny<CancellationToken>()), Times.Never);
         _loggerMock.Verify(
             x => x.Log(
-                LogLevel.Error,
+                LogLevel.Warning,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Failed to sync media")),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Failed to sync vote")),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-            Times.Once);
+            Times.AtLeastOnce);
     }
 
     [Fact]

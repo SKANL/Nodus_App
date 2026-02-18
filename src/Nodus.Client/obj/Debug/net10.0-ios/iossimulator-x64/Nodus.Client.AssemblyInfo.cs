@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Nodus.Client")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+17a2905b227aeef28748933250b9de404357ace5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+3b8df135d230f80ed05690574eff38321340e29f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Nodus.Client")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Nodus.Client")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

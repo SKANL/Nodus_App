@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.Logging;
 using Nodus.Server.Services;
+using Nodus.Shared.Services; // Ensure VoteAggregatorService is found
 using Nodus.Shared.Abstractions;
 using Nodus.Shared.Models;
 using System.Collections.ObjectModel;

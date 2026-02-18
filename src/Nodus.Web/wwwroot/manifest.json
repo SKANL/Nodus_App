@@ -1,22 +1,48 @@
 {
   "name": "Nodus - Student Portal",
   "short_name": "Nodus",
-  "description": "Project registration and QR display for hackathons",
-  "start_url": "/",
+  "description": "Offline-first student registration portal for hackathons and science fairs",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#667eea",
-  "theme_color": "#667eea",
-  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#6366f1",
+  "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "favicon.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "src": "icons/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Register Project",
+      "short_name": "Register",
+      "description": "Register a new project",
+      "url": "registration",
+      "icons": [
+        {
+          "src": "icons/icon.svg",
+          "sizes": "192x192 512x512"
+        }
+      ]
     },
     {
-      "src": "favicon.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "name": "Display QR",
+      "short_name": "QR Code",
+      "description": "Display project QR code",
+      "url": "project-display",
+      "icons": [
+        {
+          "src": "icons/icon.svg",
+          "sizes": "192x192 512x512"
+        }
+      ]
     }
-  ]
+  ],
+  "prefer_related_applications": false
 }

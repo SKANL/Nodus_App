@@ -17,7 +17,7 @@ public class MediaSyncService
     private readonly IFileService _fileService;
     private readonly ILogger<MediaSyncService> _logger;
     private bool _isSyncing;
-    private const int RssiThreshold = -75; // Lowered to improve sync probability
+    private const int RssiThreshold = -70; // Updated per optimization plan
     private CancellationTokenSource? _rssiCts;
 
     public bool IsConnected => _bleService.IsConnected;
@@ -117,14 +117,31 @@ public class MediaSyncService
     public event EventHandler<bool>? SyncStateChanged;
 
     // Explicit trigger method (e.g. called by a timer or UI Action)
+    // Circuit Breaker State
+    private int _consecutiveFailures = 0;
+    private DateTime? _circuitBreakerOpenUntil;
+    protected virtual int MaxConsecutiveFailures => 5;
+    private readonly TimeSpan _circuitBreakerResetTime = TimeSpan.FromMinutes(1);
+    
+    // Configurable settings
+    protected virtual int MaxRetries => 3;
+    protected virtual int BaseDelayMs => 500;
+
     public async Task CheckAndSyncAsync(int currentRssi = -999)
     {
-        if (_isSyncing || !_bleService.IsConnected) return; // Prevent concurrent syncs
+        if (_isSyncing || !_bleService.IsConnected) return;
         
+        // Circuit Breaker Check
+        if (_circuitBreakerOpenUntil.HasValue && DateTime.UtcNow < _circuitBreakerOpenUntil.Value)
+        {
+            _logger.LogWarning("Media Sync Circuit Breaker OPEN until {Time}. Skipping sync.", _circuitBreakerOpenUntil.Value);
+            return;
+        }
+
         // Use provided RSSI or LastRssi
         int rssi = currentRssi != -999 ? currentRssi : _bleService.LastRssi;
 
-        // Strict Check: RSSI > -60 (or threshold)
+        // Strict Check: RSSI > -70 (Updated per plan)
         if (rssi < RssiThreshold) 
         {
              _logger.LogDebug("Signal too weak for Media Sync ({Rssi} < {Threshold})", rssi, RssiThreshold);
@@ -160,81 +177,115 @@ public class MediaSyncService
 
         foreach (var vote in pendingVotes)
         {
+            // Circuit breaker re-check inside loop
+            if (_circuitBreakerOpenUntil.HasValue) break;
+
             if (string.IsNullOrEmpty(vote.LocalPhotoPath) || !_fileService.Exists(vote.LocalPhotoPath))
             {
-                // Mark as synced? Or error?
                 _logger.LogWarning("Missing file for vote {Id}", vote.Id);
                 continue;
             }
 
-            try
+            bool success = await TrySyncVoteMediaWithRetryAsync(vote);
+            
+            if (success)
             {
-                byte[] originalBytes = await _fileService.ReadAllBytesAsync(vote.LocalPhotoPath);
-                
-                // Compress
-                byte[] imageBytes = _compressor.Compress(originalBytes);
-                
-                // Construct Payload: [0x02 (Type)][VoteId (16)][ImageBytes...]
-                var voteIdBytes = Guid.Parse(vote.Id).ToByteArray();
-                var payload = new byte[1 + 16 + imageBytes.Length];
-                
-                payload[0] = 0x02; // Media Type
-                Array.Copy(voteIdBytes, 0, payload, 1, 16);
-                Array.Copy(imageBytes, 0, payload, 17, imageBytes.Length);
-
-                byte msgId = (byte)(vote.Id.GetHashCode() & 0xFF); 
-                
-                var chunks = _chunker.Split(payload, msgId);
-                
-                _logger.LogInformation("Sending photo for vote {Id}: {Size} bytes, {Chunks} chunks", vote.Id, imageBytes.Length, chunks.Count);
-
-                foreach (var chunk in chunks)
-                {
-                    // Use WriteRawAsync which wraps WriteCharacteristic
-                    var writeResult = await _bleService.WriteRawAsync(chunk);
-                    if (!writeResult.IsSuccess)
-                    {
-                        throw new Exception($"Failed to send chunk: {writeResult.Error}");
-                    }
-                    
-                    await Task.Delay(20); 
-                }
-
-                // Wait for ACK
-                var tcs = new TaskCompletionSource<bool>();
-                _pendingAcks[vote.Id] = tcs;
-
-                // Timeout
-                var timeoutTask = Task.Delay(AckTimeout);
-                var completedTask = await Task.WhenAny(tcs.Task, timeoutTask);
-
-                if (completedTask == timeoutTask)
-                {
-                    _pendingAcks.TryRemove(vote.Id, out _);
-                    SyncStatusChanged?.Invoke(this, $"Timeout waiting for ACK on vote {vote.Id}");
-                    throw new TimeoutException("Timed out waiting for ACK");
-                }
-
-                // ACK Received
-                vote.IsMediaSynced = true;
-                await _databaseService.SaveVoteAsync(vote);
-                
-                _logger.LogInformation("Synced media for vote {Id}", vote.Id);
-                SyncStatusChanged?.Invoke(this, $"Synced media for vote {vote.Id}");
-                
-                // Calculate and report progress
+                _consecutiveFailures = 0; // Reset circuit breaker
+                // Progress update
                 double progress = (double)(pendingVotes.IndexOf(vote) + 1) / pendingVotes.Count;
                 SyncProgressChanged?.Invoke(this, progress);
             }
-            catch (Exception ex)
+            else
             {
-                _logger.LogError(ex, "Failed to sync media for vote {Id}", vote.Id);
-                SyncStatusChanged?.Invoke(this, $"Failed to sync vote {vote.Id}: {ex.Message}");
-                // Break or continue? Continue to try next.
+                _consecutiveFailures++;
+                _logger.LogWarning("Failed to sync vote {Id}. Consecutive failures: {Count}", vote.Id, _consecutiveFailures);
+                
+                if (_consecutiveFailures >= MaxConsecutiveFailures)
+                {
+                    _circuitBreakerOpenUntil = DateTime.UtcNow.Add(_circuitBreakerResetTime);
+                    _logger.LogError("Circuit Breaker TRIPPED. Pausing sync for {Time}", _circuitBreakerResetTime);
+                    SyncStatusChanged?.Invoke(this, "Sync paused (Connection unstable)");
+                    break;
+                }
             }
         }
         
-        SyncStatusChanged?.Invoke(this, "Sync complete");
-        _isSyncing = false;
+        if (!_circuitBreakerOpenUntil.HasValue)
+            SyncStatusChanged?.Invoke(this, "Sync complete");
+    }
+
+    private async Task<bool> TrySyncVoteMediaWithRetryAsync(Vote vote)
+    {
+        for (int attempt = 1; attempt <= MaxRetries; attempt++)
+        {
+            try
+            {
+                await SyncSingleVoteMediaAsync(vote);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Attempt {Attempt}/{Max} failed to sync vote {Id}", attempt, MaxRetries, vote.Id);
+                
+                if (attempt < MaxRetries)
+                {
+                    int delay = BaseDelayMs * (int)Math.Pow(2, attempt - 1);
+                    await Task.Delay(delay);
+                }
+            }
+        }
+        return false;
+    }
+
+    private async Task SyncSingleVoteMediaAsync(Vote vote)
+    {
+        byte[] originalBytes = await _fileService.ReadAllBytesAsync(vote.LocalPhotoPath);
+        byte[] imageBytes = _compressor.Compress(originalBytes);
+        
+        // Construct Payload: [0x02 (Type)][VoteId (16)][ImageBytes...]
+        var voteIdBytes = Guid.Parse(vote.Id).ToByteArray();
+        var payload = new byte[1 + 16 + imageBytes.Length];
+        
+        payload[0] = 0x02; // Media Type
+        Array.Copy(voteIdBytes, 0, payload, 1, 16);
+        Array.Copy(imageBytes, 0, payload, 17, imageBytes.Length);
+
+        byte msgId = (byte)(vote.Id.GetHashCode() & 0xFF); 
+        var chunks = _chunker.Split(payload, msgId);
+        
+        _logger.LogInformation("Sending photo for vote {Id}: {Size} bytes, {Chunks} chunks", vote.Id, imageBytes.Length, chunks.Count);
+
+        // Register pending ACK BEFORE sending to avoid race condition where ACK arrives before registration
+        var tcs = new TaskCompletionSource<bool>();
+        _pendingAcks[vote.Id] = tcs;
+
+        foreach (var chunk in chunks)
+        {
+            var writeResult = await _bleService.WriteRawAsync(chunk);
+            if (!writeResult.IsSuccess)
+            {
+                // Cleanup on failure
+                _pendingAcks.TryRemove(vote.Id, out _);
+                throw new Exception($"Failed to send chunk: {writeResult.Error}");
+            }
+            await Task.Delay(20); 
+        }
+
+        // Wait for ACK
+        var timeoutTask = Task.Delay(AckTimeout);
+        var completedTask = await Task.WhenAny(tcs.Task, timeoutTask);
+
+        if (completedTask == timeoutTask)
+        {
+            _pendingAcks.TryRemove(vote.Id, out _);
+            throw new TimeoutException("Timed out waiting for ACK");
+        }
+
+        // ACK Received
+        vote.IsMediaSynced = true;
+        await _databaseService.SaveVoteAsync(vote);
+        
+        _logger.LogInformation("Synced media for vote {Id}", vote.Id);
+        SyncStatusChanged?.Invoke(this, $"Synced media for vote {vote.Id}");
     }
 }

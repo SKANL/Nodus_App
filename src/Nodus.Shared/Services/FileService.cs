@@ -16,11 +16,24 @@ public class FileService : IFileService
         await File.WriteAllBytesAsync(path, bytes, ct);
     }
 
+    public void CreateDirectory(string path)
+    {
+        if (!Directory.Exists(path))
+        {
+            Directory.CreateDirectory(path);
+        }
+    }
+
     public void Delete(string path)
     {
         if (File.Exists(path))
         {
             File.Delete(path);
         }
+    }
+    public string GetAppDataDirectory()
+    {
+        var basePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        return Path.Combine(basePath, "Nodus");
     }
 }

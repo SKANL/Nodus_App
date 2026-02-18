@@ -72,19 +72,19 @@ public class ChunkerService : IChunkerService
 
     private byte[] StructureToBytes(ChunkHeader str)
     {
-        int size = Marshal.SizeOf(str);
-        byte[] arr = new byte[size];
-        IntPtr ptr = Marshal.AllocHGlobal(size);
-        try
-        {
-            Marshal.StructureToPtr(str, ptr, true);
-            Marshal.Copy(ptr, arr, 0, size);
-        }
-        finally
-        {
-            Marshal.FreeHGlobal(ptr);
-        }
-        return arr;
+        // Manual serialization to avoid Marshalling issues on some platforms
+        var bytes = new byte[5];
+        bytes[0] = str.MessageId;
+        bytes[1] = str.ChunkIndex;
+        bytes[2] = str.TotalChunks;
+        
+        var lenBytes = BitConverter.GetBytes(str.PayloadLength);
+        if (!BitConverter.IsLittleEndian) Array.Reverse(lenBytes); // BLE usually LE? Actually custom protocol. Let's stick to LE.
+        
+        bytes[3] = lenBytes[0];
+        bytes[4] = lenBytes[1];
+        
+        return bytes;
     }
 
     /// <summary>
@@ -141,7 +141,10 @@ public class ChunkerService : IChunkerService
                     // Parse header manually to be safe or use Marshal
                     // Structure: [MsgId][Idx][Total][LenLo][LenHi]
                     _totalDataChunks = packet[2];
-                    ushort payloadLen = BitConverter.ToUInt16(packet, 3);
+                    
+                    // Manual extraction of PayloadLength
+                    // Ensure Little Endian as per serializer
+                    ushort payloadLen = (ushort)(packet[3] | (packet[4] << 8));
 
                     _buffer = new byte[payloadLen];
                     _receivedChunksMask = new bool[_totalDataChunks + 1]; // 1-based

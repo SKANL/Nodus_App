@@ -5,6 +5,7 @@ using Nodus.Shared.Models;
 using Nodus.Shared.Protocol;
 using Nodus.Shared.Security;
 using Nodus.Shared;
+using Nodus.Shared.Services; // For VoteAggregatorService
 #if ANDROID
 using Shiny.BluetoothLE.Hosting;
 using Shiny.BluetoothLE;
@@ -21,21 +22,18 @@ public class BleServerService
     private readonly ILogger<BleServerService> _logger;
     private IGattService? _gattService;
     private readonly Nodus.Shared.Services.ChunkerService.ChunkAssembler _assembler;
-    private readonly Nodus.Shared.Services.DatabaseService _db;
-    private readonly VoteAggregatorService _aggregator;
-    
-    // In-memory cache of current event key
-    private byte[]? _currentEventAesKey;
+    private readonly VoteIngestionService _ingestion;
+    private readonly Nodus.Shared.Abstractions.IDatabaseService _db;
 
-    public BleServerService(IBleHostingManager bleHosting, Nodus.Shared.Services.DatabaseService db, VoteAggregatorService aggregator, ILogger<BleServerService> logger)
+    public BleServerService(IBleHostingManager bleHosting, VoteIngestionService ingestion, Nodus.Shared.Abstractions.IDatabaseService db, ILogger<BleServerService> logger)
     {
         _bleHosting = bleHosting;
+        _ingestion = ingestion;
         _db = db;
-        _aggregator = aggregator;
         _logger = logger;
         
         // Use new ChunkerService.ChunkAssembler
-        _assembler = new Nodus.Shared.Services.ChunkerService.ChunkAssembler();
+        _assembler = new ChunkerService.ChunkAssembler();
         
         _logger.LogInformation("BleServerService initialized");
         
@@ -77,7 +75,20 @@ public class BleServerService
                                 var payload = _assembler.GetPayload();
                                 if (payload != null)
                                 {
-                                    OnPayloadReceived(payload);
+                                    var response = await _ingestion.ProcessPayloadAsync(payload);
+                                    if (response != null)
+                                    {
+                                        // Send response (ACK) via Notify
+                                        if (_gattService != null) 
+                                        {
+                                            var characteristic = _gattService.Characteristics.FirstOrDefault(x => x.Uuid == NodusConstants.CHARACTERISTIC_UUID);
+                                            if (characteristic != null)
+                                            {
+                                                await characteristic.Notify(response);
+                                                _logger.LogInformation("Sent ACK for payload");
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -96,168 +107,7 @@ public class BleServerService
         }
     }
 
-    private void OnPayloadReceived(byte[] payload)
-    {
-        if (payload == null || payload.Length < 1) return;
-        
-        byte type = payload[0];
-
-        MainThread.BeginInvokeOnMainThread(async () =>
-        {
-            try
-            {
-                // TYPE 0x01: JSON Packet (NodusPacket)
-                if (type == NodusConstants.PACKET_TYPE_JSON)
-                {
-                    var jsonBytes = new byte[payload.Length - 1];
-                    Array.Copy(payload, 1, jsonBytes, 0, jsonBytes.Length);
-                    var json = Encoding.UTF8.GetString(jsonBytes);
-                    await ProcessJsonPacketAsync(json);
-                }
-                // TYPE 0x02: Media Packet (VoteId + Image)
-                else if (type == NodusConstants.PACKET_TYPE_MEDIA)
-                {
-                    await ProcessMediaPacketAsync(payload);
-                }
-                else
-                {
-                    _logger.LogWarning("Unknown payload type: {Type}", type);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error processing payload");
-            }
-        });
-    }
-
-    private async Task ProcessMediaPacketAsync(byte[] payload)
-    {
-        // Structure: [0x02][VoteId(16)][ImageBytes...]
-        if (payload.Length < 17) return;
-
-        var voteIdBytes = new byte[16];
-        Array.Copy(payload, 1, voteIdBytes, 0, 16);
-        var voteId = new Guid(voteIdBytes).ToString();
-
-        var imageBytes = new byte[payload.Length - 17];
-        Array.Copy(payload, 17, imageBytes, 0, imageBytes.Length);
-
-        _logger.LogInformation("Received Media for Vote {VoteId} ({Size} bytes)", voteId, imageBytes.Length);
-
-        // 1. Verify Vote Exists
-        var voteResult = await _db.GetVoteByIdAsync(voteId); 
-        
-        string targetFolder;
-        if (voteResult.IsSuccess && voteResult.Value != null)
-        {
-            var vote = voteResult.Value;
-            // Organize by EventId if possible
-            var eventId = string.IsNullOrEmpty(vote.EventId) ? "Unknown" : vote.EventId;
-            targetFolder = Path.Combine(FileSystem.AppDataDirectory, "Media", eventId);
-        }
-        else
-        {
-            // Fallback for orphaned media
-            targetFolder = Path.Combine(FileSystem.AppDataDirectory, "Media", "Orphaned");
-        }
-        
-        Directory.CreateDirectory(targetFolder);
-        string fileName = $"{voteId}.jpg";
-        string path = Path.Combine(targetFolder, fileName);
-        
-        await File.WriteAllBytesAsync(path, imageBytes);
-        _logger.LogInformation("Saved media to {Path}", path);
-
-        // 2. Update Vote Record if it exists
-        if (voteResult.IsSuccess && voteResult.Value != null)
-        {
-            var vote = voteResult.Value;
-            vote.LocalPhotoPath = path;
-            vote.IsMediaSynced = true; // Mark as synced on server too (though meaningless here)
-            await _db.SaveVoteAsync(vote);
-            _logger.LogInformation("Updated Vote {VoteId} with media path", voteId);
-            
-            // Send ACK to Client
-            await SendAckAsync(voteId);
-
-            // Trigger UI update or aggregation?
-            // _aggregator.ProcessVote(vote); // Optional re-process
-        }
-    }
-
-    private async Task SendAckAsync(string voteId)
-    {
-        try
-        {
-            if (_gattService == null) return;
-            
-            // Format: [0xA1][VoteId (16 bytes)]
-            if (Guid.TryParse(voteId, out var guid))
-            {
-                var payload = new byte[17];
-                payload[0] = NodusConstants.PACKET_TYPE_ACK;
-                Array.Copy(guid.ToByteArray(), 0, payload, 1, 16);
-                
-                // Notify all subscribed clients
-                var characteristic = _gattService.Characteristics.FirstOrDefault(x => x.Uuid == NodusConstants.CHARACTERISTIC_UUID);
-                if (characteristic != null)
-                {
-                    await characteristic.Notify(payload);
-                    _logger.LogInformation("Sent ACK for Vote {VoteId}", voteId);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to send ACK for {VoteId}", voteId);
-        }
-    }
-
-    private async Task ProcessJsonPacketAsync(string json)
-    {
-        var packet = NodusPacket.FromJson(json);
-        if (packet == null) return;
-
-        // Decrypt if necessary
-        if (packet.EncryptedPayload != null && packet.EncryptedPayload.Length > 0 && _currentEventAesKey != null)
-        {
-             // ... existing decryption logic ...
-             try 
-             {
-                 // Additional null check for safety
-                 if (packet.EncryptedPayload == null)
-                 {
-                     _logger.LogWarning("EncryptedPayload is null despite previous check");
-                     return;
-                 }
-                 
-                 var decryptedBytes = CryptoHelper.Decrypt(packet.EncryptedPayload, _currentEventAesKey);
-                 var decryptedJson = Encoding.UTF8.GetString(decryptedBytes);
-                 
-                 if (packet.Type == MessageType.Vote)
-                 {
-                      var vote = JsonSerializer.Deserialize<Vote>(decryptedJson);
-                      if (vote != null)
-                      {
-                          vote.Status = SyncStatus.Synced;
-                          vote.SyncedAtUtc = DateTime.UtcNow;
-                          await _db.SaveVoteAsync(vote);
-                          _aggregator.ProcessVote(vote);
-                      }
-                 }
-             }
-             catch (Exception decEx)
-             {
-                 _logger.LogWarning(decEx, "Decryption failed");
-             }
-        }
-        else
-        {
-             // Unencrypted or Handshake
-             // ...
-        }
-    }
+    // Logic moved to VoteIngestionService
     
     // ... (Constructor)
 
@@ -271,7 +121,8 @@ public class BleServerService
         {
             try 
             {
-                _currentEventAesKey = Convert.FromBase64String(active.SharedAesKeyEncrypted);
+                var key = Convert.FromBase64String(active.SharedAesKeyEncrypted);
+                _ingestion.SetEventAesKey(key);
             }
             catch (Exception ex)
             {
@@ -280,12 +131,14 @@ public class BleServerService
         }
     }
 
-    // Métodos duplicados eliminados - se mantienen solo las implementaciones originales arriba
 #else
+
     private readonly ILogger<BleServerService> _logger;
-    
-    public BleServerService(Nodus.Shared.Services.DatabaseService db, ILogger<BleServerService> logger)
+    private readonly VoteIngestionService _ingestion;
+
+    public BleServerService(VoteIngestionService ingestion, ILogger<BleServerService> logger)
     {
+        _ingestion = ingestion;
         _logger = logger;
         _logger.LogWarning("BLE Server not available on this platform");
     }

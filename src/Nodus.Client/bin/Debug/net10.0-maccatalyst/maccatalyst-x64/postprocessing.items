@@ -10,7 +10,7 @@
       <dSYMInfoPlistRelativePath>Nodus.Client.app.dSYM\Contents\Info.plist</dSYMInfoPlistRelativePath>
       <SymbolFile></SymbolFile>
       <DSymName>Nodus.Client.app.dSYM</DSymName>
-      <SourceProjectPath>C:\code\project_kiosko\nodusApp\src\Nodus.Client</SourceProjectPath>
+      <SourceProjectPath>c:\code\project_kiosko\nodusApp\src\Nodus.Client</SourceProjectPath>
       <IsXPCService></IsXPCService>
     </_PostProcessingItem>
   </ItemGroup>

@@ -11,6 +11,8 @@ public class Project
     public string EventId { get; set; } = string.Empty;
     public string Category { get; set; } = "General";
     public string Description { get; set; } = string.Empty;
-    public string Members { get; set; } = string.Empty;
+    public string Authors { get; set; } = string.Empty;
     public string? GithubUrl { get; set; }
+    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;
 }

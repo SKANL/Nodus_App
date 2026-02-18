@@ -1,112 +1,68 @@
-const CACHE_NAME = 'nodus-v1';
-const RUNTIME_CACHE = 'nodus-runtime-v1';
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/css/app.css',
-  '/css/display.css',
-  '/lib/bootstrap/dist/css/bootstrap.min.css',
-  '/manifest.json',
-  '/favicon.png',
-  '/_framework/blazor.webassembly.js'
+// In development, always fetch from the network and do not enable offline support.
+// This is because caching would make development difficult (changes wouldn't be reflected immediately).
+// In production, we'll want to cache resources.
+const CACHE_NAME = "nodus-web-v1";
+const OFFLINE_URL = "offline.html";
+
+const ASSETS_TO_CACHE = [
+  "./",
+  "index.html",
+  "manifest.json",
+  "css/app.css", // Adjust based on actual CSS location
+  "favicon.png",
+  "icons/icon-192.png",
+  "icons/icon-512.png",
+  "css/display.css",
+  "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css", 
+  "_framework/blazor.webassembly.js",
+  "_framework/blazor.boot.json",
+  // We rely on Blazor's PWA template logic usually, but this is a manual addition
+  // to ensure basic offline capability if the template wasn't fully set up.
 ];
 
-self.addEventListener('install', event => {
-  console.log('[ServiceWorker] Installing...');
+self.addEventListener("install", (event) => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('[ServiceWorker] Caching app shell');
-        return cache.addAll(urlsToCache);
-      })
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS_TO_CACHE).catch((err) => {
+        console.warn("Failed to cache some assets", err);
+      });
+    }),
   );
 });
 
-self.addEventListener('fetch', event => {
-  // Skip cross-origin requests
-  if (!event.request.url.startsWith(self.location.origin)) {
-    return;
-  }
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames
+          .filter((name) => name !== CACHE_NAME)
+          .map((name) => caches.delete(name)),
+      );
+    }),
+  );
+  self.clients.claim();
+});
 
-  // Network-first for API calls
-  if (event.request.url.includes('/api/')) {
+self.addEventListener("fetch", (event) => {
+  // For navigation requests, try network first, fall back to cache
+  if (event.request.mode === "navigate") {
     event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          const responseToCache = response.clone();
-          caches.open(RUNTIME_CACHE).then(cache => {
-            cache.put(event.request, responseToCache);
-          });
-          return response;
-        })
-        .catch(() => caches.match(event.request))
+      fetch(event.request).catch(() => {
+        return caches.match(event.request).then((response) => {
+          if (response) return response;
+          // Fallback to index.html for SPA routing
+          return caches.match("index.html");
+        });
+      }),
     );
     return;
   }
 
-  // Cache-first for static assets
+  // For other requests, try cache first, then network
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        if (response) {
-          return response;
-        }
-        
-        return fetch(event.request).then(response => {
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-          
-          const responseToCache = response.clone();
-          caches.open(RUNTIME_CACHE).then(cache => {
-            cache.put(event.request, responseToCache);
-          });
-          
-          return response;
-        });
-      })
-      .catch(() => {
-        if (event.request.mode === 'navigate') {
-          return caches.match('/index.html');
-        }
-      })
+    caches.match(event.request).then((cachedResponse) => {
+      return cachedResponse || fetch(event.request);
+    }),
   );
 });
-
-self.addEventListener('activate', event => {
-  console.log('[ServiceWorker] Activating...');
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE) {
-            console.log('[ServiceWorker] Removing old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => self.clients.claim())
-  );
-});
-
-// Background sync for offline data
-self.addEventListener('sync', event => {
-  console.log('[ServiceWorker] Background sync:', event.tag);
-  if (event.tag === 'sync-projects') {
-    event.waitUntil(syncPendingData());
-  }
-});
-
-async function syncPendingData() {
-  try {
-    console.log('[ServiceWorker] Syncing pending projects...');
-    // Integration with DatabaseService happens via Blazor
-    return Promise.resolve();
-  } catch (error) {
-    console.error('[ServiceWorker] Sync failed:', error);
-    return Promise.reject(error);
-  }
-}
-
-console.log('[ServiceWorker] Loaded successfully');

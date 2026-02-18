@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Nodus.Tests.Unit")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b538f7af21c67fdff963f012e4ab2313205bfa43")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3b8df135d230f80ed05690574eff38321340e29f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Nodus.Tests.Unit")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Nodus.Tests.Unit")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

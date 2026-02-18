@@ -1,150 +1,177 @@
 @page "/display/{ProjectId}"
-@inject Services.QrGeneratorService QrService
-@inject Services.ProjectService ProjectService
-@inject NavigationManager Nav
+@using Nodus.Shared.Models
+@using Nodus.Web.Services
+@inject ProjectService ProjectService
+@inject QrGeneratorService QrService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
 
-<PageTitle>@ProjectName - Nodus Display</PageTitle>
-
-<div class="display-container">
-    @if (IsLoading)
+<div class="display-container @(isFullScreen ? "fullscreen" : "")">
+    @if (project == null)
     {
-        <div class="loading">
-            <div class="spinner"></div>
-            <p>Loading project...</p>
-        </div>
-    }
-    else if (Project == null)
-    {
-        <div class="error">
-            <h2>❌ Project Not Found</h2>
-            <p>Project ID: @ProjectId</p>
-            <button class="btn-primary" @onclick="GoHome">Go to Registration</button>
+        <div class="d-flex justify-content-center align-items-center vh-100">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
         </div>
     }
     else
     {
-        <div class="display-content">
-            <!-- Header -->
-            <div class="header">
-                <div class="logo">NODUS</div>
-                <div class="event-badge">@EventName</div>
+        <div class="container h-100">
+            <!-- Header / Controls -->
+            <div class="d-flex justify-content-between align-items-center py-3 mb-4 control-bar">
+                <div class="d-flex align-items-center">
+                    <img src="icon-192.png" alt="Nodus" height="32" class="me-2 rounded-circle" />
+                    <span class="fw-bold text-muted">Nodus Display</span>
+                </div>
+                <div>
+                     <button class="btn btn-outline-secondary btn-sm me-2" @onclick="ToggleFullScreen">
+                        <i class="bi @(isFullScreen ? "bi-fullscreen-exit" : "bi-fullscreen")"></i> 
+                        @(isFullScreen ? "Exit" : "Fullscreen")
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm" @onclick="GoToEdit">
+                        <i class="bi bi-pencil"></i> Edit
+                    </button>
+                </div>
             </div>
 
-            <!-- Main Display Area -->
-            <div class="main-display">
-                <!-- Project ID Badge -->
-                <div class="project-id-badge">
-                    <span class="label">STAND</span>
-                    <span class="id">@Project.Id</span>
+            <div class="row h-75 align-items-center justify-content-center">
+                
+                <!-- Project Info Column -->
+                <div class="col-lg-6 text-center text-lg-start mb-5 mb-lg-0 animated-left">
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2 mb-3">
+                        @project.Category
+                    </span>
+                    <h1 class="display-1 fw-bold mb-3 project-title">@project.Id</h1>
+                    <h2 class="display-5 fw-bold mb-4">@project.Name</h2>
+                    
+                    <p class="lead text-muted mb-4 authors">
+                        <i class="bi bi-people-fill me-2"></i> @project.Authors
+                    </p>
+                    
+                    <p class="text-secondary description">
+                        @project.Description
+                    </p>
                 </div>
 
-                <!-- QR Code -->
-                <div class="qr-container">
-                    <img src="data:image/png;base64,@QrCodeBase64" alt="Voting QR Code" class="qr-code" />
-                    <div class="qr-instruction">
-                        <p class="scan-text">📱 SCAN TO VOTE</p>
+                <!-- QR Code Column -->
+                <div class="col-lg-5 offset-lg-1 text-center animated-right">
+                    <div class="qr-card p-4 bg-white rounded-4 shadow-lg border">
+                        <div class="mb-3">
+                            @if (!string.IsNullOrEmpty(qrCodeImage))
+                            {
+                                <img src="@qrCodeImage" alt="Vote QR Code" class="img-fluid rounded-3" style="max-width: 100%; height: auto;" />
+                            }
+                            else
+                            {
+                                <div class="d-flex align-items-center justify-content-center bg-light rounded-3" style="height: 300px; width: 300px; margin: 0 auto;">
+                                    <span class="text-muted">Generating QR...</span>
+                                </div>
+                            }
+                        </div>
+                        <h4 class="fw-bold mb-1">Scan to Vote</h4>
+                        <p class="text-muted small mb-0">Use the Nodus Judge App</p>
                     </div>
                 </div>
 
-                <div class="project-info">
-                    <h1 class="project-name">@Project.Name</h1>
-                    <div class="category-badge">@Project.Category</div>
-                    
-                    @if (!string.IsNullOrEmpty(Project.Description))
-                    {
-                        <p class="description">@Project.Description</p>
-                    }
-
-                    @if (!string.IsNullOrEmpty(Project.Members))
-                    {
-                        <div class="members-section">
-                            <h5>Team:</h5>
-                            <p>@Project.Members</p>
-                        </div>
-                    }
-
-                    @if (!string.IsNullOrEmpty(Project.GithubUrl))
-                    {
-                         <div class="github-section">
-                            <a href="@Project.GithubUrl" target="_blank" class="github-link">
-                                <span>View on GitHub</span>
-                            </a>
-                        </div>
-                    }
-                </div>
-            </div>
-
-            <!-- Footer -->
-            <div class="footer">
-                <div class="refresh-indicator">
-                    <span class="pulse"></span>
-                    Auto-refresh active
-                </div>
             </div>
         </div>
     }
 </div>
 
+<style>
+    .display-container {
+        min-height: 90vh;
+        transition: background-color 0.3s;
+    }
+
+    .display-container.fullscreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: white;
+        z-index: 1000;
+        padding: 20px;
+    }
+    
+    .display-container.fullscreen .control-bar {
+        opacity: 0.2;
+        transition: opacity 0.3s;
+    }
+    
+    .display-container.fullscreen .control-bar:hover {
+        opacity: 1;
+    }
+
+    .project-title {
+        letter-spacing: -2px;
+        background: -webkit-linear-gradient(45deg, #0d6efd, #6610f2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .qr-card {
+        transition: transform 0.3s ease;
+    }
+    
+    .qr-card:hover {
+        transform: translateY(-5px);
+    }
+
+    /* Animation classes */
+    .animated-left { animation: slideInLeft 0.8s ease-out; }
+    .animated-right { animation: slideInRight 0.8s ease-out; }
+
+    @@keyframes slideInLeft {
+        from { opacity: 0; transform: translateX(-50px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    
+    @@keyframes slideInRight {
+        from { opacity: 0; transform: translateX(50px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @@media (max-width: 991.98px) {
+        .display-1 { font-size: 3rem; }
+    }
+</style>
+
 @code {
     [Parameter]
-    public string ProjectId { get; set; } = string.Empty;
+    public string ProjectId { get; set; }
 
-    private Nodus.Shared.Models.Project? Project;
-    private string QrCodeBase64 = string.Empty;
-    private string ProjectName => Project?.Name ?? "Project";
-    private string EventName = "Hackathon 2026";
-    private bool IsLoading = true;
-
-    private System.Threading.Timer? _refreshTimer;
+    private Project? project;
+    private string? qrCodeImage;
+    private bool isFullScreen = false;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadProjectAsync();
-        
-        // Auto-refresh every 30 seconds to keep screen active
-        _refreshTimer = new System.Threading.Timer(async _ =>
+        project = await ProjectService.GetProjectAsync(ProjectId);
+        if (project != null)
         {
-            await InvokeAsync(StateHasChanged);
-        }, null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
-    }
-
-    private async Task LoadProjectAsync()
-    {
-        IsLoading = true;
-        
-        try
-        {
-            Project = await ProjectService.GetProjectAsync(ProjectId);
-            
-            if (Project != null)
-            {
-                // Generate QR code
-                QrCodeBase64 = QrService.GenerateVotingQrCode(
-                    Project.Id, 
-                    Project.Category, 
-                    size: 25
-                );
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error loading project: {ex.Message}");
-        }
-        finally
-        {
-            IsLoading = false;
+            var payload = $"nodus://vote?pid={project.Id}&cat={Uri.EscapeDataString(project.Category ?? "")}";
+            qrCodeImage = QrService.GenerateQrCodeBase64(payload);
         }
     }
 
-    private void GoHome()
+    private void GoToEdit()
     {
-        Nav.NavigateTo("/register");
+        Navigation.NavigateTo("/register");
     }
 
-    public void Dispose()
+    private async Task ToggleFullScreen()
     {
-        _refreshTimer?.Dispose();
+        isFullScreen = !isFullScreen;
+        if (isFullScreen)
+        {
+            await JS.InvokeVoidAsync("document.documentElement.requestFullscreen");
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("document.exitFullscreen");
+        }
     }
 }
-
-

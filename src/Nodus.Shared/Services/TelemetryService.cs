@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
+using Nodus.Shared.Abstractions;
 using Nodus.Shared.Models;
 
 namespace Nodus.Shared.Services;
@@ -10,6 +11,7 @@ namespace Nodus.Shared.Services;
 public class TelemetryService
 {
     private readonly ILogger<TelemetryService> _logger;
+    private readonly IDateTimeProvider _dateTime;
     private readonly ConcurrentDictionary<string, NetworkMetrics> _nodeMetrics = new();
     private readonly ConcurrentQueue<NetworkTopology> _topologyHistory = new();
     private const int MaxHistorySize = 100;
@@ -17,9 +19,12 @@ public class TelemetryService
     public event EventHandler<NetworkTopology>? TopologyUpdated;
     public event EventHandler<NetworkMetrics>? NodeMetricsUpdated;
 
-    public TelemetryService(ILogger<TelemetryService> logger)
+    public TelemetryService(
+        ILogger<TelemetryService> logger,
+        IDateTimeProvider dateTime)
     {
         _logger = logger;
+        _dateTime = dateTime;
     }
 
     /// <summary>
@@ -30,14 +35,17 @@ public class TelemetryService
         var metrics = _nodeMetrics.GetOrAdd(nodeId, id => new NetworkMetrics 
         { 
             NodeId = id,
-            LastSeen = DateTime.UtcNow
+            LastSeen = _dateTime.UtcNow
         });
 
-        updateAction(metrics);
-        metrics.LastSeen = DateTime.UtcNow;
-        
-        // Update status based on metrics
-        metrics.Status = CalculateNodeStatus(metrics);
+        lock (metrics)
+        {
+            updateAction(metrics);
+            metrics.LastSeen = _dateTime.UtcNow;
+            
+            // Update status based on metrics
+            metrics.Status = CalculateNodeStatus(metrics);
+        }
 
         NodeMetricsUpdated?.Invoke(this, metrics);
         _logger.LogDebug("Updated metrics for node {NodeId}: RSSI={Rssi}, Quality={Quality:F1}%", 
@@ -115,13 +123,22 @@ public class TelemetryService
     }
 
     /// <summary>
-    /// Get current network topology snapshot
+    /// Get current network topology snapshot, updating statuses
     /// </summary>
     public NetworkTopology GetCurrentTopology()
     {
+        // Update statuses for all nodes
+        foreach (var metrics in _nodeMetrics.Values)
+        {
+            lock (metrics)
+            {
+                metrics.Status = CalculateNodeStatus(metrics);
+            }
+        }
+
         var topology = new NetworkTopology
         {
-            Timestamp = DateTime.UtcNow,
+            Timestamp = _dateTime.UtcNow,
             Nodes = _nodeMetrics.Values.ToList()
         };
 
@@ -176,7 +193,7 @@ public class TelemetryService
     /// </summary>
     private NodeStatus CalculateNodeStatus(NetworkMetrics metrics)
     {
-        var timeSinceLastSeen = DateTime.UtcNow - metrics.LastSeen;
+        var timeSinceLastSeen = _dateTime.UtcNow - metrics.LastSeen;
         
         // Offline if not seen in 30 seconds
         if (timeSinceLastSeen.TotalSeconds > 30)
