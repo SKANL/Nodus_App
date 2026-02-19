@@ -3,6 +3,7 @@ using ZXing.Net.Maui.Controls;
 using Shiny;
 using Nodus.Shared.Abstractions;
 using Nodus.Shared.Services;
+using Nodus.Shared.Config;
 using Nodus.Client.Services;
 using System.Runtime.CompilerServices;
 
@@ -32,15 +33,16 @@ public static class MauiProgram
 		builder.Logging.SetMinimumLevel(LogLevel.Information);
 #endif
 
-        // Core Infrastructure Services
-        var dbPath = Path.Combine(FileSystem.AppDataDirectory, "nodus_client.db");
-        builder.Services.AddSingleton<DatabaseService>(sp => 
+        // Core Infrastructure Services — MongoDB Atlas
+        builder.Services.AddSingleton<IDatabaseService>(sp =>
         {
-            var logger = sp.GetRequiredService<ILogger<DatabaseService>>();
-            return new DatabaseService(dbPath, logger);
+            var logger = sp.GetRequiredService<ILogger<Nodus.Shared.Services.MongoDbService>>();
+            return new MongoDbService(
+                AppSecrets.MongoConnectionString,
+                AppSecrets.MongoDatabaseName,
+                logger);
         });
-        builder.Services.AddSingleton<IDatabaseService>(sp => sp.GetRequiredService<DatabaseService>());
-        
+         
         // Secure Storage
         builder.Services.AddSingleton<ISecureStorageService, SecureStorageService>();
         

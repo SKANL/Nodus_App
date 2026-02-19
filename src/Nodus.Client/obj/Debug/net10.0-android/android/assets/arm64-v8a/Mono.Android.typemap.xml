@@ -1,4 +1,4 @@
-<api type="debug" assembly-name="Mono.Android" mvid="0883f9255d0c4170989da917c4bfcc6e">
+<api type="debug" assembly-name="Mono.Android" mvid="ed799d42b6014f04886f273c89a9c33b">
   <java-to-managed>
     <entry java-name="dalvik/system/ApplicationRuntime" managed-name="Dalvik.SystemInterop.ApplicationRuntime, Mono.Android" managed-type-token-id="33555070" />
     <entry java-name="dalvik/system/BaseDexClassLoader" managed-name="Dalvik.SystemInterop.BaseDexClassLoader, Mono.Android" managed-type-token-id="33555071" />

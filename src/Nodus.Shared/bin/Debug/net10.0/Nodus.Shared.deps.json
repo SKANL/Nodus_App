@@ -10,6 +10,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
@@ -23,6 +24,14 @@
           "lib/net8.0/CommunityToolkit.Mvvm.dll": {
             "assemblyVersion": "8.4.0.0",
             "fileVersion": "8.4.0.1"
+          }
+        }
+      },
+      "DnsClient/1.6.1": {
+        "runtime": {
+          "lib/net5.0/DnsClient.dll": {
+            "assemblyVersion": "1.6.1.0",
+            "fileVersion": "1.6.1.0"
           }
         }
       },
@@ -86,6 +95,38 @@
           "lib/net8.0/Microsoft.Extensions.Primitives.dll": {
             "assemblyVersion": "8.0.0.0",
             "fileVersion": "8.0.23.53103"
+          }
+        }
+      },
+      "MongoDB.Bson/3.6.0": {
+        "runtime": {
+          "lib/net6.0/MongoDB.Bson.dll": {
+            "assemblyVersion": "3.6.0.0",
+            "fileVersion": "3.6.0.0"
+          }
+        }
+      },
+      "MongoDB.Driver/3.6.0": {
+        "dependencies": {
+          "DnsClient": "1.6.1",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "MongoDB.Bson": "3.6.0",
+          "SharpCompress": "0.30.1",
+          "Snappier": "1.0.0",
+          "ZstdSharp.Port": "0.7.3"
+        },
+        "runtime": {
+          "lib/net6.0/MongoDB.Driver.dll": {
+            "assemblyVersion": "3.6.0.0",
+            "fileVersion": "3.6.0.0"
+          }
+        }
+      },
+      "SharpCompress/0.30.1": {
+        "runtime": {
+          "lib/net5.0/SharpCompress.dll": {
+            "assemblyVersion": "0.30.1.0",
+            "fileVersion": "0.30.1.0"
           }
         }
       },
@@ -177,6 +218,14 @@
             "rid": "win-x86",
             "assetType": "native",
             "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Snappier/1.0.0": {
+        "runtime": {
+          "lib/net5.0/Snappier.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
           }
         }
       },
@@ -343,6 +392,14 @@
             "fileVersion": "6.0.0.1"
           }
         }
+      },
+      "ZstdSharp.Port/0.7.3": {
+        "runtime": {
+          "lib/net7.0/ZstdSharp.dll": {
+            "assemblyVersion": "0.7.3.0",
+            "fileVersion": "0.7.3.0"
+          }
+        }
       }
     }
   },
@@ -358,6 +415,13 @@
       "sha512": "sha512-tqVU8yc/ADO9oiTRyTnwhFN68hCwvkliMierptWOudIAvWY1mWCh5VFh+guwHJmpMwfg0J0rY+yyd5Oy7ty9Uw==",
       "path": "communitytoolkit.mvvm/8.4.0",
       "hashPath": "communitytoolkit.mvvm.8.4.0.nupkg.sha512"
+    },
+    "DnsClient/1.6.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-4H/f2uYJOZ+YObZjpY9ABrKZI+JNw3uizp6oMzTXwDw6F+2qIPhpRl/1t68O/6e98+vqNiYGu+lswmwdYUy3gg==",
+      "path": "dnsclient/1.6.1",
+      "hashPath": "dnsclient.1.6.1.nupkg.sha512"
     },
     "Microsoft.Extensions.DependencyInjection/8.0.0": {
       "type": "package",
@@ -401,6 +465,27 @@
       "path": "microsoft.extensions.primitives/8.0.0",
       "hashPath": "microsoft.extensions.primitives.8.0.0.nupkg.sha512"
     },
+    "MongoDB.Bson/3.6.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-lP+nZHej9cGFVsZSZQhSdBpD60q7a/ZiLBJcfd+CRWs36BHYteaMx6m1qaHCBWT1wft640r9I4SexqpMc3VscA==",
+      "path": "mongodb.bson/3.6.0",
+      "hashPath": "mongodb.bson.3.6.0.nupkg.sha512"
+    },
+    "MongoDB.Driver/3.6.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-MzEVPUo9FJ3A2fvXdKr0vGllbiAGvpyLa8bU6bucKSKndraSjfgGDn/J+ek/SrUK4A3yozYZBkwJZm8qe36VmQ==",
+      "path": "mongodb.driver/3.6.0",
+      "hashPath": "mongodb.driver.3.6.0.nupkg.sha512"
+    },
+    "SharpCompress/0.30.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-XqD4TpfyYGa7QTPzaGlMVbcecKnXy4YmYLDWrU+JIj7IuRNl7DH2END+Ll7ekWIY8o3dAMWLFDE1xdhfIWD1nw==",
+      "path": "sharpcompress/0.30.1",
+      "hashPath": "sharpcompress.0.30.1.nupkg.sha512"
+    },
     "Shiny.BluetoothLE/3.3.4": {
       "type": "package",
       "serviceable": true,
@@ -443,6 +528,13 @@
       "path": "skiasharp.nativeassets.win32/3.119.2",
       "hashPath": "skiasharp.nativeassets.win32.3.119.2.nupkg.sha512"
     },
+    "Snappier/1.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-rFtK2KEI9hIe8gtx3a0YDXdHOpedIf9wYCEYtBEmtlyiWVX3XlCNV03JrmmAi/Cdfn7dxK+k0sjjcLv4fpHnqA==",
+      "path": "snappier/1.0.0",
+      "hashPath": "snappier.1.0.0.nupkg.sha512"
+    },
     "sqlite-net-pcl/1.9.172": {
       "type": "package",
       "serviceable": true,
@@ -484,6 +576,13 @@
       "sha512": "sha512-31kfaW4ZupZzPsI5PVe77VhnvFF55qgma7KZr/E0iFTs6fmdhhG8j0mgEx620iLTey1EynOkEfnyTjtNEpJzGw==",
       "path": "system.reactive/6.0.0",
       "hashPath": "system.reactive.6.0.0.nupkg.sha512"
+    },
+    "ZstdSharp.Port/0.7.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-U9Ix4l4cl58Kzz1rJzj5hoVTjmbx1qGMwzAcbv1j/d3NzrFaESIurQyg+ow4mivCgkE3S413y+U9k4WdnEIkRA==",
+      "path": "zstdsharp.port/0.7.3",
+      "hashPath": "zstdsharp.port.0.7.3.nupkg.sha512"
     }
   }
 }

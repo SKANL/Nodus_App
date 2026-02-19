@@ -30,7 +30,20 @@
           "buildTransitive/CommunityToolkit.Mvvm.targets": {}
         }
       },
-      "Microsoft.AspNetCore.App.Internal.Assets/10.0.2": {
+      "DnsClient/1.6.1": {
+        "type": "package",
+        "compile": {
+          "lib/net5.0/DnsClient.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net5.0/DnsClient.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "Microsoft.AspNetCore.App.Internal.Assets/10.0.3": {
         "type": "package",
         "build": {
           "build/Microsoft.AspNetCore.App.Internal.Assets.props": {},
@@ -161,7 +174,7 @@
           }
         }
       },
-      "Microsoft.DotNet.HotReload.WebAssembly.Browser/10.0.102": {
+      "Microsoft.DotNet.HotReload.WebAssembly.Browser/10.0.103": {
         "type": "package",
         "compile": {
           "lib/net10.0/Microsoft.DotNet.HotReload.WebAssembly.Browser.dll": {}
@@ -557,13 +570,13 @@
           }
         }
       },
-      "Microsoft.NET.ILLink.Tasks/10.0.2": {
+      "Microsoft.NET.ILLink.Tasks/10.0.3": {
         "type": "package",
         "build": {
           "build/Microsoft.NET.ILLink.Tasks.props": {}
         }
       },
-      "Microsoft.NET.Sdk.WebAssembly.Pack/10.0.2": {
+      "Microsoft.NET.Sdk.WebAssembly.Pack/10.0.3": {
         "type": "package",
         "build": {
           "build/Microsoft.NET.Sdk.WebAssembly.Pack.props": {},
@@ -592,6 +605,40 @@
           }
         }
       },
+      "MongoDB.Bson/3.6.0": {
+        "type": "package",
+        "compile": {
+          "lib/net6.0/MongoDB.Bson.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/MongoDB.Bson.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "MongoDB.Driver/3.6.0": {
+        "type": "package",
+        "dependencies": {
+          "DnsClient": "1.6.1",
+          "Microsoft.Extensions.Logging.Abstractions": "2.0.0",
+          "MongoDB.Bson": "3.6.0",
+          "SharpCompress": "0.30.1",
+          "Snappier": "1.0.0",
+          "ZstdSharp.Port": "0.7.3"
+        },
+        "compile": {
+          "lib/net6.0/MongoDB.Driver.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/MongoDB.Driver.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "QRCoder/1.7.0": {
         "type": "package",
         "dependencies": {
@@ -606,6 +653,15 @@
           "lib/net6.0/QRCoder.dll": {
             "related": ".xml"
           }
+        }
+      },
+      "SharpCompress/0.30.1": {
+        "type": "package",
+        "compile": {
+          "lib/net5.0/SharpCompress.dll": {}
+        },
+        "runtime": {
+          "lib/net5.0/SharpCompress.dll": {}
         }
       },
       "Shiny.BluetoothLE/3.3.4": {
@@ -724,6 +780,19 @@
           "runtimes/win-x86/native/libSkiaSharp.pdb": {
             "assetType": "native",
             "rid": "win-x86"
+          }
+        }
+      },
+      "Snappier/1.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/net5.0/Snappier.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net5.0/Snappier.dll": {
+            "related": ".xml"
           }
         }
       },
@@ -1081,12 +1150,22 @@
           "buildTransitive/net6.0/_._": {}
         }
       },
+      "ZstdSharp.Port/0.7.3": {
+        "type": "package",
+        "compile": {
+          "lib/net7.0/ZstdSharp.dll": {}
+        },
+        "runtime": {
+          "lib/net7.0/ZstdSharp.dll": {}
+        }
+      },
       "Nodus.Shared/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
@@ -1128,7 +1207,20 @@
           "buildTransitive/CommunityToolkit.Mvvm.targets": {}
         }
       },
-      "Microsoft.AspNetCore.App.Internal.Assets/10.0.2": {
+      "DnsClient/1.6.1": {
+        "type": "package",
+        "compile": {
+          "lib/net5.0/DnsClient.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net5.0/DnsClient.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "Microsoft.AspNetCore.App.Internal.Assets/10.0.3": {
         "type": "package",
         "build": {
           "build/Microsoft.AspNetCore.App.Internal.Assets.props": {},
@@ -1259,7 +1351,7 @@
           }
         }
       },
-      "Microsoft.DotNet.HotReload.WebAssembly.Browser/10.0.102": {
+      "Microsoft.DotNet.HotReload.WebAssembly.Browser/10.0.103": {
         "type": "package",
         "compile": {
           "lib/net10.0/Microsoft.DotNet.HotReload.WebAssembly.Browser.dll": {}
@@ -1655,13 +1747,13 @@
           }
         }
       },
-      "Microsoft.NET.ILLink.Tasks/10.0.2": {
+      "Microsoft.NET.ILLink.Tasks/10.0.3": {
         "type": "package",
         "build": {
           "build/Microsoft.NET.ILLink.Tasks.props": {}
         }
       },
-      "Microsoft.NET.Sdk.WebAssembly.Pack/10.0.2": {
+      "Microsoft.NET.Sdk.WebAssembly.Pack/10.0.3": {
         "type": "package",
         "build": {
           "build/Microsoft.NET.Sdk.WebAssembly.Pack.props": {},
@@ -1684,6 +1776,40 @@
           "buildTransitive/netcoreapp3.1/_._": {}
         }
       },
+      "MongoDB.Bson/3.6.0": {
+        "type": "package",
+        "compile": {
+          "lib/net6.0/MongoDB.Bson.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/MongoDB.Bson.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "MongoDB.Driver/3.6.0": {
+        "type": "package",
+        "dependencies": {
+          "DnsClient": "1.6.1",
+          "Microsoft.Extensions.Logging.Abstractions": "2.0.0",
+          "MongoDB.Bson": "3.6.0",
+          "SharpCompress": "0.30.1",
+          "Snappier": "1.0.0",
+          "ZstdSharp.Port": "0.7.3"
+        },
+        "compile": {
+          "lib/net6.0/MongoDB.Driver.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/MongoDB.Driver.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "QRCoder/1.7.0": {
         "type": "package",
         "dependencies": {
@@ -1698,6 +1824,15 @@
           "lib/net6.0/QRCoder.dll": {
             "related": ".xml"
           }
+        }
+      },
+      "SharpCompress/0.30.1": {
+        "type": "package",
+        "compile": {
+          "lib/net5.0/SharpCompress.dll": {}
+        },
+        "runtime": {
+          "lib/net5.0/SharpCompress.dll": {}
         }
       },
       "Shiny.BluetoothLE/3.3.4": {
@@ -1785,6 +1920,19 @@
         },
         "runtime": {
           "lib/net8.0/_._": {}
+        }
+      },
+      "Snappier/1.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/net5.0/Snappier.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net5.0/Snappier.dll": {
+            "related": ".xml"
+          }
         }
       },
       "SourceGear.sqlite3/3.50.4.2": {
@@ -1921,12 +2069,22 @@
           "buildTransitive/net6.0/_._": {}
         }
       },
+      "ZstdSharp.Port/0.7.3": {
+        "type": "package",
+        "compile": {
+          "lib/net7.0/ZstdSharp.dll": {}
+        },
+        "runtime": {
+          "lib/net7.0/ZstdSharp.dll": {}
+        }
+      },
       "Nodus.Shared/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
           "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
           "sqlite-net-pcl": "1.9.172"
@@ -1997,10 +2155,34 @@
         "lib/netstandard2.1/CommunityToolkit.Mvvm.xml"
       ]
     },
-    "Microsoft.AspNetCore.App.Internal.Assets/10.0.2": {
-      "sha512": "fMAqrUm+aspxRAsCJ6Hlgs96XSHwNIr9HBNt7wyBAzQkPlfE7w+0C4NzDoJnso5YZyDI0VcRtEXxG9odt3KiZA==",
+    "DnsClient/1.6.1": {
+      "sha512": "4H/f2uYJOZ+YObZjpY9ABrKZI+JNw3uizp6oMzTXwDw6F+2qIPhpRl/1t68O/6e98+vqNiYGu+lswmwdYUy3gg==",
       "type": "package",
-      "path": "microsoft.aspnetcore.app.internal.assets/10.0.2",
+      "path": "dnsclient/1.6.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "dnsclient.1.6.1.nupkg.sha512",
+        "dnsclient.nuspec",
+        "icon.png",
+        "lib/net45/DnsClient.dll",
+        "lib/net45/DnsClient.xml",
+        "lib/net471/DnsClient.dll",
+        "lib/net471/DnsClient.xml",
+        "lib/net5.0/DnsClient.dll",
+        "lib/net5.0/DnsClient.xml",
+        "lib/netstandard1.3/DnsClient.dll",
+        "lib/netstandard1.3/DnsClient.xml",
+        "lib/netstandard2.0/DnsClient.dll",
+        "lib/netstandard2.0/DnsClient.xml",
+        "lib/netstandard2.1/DnsClient.dll",
+        "lib/netstandard2.1/DnsClient.xml"
+      ]
+    },
+    "Microsoft.AspNetCore.App.Internal.Assets/10.0.3": {
+      "sha512": "mr3Zn+ht8lijYvlMIasftw9opU9hsLKDdnOgQMmYI3RjWPJLOF9l8+YHDseRkTs97wOrULmJgo/NDCmzL/EGDg==",
+      "type": "package",
+      "path": "microsoft.aspnetcore.app.internal.assets/10.0.3",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -2016,7 +2198,7 @@
         "build/Microsoft.AspNetCore.App.Internal.Assets.targets",
         "buildMultiTargeting/Microsoft.AspNetCore.App.Internal.Assets.targets",
         "buildTransitive/Microsoft.AspNetCore.App.Internal.Assets.targets",
-        "microsoft.aspnetcore.app.internal.assets.10.0.2.nupkg.sha512",
+        "microsoft.aspnetcore.app.internal.assets.10.0.3.nupkg.sha512",
         "microsoft.aspnetcore.app.internal.assets.nuspec"
       ]
     },
@@ -2308,10 +2490,10 @@
         "microsoft.aspnetcore.metadata.nuspec"
       ]
     },
-    "Microsoft.DotNet.HotReload.WebAssembly.Browser/10.0.102": {
-      "sha512": "Y8Xq5gLe6l3bW82uGJODzom5Z7pn+Y71BHObnmWF0LqbKFqfOOVDg76a2vyJnRLHn0X1LmsXSec/QdCWFOPl4A==",
+    "Microsoft.DotNet.HotReload.WebAssembly.Browser/10.0.103": {
+      "sha512": "tIq6T4oyBMjxxxllslJu2fOJqEj8SOW29IfWqHYxubreOVlFWnxPN2PjDMuwoHjkrOnPKyuqoNcVYh5YOZcs0Q==",
       "type": "package",
-      "path": "microsoft.dotnet.hotreload.webassembly.browser/10.0.102",
+      "path": "microsoft.dotnet.hotreload.webassembly.browser/10.0.103",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -2322,7 +2504,7 @@
         "buildMultiTargeting/Microsoft.DotNet.HotReload.WebAssembly.Browser.props",
         "buildTransitive/Microsoft.DotNet.HotReload.WebAssembly.Browser.props",
         "lib/net10.0/Microsoft.DotNet.HotReload.WebAssembly.Browser.dll",
-        "microsoft.dotnet.hotreload.webassembly.browser.10.0.102.nupkg.sha512",
+        "microsoft.dotnet.hotreload.webassembly.browser.10.0.103.nupkg.sha512",
         "microsoft.dotnet.hotreload.webassembly.browser.nuspec",
         "staticwebassets/Microsoft.DotNet.HotReload.WebAssembly.Browser.99zm1jdh75.lib.module.js"
       ]
@@ -2943,10 +3125,10 @@
         "microsoft.jsinterop.webassembly.nuspec"
       ]
     },
-    "Microsoft.NET.ILLink.Tasks/10.0.2": {
-      "sha512": "sXdDtMf2qcnbygw9OdE535c2lxSxrZP8gO4UhDJ0xiJbl1wIqXS1OTcTDFTIJPOFd6Mhcm8gPEthqWGUxBsTqw==",
+    "Microsoft.NET.ILLink.Tasks/10.0.3": {
+      "sha512": "0B6nZyCHWXnvmlB559oduOspVdNOnpNXPjhpWVMovLPAsDVG7A4jJR9rzECf67JUzxP8/ee/wA8clwIzJcWNFA==",
       "type": "package",
-      "path": "microsoft.net.illink.tasks/10.0.2",
+      "path": "microsoft.net.illink.tasks/10.0.3",
       "hasTools": true,
       "files": [
         ".nupkg.metadata",
@@ -2959,7 +3141,7 @@
         "build/Microsoft.NET.ILLink.Analyzers.props",
         "build/Microsoft.NET.ILLink.Tasks.props",
         "build/Microsoft.NET.ILLink.targets",
-        "microsoft.net.illink.tasks.10.0.2.nupkg.sha512",
+        "microsoft.net.illink.tasks.10.0.3.nupkg.sha512",
         "microsoft.net.illink.tasks.nuspec",
         "tools/net/ILLink.Tasks.deps.json",
         "tools/net/ILLink.Tasks.dll",
@@ -2993,10 +3175,10 @@
         "useSharedDesignerContext.txt"
       ]
     },
-    "Microsoft.NET.Sdk.WebAssembly.Pack/10.0.2": {
-      "sha512": "ZDAtI9V2EQajyccTZ67JtJWMCIpK3ZFgwqNHyfMieossRdB90WJ+IbYVKObLOLIv9Vkc3eJcrJD2CeffsF/nUA==",
+    "Microsoft.NET.Sdk.WebAssembly.Pack/10.0.3": {
+      "sha512": "Wv9ugg75HxuYeBxJSoK2UPN6lpqsASkyZwd90bdRyVKOtaXZFaKg7R+dYqbZSHJXAIxC1HOcYR0imuIcKpI1yw==",
       "type": "package",
-      "path": "microsoft.net.sdk.webassembly.pack/10.0.2",
+      "path": "microsoft.net.sdk.webassembly.pack/10.0.3",
       "hasTools": true,
       "files": [
         ".nupkg.metadata",
@@ -3026,7 +3208,7 @@
         "build/Microsoft.NET.Sdk.WebAssembly.Pack.targets",
         "build/Wasm.web.config",
         "build/browser.runtimeconfig.template.json",
-        "microsoft.net.sdk.webassembly.pack.10.0.2.nupkg.sha512",
+        "microsoft.net.sdk.webassembly.pack.10.0.3.nupkg.sha512",
         "microsoft.net.sdk.webassembly.pack.nuspec",
         "tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll",
         "tools/net10.0/Microsoft.NET.WebAssembly.Webcil.dll",
@@ -3063,6 +3245,44 @@
         "useSharedDesignerContext.txt"
       ]
     },
+    "MongoDB.Bson/3.6.0": {
+      "sha512": "lP+nZHej9cGFVsZSZQhSdBpD60q7a/ZiLBJcfd+CRWs36BHYteaMx6m1qaHCBWT1wft640r9I4SexqpMc3VscA==",
+      "type": "package",
+      "path": "mongodb.bson/3.6.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "lib/net472/MongoDB.Bson.dll",
+        "lib/net472/MongoDB.Bson.xml",
+        "lib/net6.0/MongoDB.Bson.dll",
+        "lib/net6.0/MongoDB.Bson.xml",
+        "lib/netstandard2.1/MongoDB.Bson.dll",
+        "lib/netstandard2.1/MongoDB.Bson.xml",
+        "mongodb.bson.3.6.0.nupkg.sha512",
+        "mongodb.bson.nuspec",
+        "packageIcon.png"
+      ]
+    },
+    "MongoDB.Driver/3.6.0": {
+      "sha512": "MzEVPUo9FJ3A2fvXdKr0vGllbiAGvpyLa8bU6bucKSKndraSjfgGDn/J+ek/SrUK4A3yozYZBkwJZm8qe36VmQ==",
+      "type": "package",
+      "path": "mongodb.driver/3.6.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "lib/net472/MongoDB.Driver.dll",
+        "lib/net472/MongoDB.Driver.xml",
+        "lib/net6.0/MongoDB.Driver.dll",
+        "lib/net6.0/MongoDB.Driver.xml",
+        "lib/netstandard2.1/MongoDB.Driver.dll",
+        "lib/netstandard2.1/MongoDB.Driver.xml",
+        "mongodb.driver.3.6.0.nupkg.sha512",
+        "mongodb.driver.nuspec",
+        "packageIcon.png"
+      ]
+    },
     "QRCoder/1.7.0": {
       "sha512": "6R3hQkayihGIDjp3F1nLRDBWG+nqahGyOY2+fH4Rll16Vad67oaUUfHkOiMWKiJFnGh+PIGDfUos+0R9m54O1g==",
       "type": "package",
@@ -3088,6 +3308,22 @@
         "nuget-icon.png",
         "qrcoder.1.7.0.nupkg.sha512",
         "qrcoder.nuspec"
+      ]
+    },
+    "SharpCompress/0.30.1": {
+      "sha512": "XqD4TpfyYGa7QTPzaGlMVbcecKnXy4YmYLDWrU+JIj7IuRNl7DH2END+Ll7ekWIY8o3dAMWLFDE1xdhfIWD1nw==",
+      "type": "package",
+      "path": "sharpcompress/0.30.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net461/SharpCompress.dll",
+        "lib/net5.0/SharpCompress.dll",
+        "lib/netcoreapp3.1/SharpCompress.dll",
+        "lib/netstandard2.0/SharpCompress.dll",
+        "lib/netstandard2.1/SharpCompress.dll",
+        "sharpcompress.0.30.1.nupkg.sha512",
+        "sharpcompress.nuspec"
       ]
     },
     "Shiny.BluetoothLE/3.3.4": {
@@ -3284,6 +3520,26 @@
         "runtimes/win-x86/native/libSkiaSharp.pdb",
         "skiasharp.nativeassets.win32.3.119.2.nupkg.sha512",
         "skiasharp.nativeassets.win32.nuspec"
+      ]
+    },
+    "Snappier/1.0.0": {
+      "sha512": "rFtK2KEI9hIe8gtx3a0YDXdHOpedIf9wYCEYtBEmtlyiWVX3XlCNV03JrmmAi/Cdfn7dxK+k0sjjcLv4fpHnqA==",
+      "type": "package",
+      "path": "snappier/1.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "COPYING.txt",
+        "lib/net5.0/Snappier.dll",
+        "lib/net5.0/Snappier.xml",
+        "lib/netcoreapp3.0/Snappier.dll",
+        "lib/netcoreapp3.0/Snappier.xml",
+        "lib/netstandard2.0/Snappier.dll",
+        "lib/netstandard2.0/Snappier.xml",
+        "lib/netstandard2.1/Snappier.dll",
+        "lib/netstandard2.1/Snappier.xml",
+        "snappier.1.0.0.nupkg.sha512",
+        "snappier.nuspec"
       ]
     },
     "SourceGear.sqlite3/3.50.4.2": {
@@ -3541,6 +3797,24 @@
         "system.reactive.nuspec"
       ]
     },
+    "ZstdSharp.Port/0.7.3": {
+      "sha512": "U9Ix4l4cl58Kzz1rJzj5hoVTjmbx1qGMwzAcbv1j/d3NzrFaESIurQyg+ow4mivCgkE3S413y+U9k4WdnEIkRA==",
+      "type": "package",
+      "path": "zstdsharp.port/0.7.3",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net461/ZstdSharp.dll",
+        "lib/net5.0/ZstdSharp.dll",
+        "lib/net6.0/ZstdSharp.dll",
+        "lib/net7.0/ZstdSharp.dll",
+        "lib/netcoreapp3.1/ZstdSharp.dll",
+        "lib/netstandard2.0/ZstdSharp.dll",
+        "lib/netstandard2.1/ZstdSharp.dll",
+        "zstdsharp.port.0.7.3.nupkg.sha512",
+        "zstdsharp.port.nuspec"
+      ]
+    },
     "Nodus.Shared/1.0.0": {
       "type": "project",
       "path": "../Nodus.Shared/Nodus.Shared.csproj",
@@ -3550,12 +3824,13 @@
   "projectFileDependencyGroups": {
     "net10.0": [
       "Blazored.LocalStorage >= 4.3.0",
-      "Microsoft.AspNetCore.App.Internal.Assets >= 10.0.2",
+      "Microsoft.AspNetCore.App.Internal.Assets >= 10.0.3",
       "Microsoft.AspNetCore.Components.WebAssembly >= 10.0.2",
       "Microsoft.AspNetCore.Components.WebAssembly.DevServer >= 10.0.2",
-      "Microsoft.DotNet.HotReload.WebAssembly.Browser >= 10.0.102",
-      "Microsoft.NET.ILLink.Tasks >= 10.0.2",
-      "Microsoft.NET.Sdk.WebAssembly.Pack >= 10.0.2",
+      "Microsoft.DotNet.HotReload.WebAssembly.Browser >= 10.0.103",
+      "Microsoft.NET.ILLink.Tasks >= 10.0.3",
+      "Microsoft.NET.Sdk.WebAssembly.Pack >= 10.0.3",
+      "MongoDB.Driver >= 3.6.0",
       "Nodus.Shared >= 1.0.0",
       "QRCoder >= 1.7.0",
       "SQLitePCLRaw.bundle_e_sqlite3 >= 3.0.2",
@@ -3563,23 +3838,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\angua\\.nuget\\packages\\": {},
+    "C:\\Users\\octavius\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Web\\Nodus.Web.csproj",
+      "projectUniqueName": "C:\\Gaspar-kiosco\\Nodus_App\\src\\Nodus.Web\\Nodus.Web.csproj",
       "projectName": "Nodus.Web",
-      "projectPath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Web\\Nodus.Web.csproj",
-      "packagesPath": "C:\\Users\\angua\\.nuget\\packages\\",
-      "outputPath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Web\\obj\\",
+      "projectPath": "C:\\Gaspar-kiosco\\Nodus_App\\src\\Nodus.Web\\Nodus.Web.csproj",
+      "packagesPath": "C:\\Users\\octavius\\.nuget\\packages\\",
+      "outputPath": "C:\\Gaspar-kiosco\\Nodus_App\\src\\Nodus.Web\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\angua\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\octavius\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -3595,8 +3870,8 @@
         "net10.0": {
           "targetAlias": "net10.0",
           "projectReferences": {
-            "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
-              "projectPath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj"
+            "C:\\Gaspar-kiosco\\Nodus_App\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
+              "projectPath": "C:\\Gaspar-kiosco\\Nodus_App\\src\\Nodus.Shared\\Nodus.Shared.csproj"
             }
           }
         }
@@ -3624,7 +3899,7 @@
           "Microsoft.AspNetCore.App.Internal.Assets": {
             "suppressParent": "All",
             "target": "Package",
-            "version": "[10.0.2, )",
+            "version": "[10.0.3, )",
             "autoReferenced": true
           },
           "Microsoft.AspNetCore.Components.WebAssembly": {
@@ -3638,20 +3913,24 @@
           },
           "Microsoft.DotNet.HotReload.WebAssembly.Browser": {
             "target": "Package",
-            "version": "[10.0.102, )",
+            "version": "[10.0.103, )",
             "autoReferenced": true
           },
           "Microsoft.NET.ILLink.Tasks": {
             "suppressParent": "All",
             "target": "Package",
-            "version": "[10.0.2, )",
+            "version": "[10.0.3, )",
             "autoReferenced": true
           },
           "Microsoft.NET.Sdk.WebAssembly.Pack": {
             "suppressParent": "All",
             "target": "Package",
-            "version": "[10.0.2, )",
+            "version": "[10.0.3, )",
             "autoReferenced": true
+          },
+          "MongoDB.Driver": {
+            "target": "Package",
+            "version": "[3.6.0, )"
           },
           "QRCoder": {
             "target": "Package",
@@ -3680,7 +3959,7 @@
         "downloadDependencies": [
           {
             "name": "Microsoft.NETCore.App.Runtime.Mono.browser-wasm",
-            "version": "[10.0.2, 10.0.2]"
+            "version": "[10.0.3, 10.0.3]"
           }
         ],
         "frameworkReferences": {
@@ -3688,7 +3967,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.CSharp": "(,4.7.32767]",
           "Microsoft.VisualBasic": "(,10.4.32767]",

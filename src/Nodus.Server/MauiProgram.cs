@@ -1,4 +1,7 @@
 using Microsoft.Extensions.Logging;
+using Nodus.Shared.Abstractions;
+using Nodus.Shared.Services;
+using Nodus.Shared.Config;
 using Shiny;
 
 namespace Nodus.Server;
@@ -23,16 +26,14 @@ public static class MauiProgram
 		builder.Logging.SetMinimumLevel(LogLevel.Information);
 #endif
 
-// Database Service
-		var dbPath = Path.Combine(FileSystem.AppDataDirectory, "nodus.db");
-		builder.Services.AddSingleton<Nodus.Shared.Services.DatabaseService>(sp =>
-		{
-			var logger = sp.GetRequiredService<ILogger<Nodus.Shared.Services.DatabaseService>>();
-			return new Nodus.Shared.Services.DatabaseService(dbPath, logger);
-		});
-        // Register interface forwarding to the concrete implementation
-        builder.Services.AddSingleton<Nodus.Shared.Abstractions.IDatabaseService>(sp => 
-            sp.GetRequiredService<Nodus.Shared.Services.DatabaseService>());
+// Database Service — MongoDB Atlas
+        builder.Services.AddSingleton<Nodus.Shared.Abstractions.IDatabaseService>(sp => {
+            var logger = sp.GetRequiredService<ILogger<Nodus.Shared.Services.MongoDbService>>();
+            return new Nodus.Shared.Services.MongoDbService(
+                AppSecrets.MongoConnectionString,
+                AppSecrets.MongoDatabaseName,
+                logger);
+        });
 
         builder.Services.AddSingleton<Nodus.Server.Services.BleServerService>();
 

@@ -4,15 +4,15 @@
     "includedFrameworks": [
       {
         "name": "Microsoft.NETCore.App",
-        "version": "10.0.2"
+        "version": "10.0.3"
       },
       {
         "name": "Microsoft.MacCatalyst",
-        "version": "26.2.10191"
+        "version": "26.2.10197"
       },
       {
         "name": "Microsoft.MacCatalyst.Runtimes",
-        "version": "26.2.10191"
+        "version": "26.2.10197"
       }
     ],
     "configProperties": {
