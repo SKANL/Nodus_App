@@ -44,7 +44,10 @@ public partial class App : Application
 	{
 		try
 		{
-			System.IO.File.AppendAllText("C:\\Nodus_Debug.log", $"[{DateTime.Now:HH:mm:ss}] {message}{Environment.NewLine}");
+			var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Nodus_Debug.log");
+			var logLine = $"[{DateTime.Now:HH:mm:ss}] {message}";
+			System.IO.File.AppendAllText(logPath, logLine + Environment.NewLine);
+			Console.WriteLine(logLine);
 		}
 		catch { }
 	}

@@ -163,6 +163,22 @@ public class LocalDatabaseService : IDatabaseService, IDisposable
         }, ct);
     }
 
+    public Task<Result<List<Vote>>> GetAllVotesAsync(CancellationToken ct = default)
+    {
+        return Task.Run(() =>
+        {
+            try
+            {
+                var list = _db.GetCollection<Vote>("votes").FindAll().ToList();
+                return Result<List<Vote>>.Success(list);
+            }
+            catch (Exception ex)
+            {
+                return Result<List<Vote>>.Failure(ex.Message, ex);
+            }
+        }, ct);
+    }
+
     public Task<Result<Vote>> GetVoteByIdAsync(string id, CancellationToken ct = default)
     {
         return Task.Run(() =>

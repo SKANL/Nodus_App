@@ -234,6 +234,20 @@ public class MongoDbService : IDatabaseService
         }
     }
 
+    public async Task<Result<List<Vote>>> GetAllVotesAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            var docs = await _votes.Find(_ => true).ToListAsync(ct);
+            return Result<List<Vote>>.Success(docs.Select(ToVote).ToList());
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve all votes");
+            return Result<List<Vote>>.Failure("Failed to retrieve all votes", ex);
+        }
+    }
+
     public async Task<Result<Vote>> GetVoteByIdAsync(string id, CancellationToken ct = default)
     {
         try
