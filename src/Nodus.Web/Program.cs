@@ -4,6 +4,7 @@ using Nodus.Web;
 using Nodus.Web.Services;
 using Nodus.Shared.Abstractions;
 using Nodus.Shared.Services;
+using Nodus.Shared.Config;
 using Blazored.LocalStorage;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -12,11 +13,10 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
-// Register Nodus services
-// Nota: Blazor WASM corre en el browser — usar Atlas requiere un API proxy backend.
+// Register Nodus services — localhost (MongoDB.Driver no soporta browser WASM)
 builder.Services.AddSingleton<IDatabaseService>(sp => {
     var logger = sp.GetRequiredService<ILogger<MongoDbService>>();
-    return new MongoDbService("mongodb://localhost:27017", "nodus_db", logger);
+    return new MongoDbService("mongodb://localhost:27017", "nodus", logger);
 });
 
 

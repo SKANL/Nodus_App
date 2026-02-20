@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Nodus.Shared.Models;
 using Nodus.Shared.Services;
+using Nodus.Shared.Abstractions; // Added
 using System.Security.Cryptography;
 using System.Text;
 using QRCoder;
@@ -10,7 +11,7 @@ namespace Nodus.Server.ViewModels;
 
 public partial class CreateEventViewModel : ObservableObject
 {
-    private readonly DatabaseService _db;
+    private readonly IDatabaseService _db; // Changed to Interface
     private readonly Services.BleServerService _bleService;
 
     [ObservableProperty] private string _eventName = string.Empty;
@@ -21,7 +22,7 @@ public partial class CreateEventViewModel : ObservableObject
     [ObservableProperty] private ImageSource? _studentQrCode;
     [ObservableProperty] private bool _isGenerated;
 
-    public CreateEventViewModel(DatabaseService db, Services.BleServerService bleService)
+    public CreateEventViewModel(IDatabaseService db, Services.BleServerService bleService) // Changed to Interface
     {
         _db = db;
         _bleService = bleService;

@@ -1,12 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "T11t5uk1W6c=",
+  "dgSpecHash": "cqBUp1HyzcA=",
   "success": true,
   "projectFilePath": "C:\\Gaspar-kiosco\\Nodus_App\\src\\Nodus.Client\\Nodus.Client.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\octavius\\.nuget\\packages\\communitytoolkit.mvvm\\8.4.0\\communitytoolkit.mvvm.8.4.0.nupkg.sha512",
     "C:\\Users\\octavius\\.nuget\\packages\\dnsclient\\1.6.1\\dnsclient.1.6.1.nupkg.sha512",
     "C:\\Users\\octavius\\.nuget\\packages\\googlegson\\2.13.1.1\\googlegson.2.13.1.1.nupkg.sha512",
+    "C:\\Users\\octavius\\.nuget\\packages\\litedb\\5.0.21\\litedb.5.0.21.nupkg.sha512",
     "C:\\Users\\octavius\\.nuget\\packages\\microsoft.extensions.configuration\\10.0.0\\microsoft.extensions.configuration.10.0.0.nupkg.sha512",
     "C:\\Users\\octavius\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\10.0.0\\microsoft.extensions.configuration.abstractions.10.0.0.nupkg.sha512",
     "C:\\Users\\octavius\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\10.0.0\\microsoft.extensions.dependencyinjection.10.0.0.nupkg.sha512",

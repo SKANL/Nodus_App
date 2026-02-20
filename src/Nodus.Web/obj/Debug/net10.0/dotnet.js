@@ -5,7 +5,7 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
   "mainAssemblyName": "Nodus.Web",
   "applicationEnvironment": "Development",
   "resources": {
-    "hash": "sha256-JyKEj3BndonEq7RABq1WfGnKSKTSTSN9qb2la/YeOck=",
+    "hash": "sha256-X8QNyz4Yh5IHVkwMOOX5yhSZ/wl/JPi3UkMOMdBS2+g=",
     "jsModuleNative": [
       {
         "name": "dotnet.native.69poregybn.js"
@@ -74,6 +74,12 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
         "virtualPath": "DnsClient.wasm",
         "name": "DnsClient.wommcjgqe2.wasm",
         "integrity": "sha256-oKvInLFvi9OW5TfdVOzpqKamndtUuqvE/5I/Hgj3I/I=",
+        "cache": "force-cache"
+      },
+      {
+        "virtualPath": "LiteDB.wasm",
+        "name": "LiteDB.yfjopox9ck.wasm",
+        "integrity": "sha256-buGOjQMkIH0b9MJXL7vreuhTGz91V2L4lG4RURDmuzM=",
         "cache": "force-cache"
       },
       {
@@ -1362,28 +1368,28 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
       },
       {
         "virtualPath": "Nodus.Shared.wasm",
-        "name": "Nodus.Shared.kk6xa98qpf.wasm",
-        "integrity": "sha256-hK33A2AAWswXNzggS7IQ/AGjfVq9W67FaR/qQt67QdI=",
+        "name": "Nodus.Shared.n5cvlpyu5q.wasm",
+        "integrity": "sha256-tdcMGL0urEPyoteDe9bxufQTdpCbCxf8E9YGHwIbDm0=",
         "cache": "force-cache"
       },
       {
         "virtualPath": "Nodus.Web.wasm",
-        "name": "Nodus.Web.sacxo72ik7.wasm",
-        "integrity": "sha256-hPCXP437CcwKAPuuI3hOndv13NdxgK10sBaiy9Es3LY=",
+        "name": "Nodus.Web.4ifzya1jmb.wasm",
+        "integrity": "sha256-xCy11bnVh+aajB/oYgGFVskPJS5fUP1IO2xZPHnygRc=",
         "cache": "force-cache"
       }
     ],
     "pdb": [
       {
         "virtualPath": "Nodus.Shared.pdb",
-        "name": "Nodus.Shared.tpjb7p04hi.pdb",
-        "integrity": "sha256-kaM3pPAorcMSTBE4jQh5yiDbgO1LXBOJs5yvmzpgCgM=",
+        "name": "Nodus.Shared.2std692hrr.pdb",
+        "integrity": "sha256-AsJaPZ2gDwEhSIAlZmkKvsTOBWMyrLYZLnW6ZhYSXoU=",
         "cache": "force-cache"
       },
       {
         "virtualPath": "Nodus.Web.pdb",
-        "name": "Nodus.Web.rq770ct6p7.pdb",
-        "integrity": "sha256-Dd1b63jTmSSvH1kkMtymS0msp6L1pt/pHii1c6w5gJw=",
+        "name": "Nodus.Web.nv99h58qv5.pdb",
+        "integrity": "sha256-Q3+N5nhODosWtgwt8k6yj+3q7ra1xlaRyTi28p/+qWA=",
         "cache": "force-cache"
       }
     ],

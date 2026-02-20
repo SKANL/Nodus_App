@@ -34,14 +34,19 @@ public static class MauiProgram
 #endif
 
         // Core Infrastructure Services — MongoDB Atlas
-        builder.Services.AddSingleton<IDatabaseService>(sp =>
+        // Database Services
+        // 1. MongoDbService (Concrete) — For synchronization
+        builder.Services.AddSingleton<MongoDbService>(sp =>
         {
-            var logger = sp.GetRequiredService<ILogger<Nodus.Shared.Services.MongoDbService>>();
+            var logger = sp.GetRequiredService<ILogger<MongoDbService>>();
             return new MongoDbService(
                 AppSecrets.MongoConnectionString,
                 AppSecrets.MongoDatabaseName,
                 logger);
         });
+
+        // 2. LocalDatabaseService (Interface) — For UI & Offline use
+        builder.Services.AddSingleton<IDatabaseService, LocalDatabaseService>();
          
         // Secure Storage
         builder.Services.AddSingleton<ISecureStorageService, SecureStorageService>();

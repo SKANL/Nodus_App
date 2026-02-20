@@ -55,6 +55,10 @@
               "target": "Package",
               "version": "[8.4.0, )"
             },
+            "LiteDB": {
+              "target": "Package",
+              "version": "[5.0.21, )"
+            },
             "Microsoft.Extensions.Logging.Abstractions": {
               "target": "Package",
               "version": "[9.0.0, )"

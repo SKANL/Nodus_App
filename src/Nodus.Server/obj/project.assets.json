@@ -125,6 +125,19 @@
           }
         }
       },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Microsoft.Extensions.Configuration/10.0.0": {
         "type": "package",
         "dependencies": {
@@ -2972,7 +2985,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -3107,6 +3121,19 @@
         "runtime": {
           "lib/net10.0-android36.0/GoogleGson.dll": {
             "related": ".aar;.pdb;.xml"
+          }
+        }
+      },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
           }
         }
       },
@@ -5926,7 +5953,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -6061,6 +6089,19 @@
         "runtime": {
           "lib/net10.0-android36.0/GoogleGson.dll": {
             "related": ".aar;.pdb;.xml"
+          }
+        }
+      },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
           }
         }
       },
@@ -8880,7 +8921,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -9018,6 +9060,19 @@
           }
         }
       },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Microsoft.Extensions.Configuration/10.0.0": {
         "type": "package",
         "dependencies": {
@@ -11831,7 +11886,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -11969,6 +12025,19 @@
           }
         }
       },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Microsoft.Extensions.Configuration/10.0.0": {
         "type": "package",
         "dependencies": {
@@ -14782,7 +14851,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -14917,6 +14987,19 @@
         "runtime": {
           "lib/net10.0-android36.0/GoogleGson.dll": {
             "related": ".aar;.pdb;.xml"
+          }
+        }
+      },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
           }
         }
       },
@@ -17733,7 +17816,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -17851,6 +17935,19 @@
         },
         "runtime": {
           "lib/netstandard2.0/ExcelNumberFormat.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
             "related": ".xml"
           }
         }
@@ -18694,7 +18791,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -18816,6 +18914,19 @@
           }
         }
       },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Microsoft.Extensions.Configuration/10.0.0": {
         "type": "package",
         "dependencies": {
@@ -19613,7 +19724,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -19735,6 +19847,19 @@
           }
         }
       },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Microsoft.Extensions.Configuration/10.0.0": {
         "type": "package",
         "dependencies": {
@@ -20532,7 +20657,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -20650,6 +20776,19 @@
         },
         "runtime": {
           "lib/netstandard2.0/ExcelNumberFormat.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
             "related": ".xml"
           }
         }
@@ -21456,7 +21595,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -21574,6 +21714,19 @@
         },
         "runtime": {
           "lib/netstandard2.0/ExcelNumberFormat.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
             "related": ".xml"
           }
         }
@@ -22380,7 +22533,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -22498,6 +22652,19 @@
         },
         "runtime": {
           "lib/netstandard2.0/ExcelNumberFormat.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
             "related": ".xml"
           }
         }
@@ -23299,7 +23466,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -23417,6 +23585,19 @@
         },
         "runtime": {
           "lib/netstandard2.0/ExcelNumberFormat.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
             "related": ".xml"
           }
         }
@@ -24334,7 +24515,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -24452,6 +24634,19 @@
         },
         "runtime": {
           "lib/netstandard2.0/ExcelNumberFormat.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
             "related": ".xml"
           }
         }
@@ -25260,7 +25455,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -25378,6 +25574,19 @@
         },
         "runtime": {
           "lib/netstandard2.0/ExcelNumberFormat.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
             "related": ".xml"
           }
         }
@@ -26186,7 +26395,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -26304,6 +26514,19 @@
         },
         "runtime": {
           "lib/netstandard2.0/ExcelNumberFormat.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
             "related": ".xml"
           }
         }
@@ -27109,7 +27332,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -27227,6 +27451,19 @@
         },
         "runtime": {
           "lib/netstandard2.0/ExcelNumberFormat.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
             "related": ".xml"
           }
         }
@@ -28038,7 +28275,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -28156,6 +28394,19 @@
         },
         "runtime": {
           "lib/netstandard2.0/ExcelNumberFormat.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
             "related": ".xml"
           }
         }
@@ -28964,7 +29215,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -29082,6 +29334,19 @@
         },
         "runtime": {
           "lib/netstandard2.0/ExcelNumberFormat.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
             "related": ".xml"
           }
         }
@@ -30270,7 +30535,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -30388,6 +30654,19 @@
         },
         "runtime": {
           "lib/netstandard2.0/ExcelNumberFormat.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
             "related": ".xml"
           }
         }
@@ -31385,7 +31664,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -31503,6 +31783,19 @@
         },
         "runtime": {
           "lib/netstandard2.0/ExcelNumberFormat.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
             "related": ".xml"
           }
         }
@@ -32500,7 +32793,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -32618,6 +32912,19 @@
         },
         "runtime": {
           "lib/netstandard2.0/ExcelNumberFormat.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
             "related": ".xml"
           }
         }
@@ -33612,7 +33919,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -33730,6 +34038,19 @@
         },
         "runtime": {
           "lib/netstandard2.0/ExcelNumberFormat.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
             "related": ".xml"
           }
         }
@@ -34727,7 +35048,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -34845,6 +35167,19 @@
         },
         "runtime": {
           "lib/netstandard2.0/ExcelNumberFormat.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "LiteDB/5.0.21": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LiteDB.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LiteDB.dll": {
             "related": ".xml"
           }
         }
@@ -35856,7 +36191,8 @@
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.0",
+          "LiteDB": "5.0.21",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
           "MongoDB.Driver": "3.6.0",
           "Shiny.BluetoothLE": "3.3.4",
           "SkiaSharp": "3.119.2",
@@ -36059,6 +36395,26 @@
         "lib/net8.0-android34.0/GoogleGson.pdb",
         "lib/net8.0-android34.0/GoogleGson.xml",
         "readme.md"
+      ]
+    },
+    "LiteDB/5.0.21": {
+      "sha512": "ykJ7ffFl7P9YQKR/PLci6zupiLrsSCNkOTiw6OtzntH7d2kCYp5L1+3a/pksKgTEHcJBoPXFtg7VZSGVBseN9w==",
+      "type": "package",
+      "path": "litedb/5.0.21",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "AppVeyorSettings.json",
+        "LICENSE",
+        "icon_64x64.png",
+        "lib/net45/LiteDB.dll",
+        "lib/net45/LiteDB.xml",
+        "lib/netstandard1.3/LiteDB.dll",
+        "lib/netstandard1.3/LiteDB.xml",
+        "lib/netstandard2.0/LiteDB.dll",
+        "lib/netstandard2.0/LiteDB.xml",
+        "litedb.5.0.21.nupkg.sha512",
+        "litedb.nuspec"
       ]
     },
     "Microsoft.Extensions.Configuration/10.0.0": {
