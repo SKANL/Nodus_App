@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "DCIpsdh02yc=",
+  "dgSpecHash": "7NoTqnkPDN8=",
   "success": true,
-  "projectFilePath": "c:\\code\\project_kiosko\\nodusApp\\nodusApp.csproj",
+  "projectFilePath": "C:\\code\\project_kiosko\\nodusApp\\nodusApp.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\angua\\.nuget\\packages\\googlegson\\2.13.1.1\\googlegson.2.13.1.1.nupkg.sha512",
     "C:\\Users\\angua\\.nuget\\packages\\microsoft.extensions.configuration\\10.0.0\\microsoft.extensions.configuration.10.0.0.nupkg.sha512",

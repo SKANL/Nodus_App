@@ -17,7 +17,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Nodus.Server")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+3b8df135d230f80ed05690574eff38321340e29f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+d054d908d7178def8c22b9b6dfc8a4dd5ecbf24e")]
 [assembly: System.Reflection.AssemblyProductAttribute("Nodus.Server")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Nodus.Server")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

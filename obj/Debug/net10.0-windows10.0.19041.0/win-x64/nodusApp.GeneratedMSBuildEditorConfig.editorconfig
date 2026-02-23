@@ -14,7 +14,7 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = nodusApp
-build_property.ProjectDir = c:\code\project_kiosko\nodusApp\
+build_property.ProjectDir = C:\code\project_kiosko\nodusApp\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.CsWinRTAotOptimizerEnabled = true
@@ -28,7 +28,7 @@ build_property.CsWinRTUseWindowsUIXamlProjections = false
 build_property.EffectiveAnalysisLevelStyle = 10.0
 build_property.EnableCodeStyleSeverity = 
 
-[c:/code/project_kiosko/nodusApp/App.xaml]
+[C:/code/project_kiosko/nodusApp/App.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.App.xaml
 build_metadata.AdditionalFiles.TargetPath = App.xaml
@@ -38,7 +38,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/AppShell.xaml]
+[C:/code/project_kiosko/nodusApp/AppShell.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.AppShell.xaml
 build_metadata.AdditionalFiles.TargetPath = AppShell.xaml
@@ -48,7 +48,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/MainPage.xaml]
+[C:/code/project_kiosko/nodusApp/MainPage.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.MainPage.xaml
 build_metadata.AdditionalFiles.TargetPath = MainPage.xaml
@@ -58,7 +58,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/Resources/Styles/Colors.xaml]
+[C:/code/project_kiosko/nodusApp/Resources/Styles/Colors.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.Resources.Styles.Colors.xaml
 build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Colors.xaml
@@ -68,7 +68,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/Resources/Styles/Styles.xaml]
+[C:/code/project_kiosko/nodusApp/Resources/Styles/Styles.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.Resources.Styles.Styles.xaml
 build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Styles.xaml
@@ -78,7 +78,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Client/App.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Client/App.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Client.App.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Client\App.xaml
@@ -88,7 +88,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Client/AppShell.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Client/AppShell.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Client.AppShell.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Client\AppShell.xaml
@@ -98,7 +98,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Client/MainPage.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Client/MainPage.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Client.MainPage.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Client\MainPage.xaml
@@ -108,7 +108,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Client/obj/Debug/net10.0-windows10.0.19041.0/win-x64/Platforms/Windows/App.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Client/obj/Debug/net10.0-windows10.0.19041.0/win-x64/Platforms/Windows/App.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Client.obj.Debug.net10._0_windows10._0._19041._0.win_x64.Platforms.Windows.App.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Client\obj\Debug\net10.0-windows10.0.19041.0\win-x64\Platforms\Windows\App.xaml
@@ -118,7 +118,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Client/obj/Release/net10.0-windows10.0.19041.0/win-x64/Platforms/Windows/App.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Client/obj/Release/net10.0-windows10.0.19041.0/win-x64/Platforms/Windows/App.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Client.obj.Release.net10._0_windows10._0._19041._0.win_x64.Platforms.Windows.App.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Client\obj\Release\net10.0-windows10.0.19041.0\win-x64\Platforms\Windows\App.xaml
@@ -128,7 +128,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Client/Platforms/Windows/App.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Client/Platforms/Windows/App.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Client.Platforms.Windows.App.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Client\Platforms\Windows\App.xaml
@@ -138,7 +138,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Client/Resources/Styles/Colors.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Client/Resources/Styles/Colors.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Client.Resources.Styles.Colors.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Client\Resources\Styles\Colors.xaml
@@ -148,7 +148,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Client/Resources/Styles/Styles.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Client/Resources/Styles/Styles.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Client.Resources.Styles.Styles.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Client\Resources\Styles\Styles.xaml
@@ -158,7 +158,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Client/Views/HomePage.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Client/Views/HomePage.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Client.Views.HomePage.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Client\Views\HomePage.xaml
@@ -168,7 +168,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Client/Views/JudgeRegistrationPage.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Client/Views/JudgeRegistrationPage.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Client.Views.JudgeRegistrationPage.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Client\Views\JudgeRegistrationPage.xaml
@@ -178,7 +178,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Client/Views/ScanPage.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Client/Views/ScanPage.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Client.Views.ScanPage.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Client\Views\ScanPage.xaml
@@ -188,7 +188,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Client/Views/SettingsPage.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Client/Views/SettingsPage.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Client.Views.SettingsPage.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Client\Views\SettingsPage.xaml
@@ -198,7 +198,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Client/Views/VotingPage.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Client/Views/VotingPage.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Client.Views.VotingPage.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Client\Views\VotingPage.xaml
@@ -208,7 +208,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Server/App.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Server/App.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Server.App.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Server\App.xaml
@@ -218,7 +218,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Server/AppShell.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Server/AppShell.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Server.AppShell.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Server\AppShell.xaml
@@ -228,7 +228,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Server/MainPage.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Server/MainPage.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Server.MainPage.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Server\MainPage.xaml
@@ -238,7 +238,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Server/obj/Debug/net10.0-windows10.0.19041.0/win-x64/Platforms/Windows/App.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Server/obj/Debug/net10.0-windows10.0.19041.0/win-x64/Platforms/Windows/App.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Server.obj.Debug.net10._0_windows10._0._19041._0.win_x64.Platforms.Windows.App.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Server\obj\Debug\net10.0-windows10.0.19041.0\win-x64\Platforms\Windows\App.xaml
@@ -248,7 +248,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Server/obj/Release/net10.0-windows10.0.19041.0/win-x64/Platforms/Windows/App.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Server/obj/Release/net10.0-windows10.0.19041.0/win-x64/Platforms/Windows/App.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Server.obj.Release.net10._0_windows10._0._19041._0.win_x64.Platforms.Windows.App.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Server\obj\Release\net10.0-windows10.0.19041.0\win-x64\Platforms\Windows\App.xaml
@@ -258,7 +258,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Server/Platforms/Windows/App.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Server/Platforms/Windows/App.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Server.Platforms.Windows.App.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Server\Platforms\Windows\App.xaml
@@ -268,7 +268,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Server/Resources/Styles/Colors.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Server/Resources/Styles/Colors.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Server.Resources.Styles.Colors.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Server\Resources\Styles\Colors.xaml
@@ -278,7 +278,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Server/Resources/Styles/Styles.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Server/Resources/Styles/Styles.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Server.Resources.Styles.Styles.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Server\Resources\Styles\Styles.xaml
@@ -288,7 +288,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Server/Views/CreateEventPage.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Server/Views/CreateEventPage.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Server.Views.CreateEventPage.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Server\Views\CreateEventPage.xaml
@@ -298,7 +298,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Server/Views/ResultsPage.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Server/Views/ResultsPage.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Server.Views.ResultsPage.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Server\Views\ResultsPage.xaml
@@ -308,7 +308,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Server/Views/TopologyPage.xaml]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Server/Views/TopologyPage.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Server.Views.TopologyPage.xaml
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Server\Views\TopologyPage.xaml
@@ -318,7 +318,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/Layout/MainLayout.razor.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/Layout/MainLayout.razor.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.Layout.MainLayout.razor.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\Layout\MainLayout.razor.css
@@ -328,7 +328,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/Layout/NavMenu.razor.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/Layout/NavMenu.razor.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.Layout.NavMenu.razor.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\Layout\NavMenu.razor.css
@@ -338,7 +338,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/obj/Debug/net10.0/scopedcss/bundle/Nodus.Web.styles.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/obj/Debug/net10.0/scopedcss/bundle/Nodus.Web.styles.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.obj.Debug.net10._0.scopedcss.bundle.Nodus.Web.styles.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\obj\Debug\net10.0\scopedcss\bundle\Nodus.Web.styles.css
@@ -348,7 +348,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/obj/Debug/net10.0/scopedcss/Layout/MainLayout.razor.rz.scp.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/obj/Debug/net10.0/scopedcss/Layout/MainLayout.razor.rz.scp.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.obj.Debug.net10._0.scopedcss.Layout.MainLayout.razor.rz.scp.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\obj\Debug\net10.0\scopedcss\Layout\MainLayout.razor.rz.scp.css
@@ -358,7 +358,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/obj/Debug/net10.0/scopedcss/Layout/NavMenu.razor.rz.scp.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/obj/Debug/net10.0/scopedcss/Layout/NavMenu.razor.rz.scp.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.obj.Debug.net10._0.scopedcss.Layout.NavMenu.razor.rz.scp.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\obj\Debug\net10.0\scopedcss\Layout\NavMenu.razor.rz.scp.css
@@ -368,7 +368,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/obj/Debug/net10.0/scopedcss/projectbundle/Nodus.Web.bundle.scp.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/obj/Debug/net10.0/scopedcss/projectbundle/Nodus.Web.bundle.scp.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.obj.Debug.net10._0.scopedcss.projectbundle.Nodus.Web.bundle.scp.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\obj\Debug\net10.0\scopedcss\projectbundle\Nodus.Web.bundle.scp.css
@@ -378,7 +378,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/obj/Release/net10.0/scopedcss/bundle/Nodus.Web.styles.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/obj/Release/net10.0/scopedcss/bundle/Nodus.Web.styles.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.obj.Release.net10._0.scopedcss.bundle.Nodus.Web.styles.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\obj\Release\net10.0\scopedcss\bundle\Nodus.Web.styles.css
@@ -388,7 +388,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/obj/Release/net10.0/scopedcss/Layout/MainLayout.razor.rz.scp.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/obj/Release/net10.0/scopedcss/Layout/MainLayout.razor.rz.scp.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.obj.Release.net10._0.scopedcss.Layout.MainLayout.razor.rz.scp.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\obj\Release\net10.0\scopedcss\Layout\MainLayout.razor.rz.scp.css
@@ -398,7 +398,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/obj/Release/net10.0/scopedcss/Layout/NavMenu.razor.rz.scp.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/obj/Release/net10.0/scopedcss/Layout/NavMenu.razor.rz.scp.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.obj.Release.net10._0.scopedcss.Layout.NavMenu.razor.rz.scp.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\obj\Release\net10.0\scopedcss\Layout\NavMenu.razor.rz.scp.css
@@ -408,7 +408,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/obj/Release/net10.0/scopedcss/projectbundle/Nodus.Web.bundle.scp.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/obj/Release/net10.0/scopedcss/projectbundle/Nodus.Web.bundle.scp.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.obj.Release.net10._0.scopedcss.projectbundle.Nodus.Web.bundle.scp.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\obj\Release\net10.0\scopedcss\projectbundle\Nodus.Web.bundle.scp.css
@@ -418,7 +418,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/css/app.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/css/app.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.wwwroot.css.app.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\wwwroot\css\app.css
@@ -428,7 +428,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/css/display.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/css/display.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.wwwroot.css.display.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\wwwroot\css\display.css
@@ -438,7 +438,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.wwwroot.lib.bootstrap.dist.css.bootstrap-grid.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
@@ -448,7 +448,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.min.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.min.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.wwwroot.lib.bootstrap.dist.css.bootstrap-grid.min.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css
@@ -458,7 +458,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.rtl.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.rtl.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.wwwroot.lib.bootstrap.dist.css.bootstrap-grid.rtl.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css
@@ -468,7 +468,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.rtl.min.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.rtl.min.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.wwwroot.lib.bootstrap.dist.css.bootstrap-grid.rtl.min.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css
@@ -478,7 +478,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.wwwroot.lib.bootstrap.dist.css.bootstrap-reboot.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css
@@ -488,7 +488,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.min.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.min.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.wwwroot.lib.bootstrap.dist.css.bootstrap-reboot.min.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css
@@ -498,7 +498,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.rtl.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.rtl.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.wwwroot.lib.bootstrap.dist.css.bootstrap-reboot.rtl.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css
@@ -508,7 +508,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.rtl.min.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.rtl.min.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.wwwroot.lib.bootstrap.dist.css.bootstrap-reboot.rtl.min.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css
@@ -518,7 +518,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.wwwroot.lib.bootstrap.dist.css.bootstrap-utilities.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css
@@ -528,7 +528,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.min.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.min.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.wwwroot.lib.bootstrap.dist.css.bootstrap-utilities.min.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css
@@ -538,7 +538,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.rtl.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.rtl.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.wwwroot.lib.bootstrap.dist.css.bootstrap-utilities.rtl.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css
@@ -548,7 +548,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.rtl.min.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.rtl.min.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.wwwroot.lib.bootstrap.dist.css.bootstrap-utilities.rtl.min.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css
@@ -558,7 +558,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.wwwroot.lib.bootstrap.dist.css.bootstrap.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\wwwroot\lib\bootstrap\dist\css\bootstrap.css
@@ -568,7 +568,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap.min.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap.min.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.wwwroot.lib.bootstrap.dist.css.bootstrap.min.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\wwwroot\lib\bootstrap\dist\css\bootstrap.min.css
@@ -578,7 +578,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap.rtl.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap.rtl.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.wwwroot.lib.bootstrap.dist.css.bootstrap.rtl.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css
@@ -588,7 +588,7 @@ build_metadata.AdditionalFiles.NoWarn =
 build_metadata.AdditionalFiles.EnableDiagnostics = 
 build_metadata.AdditionalFiles.LineInfo = 
 
-[c:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap.rtl.min.css]
+[C:/code/project_kiosko/nodusApp/src/Nodus.Web/wwwroot/lib/bootstrap/dist/css/bootstrap.rtl.min.css]
 build_metadata.AdditionalFiles.GenKind = Css
 build_metadata.AdditionalFiles.ManifestResourceName = nodusApp.src.Nodus.Web.wwwroot.lib.bootstrap.dist.css.bootstrap.rtl.min.css
 build_metadata.AdditionalFiles.TargetPath = src\Nodus.Web\wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css

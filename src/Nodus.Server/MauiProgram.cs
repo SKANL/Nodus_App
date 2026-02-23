@@ -45,12 +45,10 @@ public static class MauiProgram
         builder.Services.AddSingleton<Nodus.Shared.Abstractions.IDateTimeProvider, Nodus.Shared.Services.SystemDateTimeProvider>();
         builder.Services.AddSingleton<Nodus.Shared.Abstractions.IFileService, Nodus.Shared.Services.FileService>();
         builder.Services.AddSingleton<Nodus.Shared.Services.TelemetryService>();
-        builder.Services.AddSingleton<Nodus.Shared.Services.TelemetryService>();
         builder.Services.AddSingleton<Nodus.Shared.Services.VoteAggregatorService>();
         builder.Services.AddSingleton<Nodus.Shared.Services.VoteIngestionService>();
-        builder.Services.AddSingleton<Nodus.Shared.Services.VoteAggregatorService>();
         builder.Services.AddSingleton<Nodus.Server.Services.ExportService>();
-        builder.Services.AddSingleton<Nodus.Server.Services.ExportService>();
+        builder.Services.AddSingleton<Nodus.Shared.Abstractions.IFileSaverService, Nodus.Server.Services.FileSaverService>();
 
         // Pages
         builder.Services.AddSingleton<MainPage>();

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\code\\project_kiosko\\nodusApp\\nodusApp.csproj": {}
+    "C:\\code\\project_kiosko\\nodusApp\\nodusApp.csproj": {}
   },
   "projects": {
-    "c:\\code\\project_kiosko\\nodusApp\\nodusApp.csproj": {
+    "C:\\code\\project_kiosko\\nodusApp\\nodusApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\code\\project_kiosko\\nodusApp\\nodusApp.csproj",
+        "projectUniqueName": "C:\\code\\project_kiosko\\nodusApp\\nodusApp.csproj",
         "projectName": "nodusApp",
-        "projectPath": "c:\\code\\project_kiosko\\nodusApp\\nodusApp.csproj",
+        "projectPath": "C:\\code\\project_kiosko\\nodusApp\\nodusApp.csproj",
         "packagesPath": "C:\\Users\\angua\\.nuget\\packages\\",
-        "outputPath": "c:\\code\\project_kiosko\\nodusApp\\obj\\",
+        "outputPath": "C:\\code\\project_kiosko\\nodusApp\\obj\\",
         "projectStyle": "PackageReference",
         "crossTargeting": true,
         "fallbackFolders": [
