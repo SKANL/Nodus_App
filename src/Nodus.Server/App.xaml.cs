@@ -29,8 +29,14 @@ public partial class App : Application
 		LogDebug("CreateWindow started");
 		try
 		{
-			var mainPage = Handler?.MauiContext?.Services.GetRequiredService<MainPage>();
-			LogDebug("MainPage resolved successfully");
+			var services = Handler?.MauiContext?.Services;
+			var mainPage = services?.GetRequiredService<MainPage>();
+			
+			// Start Cloud Sync
+			var syncService = services?.GetRequiredService<Nodus.Server.Services.CloudSyncService>();
+			syncService?.Start();
+
+			LogDebug("MainPage and CloudSyncService resolved successfully");
 			return new Window(mainPage!);
 		}
 		catch (Exception ex)

@@ -1,15 +1,10 @@
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-
-namespace Nodus.Shared.Models;
+namespace Nodus.Infrastructure.Models;
 
 /// <summary>
 /// Equivalente al modelo Event de SQLite, adaptado para MongoDB.
 /// </summary>
 public class EventDocument
 {
-    [BsonId]
-    [BsonRepresentation(BsonType.String)]
     public string Id { get; set; } = Guid.NewGuid().ToString();
 
     public string Name { get; set; } = string.Empty;
@@ -17,7 +12,7 @@ public class EventDocument
     /// <summary>
     /// En MongoDB se almacena como objeto nativo en lugar de string JSON.
     /// </summary>
-    public BsonDocument? Rubric { get; set; }
+    public string? Rubric { get; set; }
 
     public string GlobalSalt { get; set; } = string.Empty;
     public string SharedAesKeyEncrypted { get; set; } = string.Empty;
@@ -29,8 +24,6 @@ public class EventDocument
 /// </summary>
 public class ProjectDocument
 {
-    [BsonId]
-    [BsonRepresentation(BsonType.String)]
     public string Id { get; set; } = string.Empty; // "PROJ-XYZ"
 
     /// <summary>Indexado en la colección.</summary>
@@ -42,10 +35,8 @@ public class ProjectDocument
     public string Authors { get; set; } = string.Empty;
     public string? GithubUrl { get; set; }
 
-    [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 
-    [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;
 }
 
@@ -54,8 +45,6 @@ public class ProjectDocument
 /// </summary>
 public class VoteDocument
 {
-    [BsonId]
-    [BsonRepresentation(BsonType.String)]
     public string Id { get; set; } = Guid.NewGuid().ToString();
 
     /// <summary>Indexado en la colección.</summary>
@@ -71,7 +60,7 @@ public class VoteDocument
     /// VENTAJA vs SQLite: PayloadJson era un string. Aquí es un objeto nativo.
     /// Permite queries como: db.votes.find({"payload.Design": {$gt: 7}})
     /// </summary>
-    public BsonDocument Payload { get; set; } = new BsonDocument();
+    public string Payload { get; set; } = string.Empty;
 
     /// <summary>Pending | Synced | SyncError</summary>
     public string Status { get; set; } = "Pending";
@@ -81,6 +70,5 @@ public class VoteDocument
     public string? LocalPhotoPath { get; set; }
     public bool IsMediaSynced { get; set; } = false;
 
-    [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTime? SyncedAtUtc { get; set; }
 }

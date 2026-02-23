@@ -11,8 +11,9 @@ namespace Nodus.Server.ViewModels;
 
 public partial class CreateEventViewModel : ObservableObject
 {
-    private readonly IDatabaseService _db; // Changed to Interface
+    private readonly IDatabaseService _db;
     private readonly Services.BleServerService _bleService;
+    private readonly Nodus.Infrastructure.Services.MongoDbService _mongoDb;
 
     [ObservableProperty] private string _eventName = string.Empty;
     [ObservableProperty] private string _judgePassword = string.Empty;
@@ -22,10 +23,14 @@ public partial class CreateEventViewModel : ObservableObject
     [ObservableProperty] private ImageSource? _studentQrCode;
     [ObservableProperty] private bool _isGenerated;
 
-    public CreateEventViewModel(IDatabaseService db, Services.BleServerService bleService) // Changed to Interface
+    public CreateEventViewModel(
+        IDatabaseService db, 
+        Services.BleServerService bleService,
+        Infrastructure.Services.MongoDbService mongoDb)
     {
         _db = db;
         _bleService = bleService;
+        _mongoDb = mongoDb;
     }
 
     [RelayCommand]
@@ -84,12 +89,25 @@ public partial class CreateEventViewModel : ObservableObject
                 if (page != null)
                 {
                     await page.DisplayAlertAsync("Error", 
-                        $"Failed to save event: {saveResult.Error}", "OK");
+                        $"Failed to save event locally: {saveResult.Error}", "OK");
                 }
                 return;
             }
 
-            // 4. Generate QR Codes
+            // 4. Sync to Cloud immediately for Web Portal registration
+            _ = Task.Run(async () => {
+                var cloudResult = await _mongoDb.SaveEventAsync(newEvent);
+                if (cloudResult.IsFailure)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[CLOUD] Failed to push event to Atlas: {cloudResult.Error}");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[CLOUD] Event {newEvent.Name} pushed to Atlas successfully.");
+                }
+            });
+
+            // 5. Generate QR Codes
             JudgeQrCode = GenerateQrImage($"nodus://judge?eid={newEvent.Id}&data={System.Net.WebUtility.UrlEncode(qrPayload)}");
             StudentQrCode = GenerateQrImage($"http://192.168.1.1:5000/register?eid={newEvent.Id}");
             

@@ -4,152 +4,107 @@
 @inject ProjectService ProjectService
 @inject QrGeneratorService QrService
 @inject NavigationManager Navigation
-@inject IJSRuntime JS
 
-<div class="display-container @(isFullScreen ? "fullscreen" : "")">
-    @if (project == null)
-    {
-        <div class="d-flex justify-content-center align-items-center vh-100">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        </div>
-    }
-    else
-    {
-        <div class="container h-100">
-            <!-- Header / Controls -->
-            <div class="d-flex justify-content-between align-items-center py-3 mb-4 control-bar">
-                <div class="d-flex align-items-center">
-                    <img src="icon-192.png" alt="Nodus" height="32" class="me-2 rounded-circle" />
-                    <span class="fw-bold text-muted">Nodus Display</span>
-                </div>
-                <div>
-                     <button class="btn btn-outline-secondary btn-sm me-2" @onclick="ToggleFullScreen">
-                        <i class="bi @(isFullScreen ? "bi-fullscreen-exit" : "bi-fullscreen")"></i> 
-                        @(isFullScreen ? "Exit" : "Fullscreen")
-                    </button>
-                    <button class="btn btn-outline-primary btn-sm" @onclick="GoToEdit">
-                        <i class="bi bi-pencil"></i> Edit
-                    </button>
-                </div>
-            </div>
+<PageTitle>Project Display | Nodus</PageTitle>
 
-            <div class="row h-75 align-items-center justify-content-center">
-                
-                <!-- Project Info Column -->
-                <div class="col-lg-6 text-center text-lg-start mb-5 mb-lg-0 animated-left">
-                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2 mb-3">
-                        @project.Category
-                    </span>
-                    <h1 class="display-1 fw-bold mb-3 project-title">@project.Id</h1>
-                    <h2 class="display-5 fw-bold mb-4">@project.Name</h2>
-                    
-                    <p class="lead text-muted mb-4 authors">
-                        <i class="bi bi-people-fill me-2"></i> @project.Authors
-                    </p>
-                    
-                    <p class="text-secondary description">
+@if (project == null)
+{
+    <div class="loading-box shadow-sm">
+        <div class="spinner-grow text-primary mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
+        <h3 class="fw-light text-muted">Fetching project details...</h3>
+    </div>
+}
+else
+{
+    <div class="project-container @(isFullscreen ? "fullscreen-mode" : "")">
+        <div class="row h-100 g-0">
+            <!-- Left Panel: Project Info -->
+            <div class="col-lg-7 d-flex flex-column h-100 p-5 bg-white">
+                <div class="mb-auto">
+                    <div class="d-flex align-items-center mb-4">
+                        <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill me-3">
+                            @project.Category
+                        </span>
+                        <span class="text-muted small">ID: @project.Id.Substring(0, 8)...</span>
+                    </div>
+
+                    <h1 class="display-3 mb-3 fw-bold text-dark">@project.Name</h1>
+                    <p class="lead text-muted mb-5" style="font-size: 1.4rem; border-left: 4px solid var(--primary); padding-left: 1.5rem;">
                         @project.Description
                     </p>
-                </div>
 
-                <!-- QR Code Column -->
-                <div class="col-lg-5 offset-lg-1 text-center animated-right">
-                    <div class="qr-card p-4 bg-white rounded-4 shadow-lg border">
-                        <div class="mb-3">
-                            @if (!string.IsNullOrEmpty(qrCodeImage))
-                            {
-                                <img src="@qrCodeImage" alt="Vote QR Code" class="img-fluid rounded-3" style="max-width: 100%; height: auto;" />
-                            }
-                            else
-                            {
-                                <div class="d-flex align-items-center justify-content-center bg-light rounded-3" style="height: 300px; width: 300px; margin: 0 auto;">
-                                    <span class="text-muted">Generating QR...</span>
-                                </div>
-                            }
+                    <div class="row g-4 mt-2">
+                        <div class="col-sm-6">
+                            <div class="info-card">
+                                <label>Authors</label>
+                                <div>@project.Authors</div>
+                            </div>
                         </div>
-                        <h4 class="fw-bold mb-1">Scan to Vote</h4>
-                        <p class="text-muted small mb-0">Use the Nodus Judge App</p>
+                        @if (!string.IsNullOrEmpty(project.GithubUrl))
+                        {
+                            <div class="col-sm-6">
+                                <div class="info-card">
+                                    <label>Source Code</label>
+                                    <div class="text-truncate">@project.GithubUrl.Replace("https://github.com/", "")</div>
+                                </div>
+                            </div>
+                        }
                     </div>
                 </div>
 
+                <div class="mt-5 d-flex align-items-center justify-content-between border-top pt-4">
+                    <button class="btn btn-outline-secondary rounded-pill px-4" @onclick="GoBack">
+                        <i class="bi bi-arrow-left me-2"></i> Edit Project
+                    </button>
+                    <button class="btn btn-dark rounded-pill px-4" @onclick="ToggleFullscreen">
+                        <i class="bi @(isFullscreen ? "bi-fullscreen-exit" : "bi-fullscreen") me-2"></i> 
+                        @(isFullscreen ? "Exit Fullscreen" : "Immersive View")
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Panel: QR Code / Interaction -->
+            <div class="col-lg-5 theme-gradient d-flex flex-column align-items-center justify-content-center p-5 text-white position-relative">
+                <div class="qr-wrapper shadow-2xl p-4 bg-white rounded-3xl mb-5">
+                    @if (!string.IsNullOrEmpty(qrCodeImage))
+                    {
+                        <img src="data:image/png;base64,@qrCodeImage" alt="Voting QR Code" class="img-fluid rounded-lg" style="width: 280px; height: 280px;" />
+                    }
+                    else
+                    {
+                        <div class="spinner-border text-primary" role="status"></div>
+                    }
+                </div>
+                
+                <div class="text-center max-w-sm">
+                    <h2 class="h1 mb-3">Vote for this Project!</h2>
+                    <p class="opacity-75 lead">Scan the QR code with the Nodus App to cast your vote and support these creators.</p>
+                </div>
+
+                <!-- Subtle Decorative Elements -->
+                <div class="crypto-deco">NODUS PROTOCOL • SECURE VOTING • SWARM MESH</div>
             </div>
         </div>
-    }
-</div>
-
-<style>
-    .display-container {
-        min-height: 90vh;
-        transition: background-color 0.3s;
-    }
-
-    .display-container.fullscreen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: white;
-        z-index: 1000;
-        padding: 20px;
-    }
-    
-    .display-container.fullscreen .control-bar {
-        opacity: 0.2;
-        transition: opacity 0.3s;
-    }
-    
-    .display-container.fullscreen .control-bar:hover {
-        opacity: 1;
-    }
-
-    .project-title {
-        letter-spacing: -2px;
-        background: -webkit-linear-gradient(45deg, #0d6efd, #6610f2);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .qr-card {
-        transition: transform 0.3s ease;
-    }
-    
-    .qr-card:hover {
-        transform: translateY(-5px);
-    }
-
-    /* Animation classes */
-    .animated-left { animation: slideInLeft 0.8s ease-out; }
-    .animated-right { animation: slideInRight 0.8s ease-out; }
-
-    @@keyframes slideInLeft {
-        from { opacity: 0; transform: translateX(-50px); }
-        to { opacity: 1; transform: translateX(0); }
-    }
-    
-    @@keyframes slideInRight {
-        from { opacity: 0; transform: translateX(50px); }
-        to { opacity: 1; transform: translateX(0); }
-    }
-
-    @@media (max-width: 991.98px) {
-        .display-1 { font-size: 3rem; }
-    }
-</style>
+    </div>
+}
 
 @code {
-    [Parameter]
-    public string ProjectId { get; set; }
-
+    [Parameter] public string ProjectId { get; set; } = "";
     private Project? project;
     private string? qrCodeImage;
-    private bool isFullScreen = false;
+    private bool isFullscreen = false;
 
     protected override async Task OnInitializedAsync()
     {
-        project = await ProjectService.GetProjectAsync(ProjectId);
+        if (ProjectId == "current")
+        {
+            project = await ProjectService.GetCurrentProjectAsync();
+        }
+        else 
+        {
+            project = await ProjectService.GetProjectAsync(ProjectId);
+        }
+
         if (project != null)
         {
             var payload = $"nodus://vote?pid={project.Id}&cat={Uri.EscapeDataString(project.Category ?? "")}";
@@ -157,21 +112,80 @@
         }
     }
 
-    private void GoToEdit()
-    {
-        Navigation.NavigateTo("/register");
+    private void ToggleFullscreen() => isFullscreen = !isFullscreen;
+    private void GoBack() => Navigation.NavigateTo("/register");
+}
+
+<style>
+    .project-container {
+        height: min(800px, 85vh);
+        background: white;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-lg);
+        animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    private async Task ToggleFullScreen()
-    {
-        isFullScreen = !isFullScreen;
-        if (isFullScreen)
-        {
-            await JS.InvokeVoidAsync("document.documentElement.requestFullscreen");
-        }
-        else
-        {
-            await JS.InvokeVoidAsync("document.exitFullscreen");
-        }
+    .project-container.fullscreen-mode {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        width: 100vw; height: 100vh;
+        border-radius: 0;
+        z-index: 9999;
     }
-}
+
+    .bg-primary-soft { background-color: rgba(79, 70, 229, 0.1); }
+
+    .theme-gradient {
+        background: linear-gradient(135deg, #0f172a 0%, #4338ca 100%);
+    }
+
+    .qr-wrapper {
+        border-radius: 2rem;
+        transform: rotate(-2deg);
+        transition: transform 0.3s ease;
+    }
+    .qr-wrapper:hover { transform: rotate(0deg) scale(1.02); }
+
+    .rounded-3xl { border-radius: 2.5rem; }
+    .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+
+    .info-card {
+        padding: 1.25rem;
+        border-radius: var(--radius-md);
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+    }
+    .info-card label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+    }
+    .info-card div {
+        font-weight: 600;
+        color: var(--text-main);
+        font-size: 1.1rem;
+    }
+
+    .crypto-deco {
+        position: absolute;
+        bottom: 2rem;
+        font-size: 0.65rem;
+        font-family: var(--font-heading);
+        font-weight: 700;
+        letter-spacing: 0.4em;
+        opacity: 0.4;
+        white-space: nowrap;
+    }
+
+    .max-w-sm { max-width: 320px; }
+
+    @@keyframes slideUp {
+        from { opacity: 0; transform: translateY(40px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>

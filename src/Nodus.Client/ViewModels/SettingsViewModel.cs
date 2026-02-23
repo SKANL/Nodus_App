@@ -2,14 +2,15 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Nodus.Client.Services;
 using Microsoft.Extensions.Logging;
-using Nodus.Shared.Services;
+using Nodus.Infrastructure.Services;
+using Nodus.Shared.Abstractions;
 
 namespace Nodus.Client.ViewModels;
 
 public partial class SettingsViewModel : ObservableObject, IDisposable
 {
     private readonly MediaSyncService _mediaSyncService;
-    private readonly DatabaseService _databaseService;
+    private readonly IDatabaseService _databaseService;
     private readonly ILogger<SettingsViewModel> _logger;
 
     [ObservableProperty]
@@ -35,7 +36,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
 
     public SettingsViewModel(
         MediaSyncService mediaSyncService, 
-        DatabaseService databaseService,
+        IDatabaseService databaseService,
         ILogger<SettingsViewModel> logger)
     {
         _mediaSyncService = mediaSyncService;

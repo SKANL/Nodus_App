@@ -32,13 +32,43 @@ public class BleServerService
         _db = db;
         _logger = logger;
         
-        // Use new ChunkerService.ChunkAssembler
-        _assembler = new ChunkerService.ChunkAssembler();
-        
-        _logger.LogInformation("BleServerService initialized");
-        
-        // Load active event key (simplified)
-        Task.Run(async () => await LoadActiveEventKey());
+        // Load active event key and projects
+        Task.Run(async () => 
+        {
+            await LoadActiveEventKey();
+            await SyncProjectsFromDbAsync();
+            StartSyncTimer();
+        });
+    }
+
+    private void StartSyncTimer()
+    {
+        // Poll DB every 30 seconds for new projects from Web
+        var timer = new System.Timers.Timer(30000);
+        timer.Elapsed += async (s, e) => await SyncProjectsFromDbAsync();
+        timer.Start();
+    }
+
+    private List<Project> _activeProjects = new();
+
+    public async Task SyncProjectsFromDbAsync()
+    {
+        try 
+        {
+            var result = await _db.GetAllProjectsAsync();
+            if (result.IsSuccess)
+            {
+                _activeProjects = result.Value;
+                _logger.LogInformation("Synced {Count} projects from DB", _activeProjects.Count);
+                
+                // If we have connected clients, we could notify them of the change
+                // or just let them read the latest list.
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to sync projects from DB");
+        }
     }
 
     // ... 
@@ -55,6 +85,16 @@ public class BleServerService
         {
             _gattService = await _bleHosting.AddService(NodusConstants.SERVICE_UUID, true, serviceBuilder =>
             {
+                // Characteristic for Project Discovery
+                serviceBuilder.AddCharacteristic(Guid.Parse("00002A01-0000-1000-8000-00805F9B34FB"), cb => 
+                {
+                    cb.SetRead(request => 
+                    {
+                        var json = JsonSerializer.Serialize(_activeProjects);
+                        return Task.FromResult(GattResult.Success(Encoding.UTF8.GetBytes(json)));
+                    });
+                });
+
                 serviceBuilder.AddCharacteristic(NodusConstants.CHARACTERISTIC_UUID, cb => 
                 {
                     cb.SetRead(request => Task.FromResult(GattResult.Success(Encoding.UTF8.GetBytes(eventName))));

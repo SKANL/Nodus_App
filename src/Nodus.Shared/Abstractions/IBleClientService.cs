@@ -1,7 +1,6 @@
 using Nodus.Shared.Common;
 using Nodus.Shared.Models;
 using Nodus.Shared.Protocol;
-using Shiny.BluetoothLE;
 
 namespace Nodus.Shared.Abstractions;
 
@@ -13,7 +12,7 @@ public interface IBleClientService
     /// <summary>
     /// Current connection state observable.
     /// </summary>
-    IObservable<ConnectionState> ConnectionState { get; }
+    IObservable<string> ConnectionState { get; }
     
     /// <summary>
     /// Indicates if currently connected to a server or relay.

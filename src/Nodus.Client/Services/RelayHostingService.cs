@@ -9,6 +9,7 @@ using Shiny.BluetoothLE.Hosting;
 
 
 using Nodus.Shared.Abstractions;
+using Nodus.Infrastructure.Services;
 
 namespace Nodus.Client.Services;
 

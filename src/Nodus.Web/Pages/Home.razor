@@ -1,7 +1,156 @@
 ﻿@page "/"
+@using Nodus.Shared.Models
+@using Nodus.Web.Services
+@inject ProjectService ProjectService
+@inject NavigationManager Navigation
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Dashboard | Nodus Portal</PageTitle>
 
-<h1>aplicacion Estudiantes !</h1>
+<div class="row g-4">
+    <!-- Welcome Header -->
+    <div class="col-12 mb-2">
+        <h1 class="display-5 fw-bold text-dark">Welcome back!</h1>
+        <p class="text-muted lead">Manage your innovation and participate in the Nodus ecosystem.</p>
+    </div>
 
-esta es una version de prueba   
+    @if (isLoading)
+    {
+        <div class="col-12 mt-4 text-center">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="text-muted mt-2">Syncing with Atlas Cloud...</p>
+        </div>
+    }
+    else
+    {
+        <!-- Status Card -->
+        <div class="col-md-7">
+            @if (currentProject != null)
+            {
+                <div class="card-premium h-100 overflow-hidden position-relative">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div>
+                            <span class="badge bg-success mb-2"><i class="bi bi-check-circle me-1"></i> Project Registered</span>
+                            <h2 class="h3 mb-0">@currentProject.Name</h2>
+                        </div>
+                        <i class="bi bi-trophy-fill text-warning fs-1 opacity-25"></i>
+                    </div>
+                    
+                    <p class="text-muted text-truncate-3">@currentProject.Description</p>
+                    
+                    <div class="mt-4 pt-3 border-top">
+                        <div class="d-flex gap-2">
+                            <button class="btn-premium" @onclick='() => Navigation.NavigateTo($"/display/current")'>
+                                View My QR Code
+                            </button>
+                            <button class="btn btn-outline-secondary rounded-pill px-4" @onclick='() => Navigation.NavigateTo("/register")'>
+                                Edit Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card-premium h-100 bg-primary text-white border-0">
+                    <div class="mb-4">
+                        <h2 class="h3 mb-2">Ready to Start?</h2>
+                        <p class="opacity-75">You haven't registered a project yet. Register now to enable offline voting for your innovation.</p>
+                    </div>
+                    <button class="btn btn-light btn-lg rounded-pill px-5 text-primary fw-bold" @onclick='() => Navigation.NavigateTo("/register")'>
+                        Register Project
+                    </button>
+                    <i class="bi bi-rocket-takeoff position-absolute bottom-0 end-0 m-4 fs-1 opacity-25"></i>
+                </div>
+            }
+        </div>
+
+        <!-- Quick Stats / Info -->
+        <div class="col-md-5">
+            <div class="card-premium h-100">
+                <h3 class="h5 mb-4 border-bottom pb-2">Nodus Insights</h3>
+                
+                <div class="d-flex align-items-center mb-4">
+                    <div class="bg-light p-3 rounded-circle me-3">
+                        <i class="bi bi-cpu text-primary"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Firefly Protocol</div>
+                        <div class="text-muted small">Active in local mesh network</div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center mb-4">
+                    <div class="bg-light p-3 rounded-circle me-3">
+                        <i class="bi bi-cloud-check text-success"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Cloud Sync</div>
+                        <div class="text-muted small">Atlas DB is up to date</div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center">
+                    <div class="bg-light p-3 rounded-circle me-3">
+                        <i class="bi bi-reception-4 text-info"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">BLE Broadcast</div>
+                        <div class="text-muted small">Server is transmitting nodes</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Educational Content -->
+        <div class="col-12 mt-3">
+            <div class="alert alert-info border-0 shadow-sm rounded-lg p-4 bg-white">
+                <div class="d-flex">
+                    <div class="me-4 text-info fs-1">
+                        <i class="bi bi-info-square-fill"></i>
+                    </div>
+                    <div>
+                        <h4 class="h5 fw-bold">About Nodus</h4>
+                        <p class="mb-0 text-muted">
+                            Nodus is a decentralized evaluation ecosystem designed to work in disconnected environments. 
+                            Using the <strong>Firefly Protocol</strong>, projects and votes are synchronized via a 
+                            Bluetooth Low Energy (BLE) mesh, ensuring data integrity even without internet access.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private Project? currentProject;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        try 
+        {
+            currentProject = await ProjectService.GetCurrentProjectAsync();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
+
+<style>
+    .text-truncate-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .rounded-lg { border-radius: 1rem; }
+    
+    .bg-primary {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%) !important;
+    }
+</style>

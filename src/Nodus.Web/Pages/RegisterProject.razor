@@ -1,129 +1,123 @@
 @page "/register"
-@using Nodus.Web.Models
-@using Nodus.Web.Services
 @using Nodus.Shared.Models
+@using Nodus.Web.Services
 @inject ProjectService ProjectService
+@inject EventService EventService
 @inject NavigationManager Navigation
 
-<div class="container fade-in">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="text-center mb-5">
-                <h1 class="display-5 fw-bold text-primary">Nodus Project Registration</h1>
-                <p class="text-muted">Register your project for offline voting.</p>
-            </div>
+<PageTitle>Register Project | Nodus</PageTitle>
 
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-body p-4">
-                    <EditForm Model="@registration" OnValidSubmit="HandleValidSubmit">
-                        <DataAnnotationsValidator />
-                        <ValidationSummary class="text-danger mb-3" />
-
-                        <div class="mb-3">
-                            <label for="name" class="form-label fw-bold">Project Name</label>
-                            <InputText id="name" class="form-control form-control-lg" @bind-Value="registration.Name" placeholder="e.g. AI-Powered Drone" />
-                            <ValidationMessage For="@(() => registration.Name)" />
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="category" class="form-label fw-bold">Category</label>
-                            <InputSelect id="category" class="form-select form-select-lg" @bind-Value="registration.Category">
-                                <option value="Software">Software</option>
-                                <option value="Hardware">Hardware</option>
-                                <option value="Innovation">Innovation</option>
-                                <option value="Research">Research</option>
-                            </InputSelect>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="description" class="form-label fw-bold">Description</label>
-                            <InputTextArea id="description" class="form-control" @bind-Value="registration.Description" rows="3" placeholder="Brief pitch of your project..." />
-                            <ValidationMessage For="@(() => registration.Description)" />
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="authors" class="form-label fw-bold">Authors</label>
-                            <InputText id="authors" class="form-control" @bind-Value="registration.Authors" placeholder="Alice, Bob, Charlie" />
-                            <ValidationMessage For="@(() => registration.Authors)" />
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="github" class="form-label fw-bold">GitHub URL <span class="text-muted fw-normal">(Optional)</span></label>
-                            <InputText id="github" class="form-control" @bind-Value="registration.GithubUrl" placeholder="https://github.com/..." />
-                        </div>
-
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg" disabled="@isSubmitting">
-                                @if (isSubmitting)
-                                {
-                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                    <span>Registering...</span>
-                                }
-                                else
-                                {
-                                    <span>Register Project</span>
-                                }
-                            </button>
-                        </div>
-                    </EditForm>
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+        <div class="card-premium">
+            <div class="mb-5 text-center">
+                <h1 class="display-5 mb-2">Project Registration</h1>
+                <p class="text-muted lead">Join the Nodus network and share your innovation.</p>
+                <div class="d-flex justify-content-center mt-3">
+                    <span class="badge bg-light text-primary border px-3 py-2 rounded-pill">
+                        <i class="bi bi-shield-check me-1"></i> Data saved locally & synced to Atlas
+                    </span>
                 </div>
             </div>
-            
-            <div class="text-center mt-4">
-                <p class="text-muted small">
-                    <i class="bi bi-wifi-off me-1"></i> Works offline. Data is saved locally.
-                </p>
-            </div>
+
+            <EditForm Model="@project" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator />
+                
+                <div class="row g-4">
+                    <div class="col-md-7">
+                        <div class="form-group-premium">
+                            <label class="form-label-premium">Project Name</label>
+                            <InputText @bind-Value="project.Name" class="form-control-premium w-100" placeholder="e.g. AI-Powered Drone" />
+                            <ValidationMessage For="@(() => project.Name)" class="text-danger small mt-1" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-5">
+                        <div class="form-group-premium">
+                            <label class="form-label-premium">Category</label>
+                            <InputSelect @bind-Value="project.Category" class="form-control-premium w-100">
+                                @if (categories != null)
+                                {
+                                    @foreach (var cat in categories)
+                                    {
+                                        <option value="@cat">@cat</option>
+                                    }
+                                }
+                                <option value="Other">Other</option>
+                            </InputSelect>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-group-premium">
+                            <label class="form-label-premium">Project Description</label>
+                            <InputTextArea @bind-Value="project.Description" class="form-control-premium w-100" 
+                                           rows="4" placeholder="Briefly describe what your project does..." />
+                            <ValidationMessage For="@(() => project.Description)" class="text-danger small mt-1" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group-premium">
+                            <label class="form-label-premium">Authors</label>
+                            <InputText @bind-Value="project.Authors" class="form-control-premium w-100" placeholder="Alice, Bob, Charlie" />
+                            <ValidationMessage For="@(() => project.Authors)" class="text-danger small mt-1" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group-premium">
+                            <label class="form-label-premium">GitHub URL (Optional)</label>
+                            <InputText @bind-Value="project.GithubUrl" class="form-control-premium w-100" placeholder="https://github.com/..." />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-5 pt-3 border-top d-flex justify-content-between align-items-center">
+                    <div class="text-muted small">
+                        <i class="bi bi-info-circle me-1"></i> Fields marked as required must be filled.
+                    </div>
+                    <button type="submit" class="btn-premium px-5" disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            <span>Registering...</span>
+                        }
+                        else
+                        {
+                            <span>Register Project</span>
+                        }
+                    </button>
+                </div>
+            </EditForm>
         </div>
     </div>
 </div>
 
-<style>
-    .fade-in {
-        animation: fadeIn 0.5s ease-in-out;
-    }
-    @@keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-</style>
-
 @code {
-    private ProjectRegistrationDto registration = new ProjectRegistrationDto();
+    private Project project = new();
+    private List<string>? categories;
     private bool isSubmitting = false;
 
     protected override async Task OnInitializedAsync()
     {
-        var existing = await ProjectService.GetCurrentProjectAsync();
-        if (existing != null)
+        categories = await EventService.GetCategoriesAsync();
+        if (categories?.Any() == true)
         {
-            Navigation.NavigateTo($"/display/{existing.Id}");
+            project.Category = categories.First();
         }
     }
 
-    private async Task HandleValidSubmit()
+    private async Task HandleSubmit()
     {
         isSubmitting = true;
-        try 
+        try
         {
-            var project = new Project
+            var savedProject = await ProjectService.SaveProjectAsync(project);
+            if (savedProject != null)
             {
-                // Let service generate ID if empty
-                Name = registration.Name,
-                Category = registration.Category,
-                Description = registration.Description,
-                Authors = registration.Authors,
-                GithubUrl = registration.GithubUrl,
-                CreatedAtUtc = DateTime.UtcNow,
-                UpdatedAtUtc = DateTime.UtcNow
-            };
-
-            var saved = await ProjectService.RegisterProjectAsync(project);
-            
-            // Artificial delay for UX
-            await Task.Delay(500);
-            
-            Navigation.NavigateTo($"/display/{saved.Id}");
+                Navigation.NavigateTo($"/display/{savedProject.Id}");
+            }
         }
         finally
         {

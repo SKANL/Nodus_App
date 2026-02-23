@@ -1,4 +1,3 @@
-using MongoDB.Bson.Serialization.Attributes;
 
 namespace Nodus.Shared.Models;
 
@@ -18,7 +17,6 @@ public class Judge
     /// Formato: "JUDGE-{NombreSinEspacios}-{UnixTimestamp}"
     /// Ejemplo: "JUDGE-OctavioGarcia-1739901600"
     /// </summary>
-    [BsonId]
     public string Id { get; set; } = Guid.NewGuid().ToString();
 
     /// <summary>

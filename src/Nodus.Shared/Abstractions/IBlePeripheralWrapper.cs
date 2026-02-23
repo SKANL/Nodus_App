@@ -1,4 +1,7 @@
-using Shiny.BluetoothLE;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Nodus.Shared.Models;
 
 namespace Nodus.Shared.Abstractions;
 
@@ -11,16 +14,17 @@ public interface IBlePeripheralWrapper
     // Properties from IPeripheral
     string Name { get; }
     string Uuid { get; }
-    ConnectionState Status { get; }
+    string ConnectionState { get; }
     int Mtu { get; }
 
     // Wrapped extension methods (now mockable)
-    Task ConnectAsync(ConnectionConfig config, CancellationToken ct = default);
+    Task ConnectAsync(object config, CancellationToken ct = default);
     Task WriteCharacteristicAsync(string serviceUuid, string characteristicUuid, byte[] data, bool withResponse, CancellationToken ct = default);
     Task<int> ReadRssiAsync(CancellationToken ct = default);
-    IObservable<ConnectionState> WhenStatusChanged();
-    IObservable<BleCharacteristicResult> NotifyCharacteristic(string serviceUuid, string characteristicUuid);
-    IObservable<BleCharacteristicResult> WriteCharacteristic(string serviceUuid, string characteristicUuid, byte[] data, bool withResponse);
+    IObservable<string> WhenStatusChanged();
+    IObservable<(string Characteristic, byte[] Data)> NotifyCharacteristic(string serviceUuid, string characteristicUuid);
+    IObservable<(string Characteristic, byte[] Data)> WriteCharacteristic(string serviceUuid, string characteristicUuid, byte[] data, bool withResponse);
+    Task<BleResult> ReadCharacteristicAsync(string serviceUuid, string characteristicUuid, CancellationToken ct = default);
     
     // Direct IPeripheral methods
     void CancelConnection();

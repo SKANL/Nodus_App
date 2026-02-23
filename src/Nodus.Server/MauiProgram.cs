@@ -35,16 +35,16 @@ public static class MauiProgram
             LogDebug("Registering Database Services");
             // Database Services
             // 1. MongoDbService (Concrete) — For synchronization
-            builder.Services.AddSingleton<Nodus.Shared.Services.MongoDbService>(sp => {
-                var logger = sp.GetRequiredService<ILogger<Nodus.Shared.Services.MongoDbService>>();
-                return new Nodus.Shared.Services.MongoDbService(
+            builder.Services.AddSingleton<Nodus.Infrastructure.Services.MongoDbService>(sp => {
+                var logger = sp.GetRequiredService<ILogger<Nodus.Infrastructure.Services.MongoDbService>>();
+                return new Nodus.Infrastructure.Services.MongoDbService(
                     AppSecrets.MongoConnectionString,
                     AppSecrets.MongoDatabaseName,
                     logger);
             });
 
             // 2. LocalDatabaseService (Interface) — For UI & Offline use
-            builder.Services.AddSingleton<Nodus.Shared.Abstractions.IDatabaseService, Nodus.Shared.Services.LocalDatabaseService>();
+            builder.Services.AddSingleton<Nodus.Shared.Abstractions.IDatabaseService, Nodus.Infrastructure.Services.LocalDatabaseService>();
 
             builder.Services.AddSingleton<Nodus.Server.Services.BleServerService>();
 
@@ -57,7 +57,8 @@ public static class MauiProgram
             // Services
             builder.Services.AddSingleton<Nodus.Shared.Abstractions.IDateTimeProvider, Nodus.Shared.Services.SystemDateTimeProvider>();
             builder.Services.AddSingleton<Nodus.Shared.Abstractions.IFileService, Nodus.Shared.Services.FileService>();
-            builder.Services.AddSingleton<Nodus.Shared.Abstractions.IFileSaverService, Nodus.Server.Services.FileSaverService>(); // Missing previously
+            builder.Services.AddSingleton<Nodus.Shared.Abstractions.IFileSaverService, Nodus.Server.Services.FileSaverService>();
+            builder.Services.AddSingleton<Nodus.Server.Services.CloudSyncService>();
             
             builder.Services.AddSingleton<Nodus.Shared.Services.TelemetryService>();
             builder.Services.AddSingleton<Nodus.Shared.Services.VoteAggregatorService>();

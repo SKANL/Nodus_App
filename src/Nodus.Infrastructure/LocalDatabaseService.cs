@@ -3,7 +3,7 @@ using Nodus.Shared.Abstractions;
 using Nodus.Shared.Common;
 using Nodus.Shared.Models;
 
-namespace Nodus.Shared.Services;
+namespace Nodus.Infrastructure.Services;
 
 public class LocalDatabaseService : IDatabaseService, IDisposable
 {
@@ -14,7 +14,7 @@ public class LocalDatabaseService : IDatabaseService, IDisposable
         var dir = fileService.GetAppDataDirectory();
         fileService.CreateDirectory(dir);
         
-        var dbPath = Path.Combine(dir, "nodus_local.db");
+        var dbPath = Path.Combine(dir, "nodus_mobile.db");
         _db = new LiteDatabase(dbPath);
         
         // Ensure indices
@@ -254,6 +254,33 @@ public class LocalDatabaseService : IDatabaseService, IDisposable
         }, ct);
     }
 
+    public Task<Result<SyncStats>> GetSyncStatsAsync(CancellationToken ct = default)
+    {
+        return Task.Run(() =>
+        {
+            try
+            {
+                var votes = _db.GetCollection<Vote>("votes").FindAll().ToList();
+                var pendingVotes = votes.Count(v => v.Status == SyncStatus.Pending);
+                var pendingMedia = votes.Count(v => !v.IsMediaSynced && !string.IsNullOrEmpty(v.LocalPhotoPath));
+                var syncedVotes = votes.Count(v => v.Status == SyncStatus.Synced);
+                var totalVotes = votes.Count;
+
+                return Result<SyncStats>.Success(new SyncStats
+                {
+                    PendingVotes = pendingVotes,
+                    PendingMedia = pendingMedia,
+                    SyncedVotes = syncedVotes,
+                    TotalVotes = totalVotes
+                });
+            }
+            catch (Exception ex)
+            {
+                return Result<SyncStats>.Failure(ex.Message, ex);
+            }
+        }, ct);
+    }
+
     // ── Judges ───────────────────────────────────────────────────────────────
 
     public Task<Result<List<Judge>>> GetJudgesAsync(string eventId, CancellationToken ct = default)
@@ -311,7 +338,7 @@ public class LocalDatabaseService : IDatabaseService, IDisposable
 
     // ── Other ────────────────────────────────────────────────────────────────
 
-    public Task<Result> ExecuteInTransactionAsync(Action<SQLite.SQLiteConnection> action, CancellationToken ct = default)
+    public Task<Result> ExecuteInTransactionAsync(Func<Task> action, CancellationToken ct = default)
     {
         return Task.FromResult(Result.Failure("Transactions with SQLite connection not supported in LiteDB implementation."));
     }

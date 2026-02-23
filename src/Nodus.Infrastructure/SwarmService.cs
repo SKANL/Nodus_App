@@ -5,7 +5,7 @@ using Nodus.Shared;
 using Nodus.Shared.Abstractions;
 using Nodus.Shared.Services;
 
-namespace Nodus.Shared.Services;
+namespace Nodus.Infrastructure.Services;
 
 public enum SwarmState
 {

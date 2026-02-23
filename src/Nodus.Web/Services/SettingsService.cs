@@ -9,29 +9,36 @@ namespace Nodus.Web.Services;
 public class SettingsService : ISettingsService
 {
     private readonly ILogger<SettingsService> _logger;
+    private readonly EventService _eventService;
     private const string CURRENT_EVENT_KEY = "CurrentEventId";
-    private const string DEFAULT_EVENT_ID = "LOCAL-EVENT";
 
     // Simple in-memory storage for Blazor WASM
     // In production, this could use Blazored.LocalStorage
     private readonly Dictionary<string, string> _settings = new();
 
-    public SettingsService(ILogger<SettingsService> logger)
+    public SettingsService(ILogger<SettingsService> logger, EventService eventService)
     {
         _logger = logger;
-        // Initialize with default
-        _settings[CURRENT_EVENT_KEY] = DEFAULT_EVENT_ID;
+        _eventService = eventService;
     }
 
-    public Task<string?> GetCurrentEventIdAsync()
+    public async Task<string?> GetCurrentEventIdAsync()
     {
+        // 1. Check if manually overridden in settings
         if (_settings.TryGetValue(CURRENT_EVENT_KEY, out var eventId))
         {
-            return Task.FromResult<string?>(eventId);
+            return eventId;
         }
         
-        _logger.LogWarning("No current event ID found, returning default");
-        return Task.FromResult<string?>(DEFAULT_EVENT_ID);
+        // 2. Otherwise discovery from EventService
+        var activeEvent = await _eventService.GetActiveEventAsync();
+        if (activeEvent != null)
+        {
+            return activeEvent.Id;
+        }
+
+        _logger.LogWarning("No current event ID found and discovery failed.");
+        return null;
     }
 
     public Task SetCurrentEventIdAsync(string eventId)

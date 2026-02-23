@@ -6,7 +6,7 @@ using Nodus.Shared.Models;
 using Nodus.Shared.Services;
 using Nodus.Shared.Abstractions;
 
-namespace Nodus.Shared.Services;
+namespace Nodus.Infrastructure.Services;
 
 public class MediaSyncService
 {
@@ -71,9 +71,9 @@ public class MediaSyncService
         }
     }
 
-    private void OnConnectionStateChanged(Shiny.BluetoothLE.ConnectionState state)
+    private void OnConnectionStateChanged(string state)
     {
-        if (state == Shiny.BluetoothLE.ConnectionState.Connected)
+        if (state == "Connected")
         {
             // Enable Notifications for ACKs
             _ = _bleService.EnableNotificationsAsync();
@@ -239,6 +239,7 @@ public class MediaSyncService
 
     private async Task SyncSingleVoteMediaAsync(Vote vote)
     {
+        if (string.IsNullOrEmpty(vote.LocalPhotoPath)) return;
         byte[] originalBytes = await _fileService.ReadAllBytesAsync(vote.LocalPhotoPath);
         byte[] imageBytes = _compressor.Compress(originalBytes);
         

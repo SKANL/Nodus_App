@@ -9,7 +9,7 @@ using Nodus.Shared.Services; // For ISecureStorageService
 using Nodus.Shared.Abstractions; // For IBleClientService
 using Shiny.BluetoothLE;
 
-namespace Nodus.Shared.Services;
+namespace Nodus.Infrastructure.Services;
 
 /// <summary>
 /// Professional BLE Client Service with CancellationToken support, timeout handling,
@@ -41,9 +41,9 @@ public class BleClientService : IBleClientService, IDisposable
     public event EventHandler<bool>? ConnectionStatusChanged;
     public event EventHandler<int>? LinkCountChanged;
 
-    private readonly ChunkerService _chunker;
+    private readonly IChunkerService _chunker;
 
-    public BleClientService(IBleManager bleManager, ChunkerService chunker, ISecureStorageService secureStorage, ILogger<BleClientService> logger)
+    public BleClientService(IBleManager bleManager, IChunkerService chunker, ISecureStorageService secureStorage, ILogger<BleClientService> logger)
     {
         _bleManager = bleManager;
         _chunker = chunker;
@@ -138,7 +138,7 @@ public class BleClientService : IBleClientService, IDisposable
             {
                 ct.ThrowIfCancellationRequested();
 
-                if (target.Status != Shiny.BluetoothLE.ConnectionState.Connected)
+                if (target.ConnectionState != "Connected")
                 {
                     return Result.Failure("Connection lost during transmission");
                 }
@@ -166,10 +166,10 @@ public class BleClientService : IBleClientService, IDisposable
         }
     }
 
-    public IObservable<ConnectionState> ConnectionState => 
-        _connectedServer?.WhenStatusChanged() ?? Observable.Empty<ConnectionState>();
+    public IObservable<string> ConnectionState => 
+        _connectedServer?.WhenStatusChanged() ?? Observable.Return("Disconnected");
 
-    public bool IsConnected => _connectedServer?.Status == Shiny.BluetoothLE.ConnectionState.Connected;
+    public bool IsConnected => _connectedServer?.ConnectionState == "Connected";
     public int LastRssi { get; private set; } = -80;
 
     public async Task<Result> StartScanningForServerAsync(CancellationToken ct = default)
@@ -347,7 +347,7 @@ public class BleClientService : IBleClientService, IDisposable
             // 1. BLE Connection
             await peripheral.ConnectAsync(new ConnectionConfig { AutoConnect = false }, ct);
 
-            if (peripheral.Status != Shiny.BluetoothLE.ConnectionState.Connected)
+            if (peripheral.ConnectionState != "Connected")
             {
                 return Result.Failure("Peripheral not in connected state");
             }
@@ -377,6 +377,34 @@ public class BleClientService : IBleClientService, IDisposable
         catch (Exception ex)
         {
             return Result.Failure("Handshake failed", ex);
+        }
+    }
+
+    public async Task<Result<List<Nodus.Shared.Models.Project>>> GetProjectsFromServerAsync(CancellationToken ct = default)
+    {
+        if (!IsConnected || _connectedServer == null)
+        {
+            return Result<List<Nodus.Shared.Models.Project>>.Failure("Not connected to server");
+        }
+
+        try
+        {
+            var projectCharUuidStr = "00002A01-0000-1000-8000-00805F9B34FB";
+            var result = await _connectedServer.ReadCharacteristicAsync(NodusConstants.SERVICE_UUID, projectCharUuidStr, ct);
+            
+            if (result.Data != null)
+            {
+                var json = System.Text.Encoding.UTF8.GetString(result.Data);
+                var projects = System.Text.Json.JsonSerializer.Deserialize<List<Nodus.Shared.Models.Project>>(json);
+                return Result<List<Nodus.Shared.Models.Project>>.Success(projects ?? new List<Nodus.Shared.Models.Project>());
+            }
+            
+            return Result<List<Nodus.Shared.Models.Project>>.Failure("No data received from server");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to read projects from server");
+            return Result<List<Nodus.Shared.Models.Project>>.Failure("Failed to read projects from server", ex);
         }
     }
 
@@ -417,7 +445,7 @@ public class BleClientService : IBleClientService, IDisposable
     {
         var target = overridePeripheral ?? _connectedServer;
         // Logic check: if we have an override, we might not be "Connected" in the service sense, but connected physically.
-        if (target == null || target.Status != Shiny.BluetoothLE.ConnectionState.Connected)
+        if (target == null || target.ConnectionState != "Connected")
         {
             return Result.Failure("Not connected");
         }

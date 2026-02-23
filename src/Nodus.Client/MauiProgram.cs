@@ -3,6 +3,7 @@ using ZXing.Net.Maui.Controls;
 using Shiny;
 using Nodus.Shared.Abstractions;
 using Nodus.Shared.Services;
+using Nodus.Infrastructure.Services;
 using Nodus.Shared.Config;
 using Nodus.Client.Services;
 using System.Runtime.CompilerServices;
@@ -15,7 +16,10 @@ public static class MauiProgram
 {
 	public static MauiApp CreateMauiApp()
 	{
-		var builder = MauiApp.CreateBuilder();
+		LogDebug("--- Starting Nodus Client Application ---");
+		try
+		{
+			var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
             .UseShiny()
@@ -69,9 +73,11 @@ public static class MauiProgram
         builder.Services.AddSingleton<MediaSyncService>();
         builder.Services.AddSingleton<Nodus.Shared.Protocol.PacketTracker>();
         builder.Services.AddSingleton<IBleClientService, BleClientService>();
+        builder.Services.AddSingleton<BleClientService>(); // Register concrete type as well (required by HomeViewModel)
         builder.Services.AddSingleton<IRelayHostingService, RelayHostingService>();
         builder.Services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
         builder.Services.AddSingleton<ISwarmService, SwarmService>();
+        builder.Services.AddSingleton<SwarmService>(); // Register concrete type (required by HomeViewModel and other ViewModels)
 
 		// Pages & ViewModels (Transient for fresh state)
 		builder.Services.AddTransient<Nodus.Client.Views.HomePage>();
@@ -85,6 +91,26 @@ public static class MauiProgram
         builder.Services.AddTransient<Nodus.Client.Views.SettingsPage>();
         builder.Services.AddTransient<Nodus.Client.ViewModels.SettingsViewModel>();
 
-		return builder.Build();
+			var app = builder.Build();
+			LogDebug("MauiApp built successfully");
+			return app;
+		}
+		catch (Exception ex)
+		{
+			LogDebug($"FATAL STARTUP ERROR: {ex}");
+			throw;
+		}
+	}
+
+	private static void LogDebug(string message)
+	{
+		try
+		{
+			var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "NodusClient_Debug.log");
+			var logLine = $"[{DateTime.Now:HH:mm:ss}] {message}";
+			File.AppendAllText(logPath, logLine + Environment.NewLine);
+			Console.WriteLine(logLine);
+		}
+		catch { }
 	}
 }

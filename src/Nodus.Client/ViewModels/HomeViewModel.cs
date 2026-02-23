@@ -14,8 +14,8 @@ namespace Nodus.Client.ViewModels;
 public partial class HomeViewModel : ObservableObject, IDisposable
 {
     private readonly IDatabaseService _db;
-    private readonly Nodus.Shared.Services.BleClientService _bleService;
-    private readonly Nodus.Shared.Services.SwarmService _swarmService;
+    private readonly Nodus.Infrastructure.Services.BleClientService _bleService;
+    private readonly Nodus.Infrastructure.Services.SwarmService _swarmService;
     private readonly ILogger<HomeViewModel> _logger;
     private readonly CancellationTokenSource _lifetimeCts = new();
 
@@ -33,8 +33,8 @@ public partial class HomeViewModel : ObservableObject, IDisposable
 
     public HomeViewModel(
         IDatabaseService db, 
-        Nodus.Shared.Services.BleClientService bleService, 
-        Nodus.Shared.Services.SwarmService swarmService,
+        Nodus.Infrastructure.Services.BleClientService bleService, 
+        Nodus.Infrastructure.Services.SwarmService swarmService,
         ILogger<HomeViewModel> logger)
     {
         _db = db;
@@ -67,8 +67,8 @@ public partial class HomeViewModel : ObservableObject, IDisposable
 
     private void OnSwarmServicePropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(Nodus.Shared.Services.SwarmService.IsMuleMode) || 
-            e.PropertyName == nameof(Nodus.Shared.Services.SwarmService.CurrentState))
+        if (e.PropertyName == nameof(Nodus.Infrastructure.Services.SwarmService.IsMuleMode) || 
+            e.PropertyName == nameof(Nodus.Infrastructure.Services.SwarmService.CurrentState))
         {
             MainThread.BeginInvokeOnMainThread(async () =>
             {

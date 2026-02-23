@@ -26,6 +26,7 @@ public interface IDatabaseService
     Task<Result> SaveVoteAsync(Vote vote, CancellationToken ct = default);
     Task<Result<List<Vote>>> GetPendingVotesAsync(CancellationToken ct = default);
     Task<Result<List<Vote>>> GetVotesWithPendingMediaAsync(CancellationToken ct = default);
+    Task<Result<SyncStats>> GetSyncStatsAsync(CancellationToken ct = default);
 
     // Judges
     Task<Result<List<Judge>>> GetJudgesAsync(string eventId, CancellationToken ct = default);
@@ -34,7 +35,7 @@ public interface IDatabaseService
     
     /// <summary>
     /// Executes multiple operations in a single transaction.
-    /// The action receives the SQLiteConnection and must be synchronous.
+    /// The action receives a transaction context (if supported by implementation).
     /// </summary>
-    Task<Result> ExecuteInTransactionAsync(Action<SQLite.SQLiteConnection> action, CancellationToken ct = default);
+    Task<Result> ExecuteInTransactionAsync(Func<Task> action, CancellationToken ct = default);
 }

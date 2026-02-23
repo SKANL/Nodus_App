@@ -5,9 +5,18 @@ using Microsoft.Extensions.Logging;
 using Nodus.Shared.Abstractions;
 using Nodus.Shared.Common;
 using Nodus.Shared.Models;
+using Nodus.Infrastructure.Services;
+using System.Collections.ObjectModel;
 using System.Text.Json;
 
 namespace Nodus.Client.ViewModels;
+
+public partial class CategoryScore : ObservableObject
+{
+    [ObservableProperty] private string _name = string.Empty;
+    [ObservableProperty] private double _score = 5;
+    public double MaxScore { get; set; } = 10;
+}
 
 /// <summary>
 /// Professional ViewModel for project voting.
@@ -22,10 +31,10 @@ public partial class VotingViewModel : ObservableObject, IDisposable
     private readonly CancellationTokenSource _cts = new();
 
     [ObservableProperty] private Project? _currentProject;
-    [ObservableProperty] private double _designScore = 5;
-    [ObservableProperty] private double _functionalityScore = 5;
     [ObservableProperty] private string _statusMessage = "Ready to Vote";
     [ObservableProperty] private bool _isSubmitting;
+    
+    public ObservableCollection<CategoryScore> Categories { get; } = new();
 
     private string _eventId = string.Empty;
 
@@ -66,6 +75,21 @@ public partial class VotingViewModel : ObservableObject, IDisposable
         if (result.IsSuccess)
         {
             CurrentProject = result.Value;
+            
+            // Load Rubric from Event
+            var eventResult = await _db.GetEventAsync(_eventId, ct);
+            if (eventResult.IsSuccess && !string.IsNullOrWhiteSpace(eventResult.Value.RubricJson))
+            {
+                ParseRubric(eventResult.Value.RubricJson);
+            }
+            else
+            {
+                // Fallback rubric
+                Categories.Clear();
+                Categories.Add(new CategoryScore { Name = "Design", Score = 5 });
+                Categories.Add(new CategoryScore { Name = "Functionality", Score = 5 });
+            }
+
             StatusMessage = "Evaluate Project";
             _logger.LogDebug("Project {ProjectId} loaded successfully", projectId);
         }
@@ -73,6 +97,36 @@ public partial class VotingViewModel : ObservableObject, IDisposable
         {
             StatusMessage = result.Error;
             _logger.LogWarning("Failed to load project {ProjectId}: {Error}", projectId, result.Error);
+        }
+    }
+
+    private void ParseRubric(string rubricJson)
+    {
+        Categories.Clear();
+        try
+        {
+            if (rubricJson.Contains("{"))
+            {
+                using var doc = JsonDocument.Parse(rubricJson);
+                foreach (var prop in doc.RootElement.EnumerateObject())
+                {
+                    double max = prop.Value.TryGetDouble(out var v) ? v : 10;
+                    Categories.Add(new CategoryScore { Name = prop.Name, Score = max / 2, MaxScore = max });
+                }
+            }
+            else
+            {
+                var cats = rubricJson.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                foreach (var cat in cats)
+                {
+                    Categories.Add(new CategoryScore { Name = cat.Trim(), Score = 5, MaxScore = 10 });
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to parse rubric JSON: {Json}", rubricJson);
+            Categories.Add(new CategoryScore { Name = "Overall", Score = 5 });
         }
     }
 
@@ -122,11 +176,12 @@ public partial class VotingViewModel : ObservableObject, IDisposable
 
         // 2. Prepare Vote
         var judgeId = await SecureStorage.Default.GetAsync("judge_id") ?? "Unknown";
-        var payload = new Dictionary<string, double>
+        
+        var payload = new Dictionary<string, double>();
+        foreach (var cat in Categories)
         {
-            { "Design", DesignScore },
-            { "Functionality", FunctionalityScore }
-        };
+            payload[cat.Name] = cat.Score;
+        }
 
         var vote = new Vote
         {

@@ -4,9 +4,10 @@ using MongoDB.Driver;
 using Microsoft.Extensions.Logging;
 using Nodus.Shared.Common;
 using Nodus.Shared.Models;
+using Nodus.Infrastructure.Models;
 using Nodus.Shared.Abstractions;
 
-namespace Nodus.Shared.Services;
+namespace Nodus.Infrastructure.Services;
 
 /// <summary>
 /// Implementación de IDatabaseService usando MongoDB.
@@ -324,20 +325,49 @@ public class MongoDbService : IDatabaseService
         }
     }
 
+    public async Task<Result<SyncStats>> GetSyncStatsAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            var votes = await _votes.Find(_ => true).ToListAsync(ct);
+            var pendingVotes = votes.Count(v => v.Status == SyncStatus.Pending.ToString());
+            var pendingMedia = votes.Count(v => !v.IsMediaSynced && !string.IsNullOrEmpty(v.LocalPhotoPath));
+            var syncedVotes = votes.Count(v => v.Status == SyncStatus.Synced.ToString());
+
+            return Result<SyncStats>.Success(new SyncStats
+            {
+                PendingVotes = pendingVotes,
+                PendingMedia = pendingMedia,
+                SyncedVotes = syncedVotes,
+                TotalVotes = votes.Count
+            });
+        }
+        catch (Exception ex)
+        {
+            return Result<SyncStats>.Failure(ex.Message, ex);
+        }
+    }
+
     /// <summary>
     /// MongoDB no usa transacciones de la misma manera que SQLite.
     /// Se requiere Replica Set para sesiones transaccionales.
     /// Para operaciones simples se usa upsert atómico directamente.
     /// </summary>
-    public Task<Result> ExecuteInTransactionAsync(Action<SQLite.SQLiteConnection> action, CancellationToken ct = default)
+    public async Task<Result> ExecuteInTransactionAsync(Func<Task> action, CancellationToken ct = default)
     {
-        // NOTA: Este método existe en la interfaz para compatibilidad con SQLite.
-        // En MongoDB, usa IClientSessionHandle + WithTransaction para transacciones reales.
-        // Para el scope actual del proyecto, las operaciones upsert son suficientemente atómicas.
-        _logger.LogWarning("ExecuteInTransactionAsync called on MongoDbService. " +
-            "MongoDB transactions require Replica Set. Use individual Save methods instead.");
-        return Task.FromResult(Result.Failure(
-            "MongoDB transactions require Replica Set. Use SaveXxxAsync methods directly."));
+        // NOTA: Este método existe en la interfaz para compatibilidad genérica.
+        // En MongoDB real (con Replica Set), usa IClientSessionHandle + WithTransaction.
+        // Aquí ejecutamos la acción directamente de forma best-effort.
+        try
+        {
+            await action();
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+             _logger.LogError(ex, "Failed to execute transaction action");
+             return Result.Failure("Transaction action failed", ex);
+        }
     }
 
     // ─────────────────────────────────────────
@@ -404,7 +434,7 @@ public class MongoDbService : IDatabaseService
     {
         Id = d.Id,
         Name = d.Name,
-        RubricJson = d.Rubric?.ToJson() ?? "{}",
+        RubricJson = d.Rubric ?? "{}",
         GlobalSalt = d.GlobalSalt,
         SharedAesKeyEncrypted = d.SharedAesKeyEncrypted,
         IsActive = d.IsActive
@@ -414,8 +444,7 @@ public class MongoDbService : IDatabaseService
     {
         Id = e.Id,
         Name = e.Name,
-        Rubric = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<MongoDB.Bson.BsonDocument>(
-            string.IsNullOrEmpty(e.RubricJson) ? "{}" : e.RubricJson),
+        Rubric = string.IsNullOrEmpty(e.RubricJson) ? "{}" : e.RubricJson,
         GlobalSalt = e.GlobalSalt,
         SharedAesKeyEncrypted = e.SharedAesKeyEncrypted,
         IsActive = e.IsActive
@@ -453,7 +482,7 @@ public class MongoDbService : IDatabaseService
         EventId = d.EventId,
         ProjectId = d.ProjectId,
         JudgeId = d.JudgeId,
-        PayloadJson = d.Payload.ToJson(),
+        PayloadJson = d.Payload,
         Status = Enum.TryParse<SyncStatus>(d.Status, out var s) ? s : SyncStatus.Pending,
         Timestamp = d.Timestamp,
         LocalPhotoPath = d.LocalPhotoPath,
@@ -467,8 +496,7 @@ public class MongoDbService : IDatabaseService
         EventId = v.EventId,
         ProjectId = v.ProjectId,
         JudgeId = v.JudgeId,
-        Payload = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<MongoDB.Bson.BsonDocument>(
-            string.IsNullOrEmpty(v.PayloadJson) ? "{}" : v.PayloadJson),
+        Payload = string.IsNullOrEmpty(v.PayloadJson) ? "{}" : v.PayloadJson,
         Status = v.Status.ToString(),
         Timestamp = v.Timestamp,
         LocalPhotoPath = v.LocalPhotoPath,
