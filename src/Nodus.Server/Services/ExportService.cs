@@ -1,16 +1,16 @@
 using ClosedXML.Excel;
 using System.Text;
-using Nodus.Shared.Services;
+using Nodus.Shared.Abstractions;
 using Microsoft.Extensions.Logging;
 
 namespace Nodus.Server.Services;
 
 public class ExportService
 {
-    private readonly DatabaseService _db;
+    private readonly IDatabaseService _db;
     private readonly ILogger<ExportService> _logger;
 
-    public ExportService(DatabaseService db, ILogger<ExportService> logger)
+    public ExportService(IDatabaseService db, ILogger<ExportService> logger)
     {
         _db = db;
         _logger = logger;

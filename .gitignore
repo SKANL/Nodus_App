@@ -159,6 +159,11 @@ appsettings.*.config
 !appsettings.Development.json
 !appsettings.Production.json
 
+# 🔐 MongoDB Atlas — credenciales reales (NO subir al repo)
+# Ver AppSecrets.template.cs para la estructura
+**/Config/AppSecrets.cs
+secrets.json
+
 # Editor/IDE files
 .idea/
 *.swp

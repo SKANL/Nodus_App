@@ -1,24 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Client\\Nodus.Client.csproj": {}
+    "C:\\Gaspar-kiosco\\Nodus_App\\src\\Nodus.Client\\Nodus.Client.csproj": {}
   },
   "projects": {
-    "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Client\\Nodus.Client.csproj": {
+    "C:\\Gaspar-kiosco\\Nodus_App\\src\\Nodus.Client\\Nodus.Client.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Client\\Nodus.Client.csproj",
+        "projectUniqueName": "C:\\Gaspar-kiosco\\Nodus_App\\src\\Nodus.Client\\Nodus.Client.csproj",
         "projectName": "Nodus.Client",
-        "projectPath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Client\\Nodus.Client.csproj",
-        "packagesPath": "C:\\Users\\angua\\.nuget\\packages\\",
-        "outputPath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Client\\obj\\",
+        "projectPath": "C:\\Gaspar-kiosco\\Nodus_App\\src\\Nodus.Client\\Nodus.Client.csproj",
+        "packagesPath": "C:\\Users\\octavius\\.nuget\\packages\\",
+        "outputPath": "C:\\Gaspar-kiosco\\Nodus_App\\src\\Nodus.Client\\obj\\",
         "projectStyle": "PackageReference",
         "crossTargeting": true,
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\angua\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\octavius\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -37,32 +37,32 @@
           "net10.0-android36.0": {
             "targetAlias": "net10.0-android",
             "projectReferences": {
-              "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
-                "projectPath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj"
+              "C:\\Gaspar-kiosco\\Nodus_App\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
+                "projectPath": "C:\\Gaspar-kiosco\\Nodus_App\\src\\Nodus.Shared\\Nodus.Shared.csproj"
               }
             }
           },
           "net10.0-ios26.2": {
             "targetAlias": "net10.0-ios",
             "projectReferences": {
-              "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
-                "projectPath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj"
+              "C:\\Gaspar-kiosco\\Nodus_App\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
+                "projectPath": "C:\\Gaspar-kiosco\\Nodus_App\\src\\Nodus.Shared\\Nodus.Shared.csproj"
               }
             }
           },
           "net10.0-maccatalyst26.2": {
             "targetAlias": "net10.0-maccatalyst",
             "projectReferences": {
-              "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
-                "projectPath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj"
+              "C:\\Gaspar-kiosco\\Nodus_App\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
+                "projectPath": "C:\\Gaspar-kiosco\\Nodus_App\\src\\Nodus.Shared\\Nodus.Shared.csproj"
               }
             }
           },
           "net10.0-windows10.0.19041": {
             "targetAlias": "net10.0-windows10.0.19041.0",
             "projectReferences": {
-              "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
-                "projectPath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj"
+              "C:\\Gaspar-kiosco\\Nodus_App\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
+                "projectPath": "C:\\Gaspar-kiosco\\Nodus_App\\src\\Nodus.Shared\\Nodus.Shared.csproj"
               }
             }
           }
@@ -93,13 +93,17 @@
             },
             "Microsoft.Maui.Controls": {
               "target": "Package",
-              "version": "[10.0.1, )"
+              "version": "[10.0.20, )"
             },
             "Microsoft.NET.ILLink.Tasks": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[10.0.2, )",
+              "version": "[10.0.3, )",
               "autoReferenced": true
+            },
+            "MongoDB.Driver": {
+              "target": "Package",
+              "version": "[3.6.0, )"
             },
             "Shiny.BluetoothLE": {
               "target": "Package",
@@ -144,7 +148,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",
@@ -433,13 +437,17 @@
             },
             "Microsoft.Maui.Controls": {
               "target": "Package",
-              "version": "[10.0.1, )"
+              "version": "[10.0.20, )"
             },
             "Microsoft.NET.ILLink.Tasks": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[10.0.2, )",
+              "version": "[10.0.3, )",
               "autoReferenced": true
+            },
+            "MongoDB.Driver": {
+              "target": "Package",
+              "version": "[3.6.0, )"
             },
             "Shiny.BluetoothLE": {
               "target": "Package",
@@ -484,7 +492,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",
@@ -773,13 +781,17 @@
             },
             "Microsoft.Maui.Controls": {
               "target": "Package",
-              "version": "[10.0.1, )"
+              "version": "[10.0.20, )"
             },
             "Microsoft.NET.ILLink.Tasks": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[10.0.2, )",
+              "version": "[10.0.3, )",
               "autoReferenced": true
+            },
+            "MongoDB.Driver": {
+              "target": "Package",
+              "version": "[3.6.0, )"
             },
             "Shiny.BluetoothLE": {
               "target": "Package",
@@ -825,7 +837,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",
@@ -1114,7 +1126,11 @@
             },
             "Microsoft.Maui.Controls": {
               "target": "Package",
-              "version": "[10.0.1, )"
+              "version": "[10.0.20, )"
+            },
+            "MongoDB.Driver": {
+              "target": "Package",
+              "version": "[3.6.0, )"
             },
             "Shiny.BluetoothLE": {
               "target": "Package",
@@ -1162,7 +1178,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",
@@ -1457,20 +1473,20 @@
         }
       }
     },
-    "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
+    "C:\\Gaspar-kiosco\\Nodus_App\\src\\Nodus.Shared\\Nodus.Shared.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj",
+        "projectUniqueName": "C:\\Gaspar-kiosco\\Nodus_App\\src\\Nodus.Shared\\Nodus.Shared.csproj",
         "projectName": "Nodus.Shared",
-        "projectPath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\Nodus.Shared.csproj",
-        "packagesPath": "C:\\Users\\angua\\.nuget\\packages\\",
-        "outputPath": "C:\\code\\project_kiosko\\nodusApp\\src\\Nodus.Shared\\obj\\",
+        "projectPath": "C:\\Gaspar-kiosco\\Nodus_App\\src\\Nodus.Shared\\Nodus.Shared.csproj",
+        "packagesPath": "C:\\Users\\octavius\\.nuget\\packages\\",
+        "outputPath": "C:\\Gaspar-kiosco\\Nodus_App\\src\\Nodus.Shared\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\angua\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\octavius\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -1508,9 +1524,17 @@
               "target": "Package",
               "version": "[8.4.0, )"
             },
+            "LiteDB": {
+              "target": "Package",
+              "version": "[5.0.21, )"
+            },
             "Microsoft.Extensions.Logging.Abstractions": {
               "target": "Package",
               "version": "[9.0.0, )"
+            },
+            "MongoDB.Driver": {
+              "target": "Package",
+              "version": "[3.6.0, )"
             },
             "Shiny.BluetoothLE": {
               "target": "Package",
@@ -1541,7 +1565,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",

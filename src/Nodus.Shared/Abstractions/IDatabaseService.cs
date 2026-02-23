@@ -21,10 +21,16 @@ public interface IDatabaseService
 
     // Votes
     Task<Result<List<Vote>>> GetVotesAsync(string projectId, CancellationToken ct = default);
+    Task<Result<List<Vote>>> GetAllVotesAsync(CancellationToken ct = default);
     Task<Result<Vote>> GetVoteByIdAsync(string id, CancellationToken ct = default);
     Task<Result> SaveVoteAsync(Vote vote, CancellationToken ct = default);
     Task<Result<List<Vote>>> GetPendingVotesAsync(CancellationToken ct = default);
     Task<Result<List<Vote>>> GetVotesWithPendingMediaAsync(CancellationToken ct = default);
+
+    // Judges
+    Task<Result<List<Judge>>> GetJudgesAsync(string eventId, CancellationToken ct = default);
+    Task<Result<Judge>> GetJudgeAsync(string id, CancellationToken ct = default);
+    Task<Result> SaveJudgeAsync(Judge judge, CancellationToken ct = default);
     
     /// <summary>
     /// Executes multiple operations in a single transaction.

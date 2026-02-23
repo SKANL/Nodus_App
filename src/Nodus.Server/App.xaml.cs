@@ -7,36 +7,48 @@ public partial class App : Application
 {
 	public App()
 	{
-		// Add global exception handlers to diagnose crashes
+		LogDebug("App Constructor started");
+		InitializeComponent();
+		LogDebug("InitializeComponent completed");
+
 		AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
 		{
 			var ex = e.ExceptionObject as Exception;
-			Debug.WriteLine($"[FATAL UNHANDLED] {ex?.ToString()}");
-			Console.WriteLine($"[FATAL UNHANDLED] {ex?.ToString()}");
+			LogDebug($"[FATAL UNHANDLED] {ex}");
 		};
 
 		TaskScheduler.UnobservedTaskException += (sender, e) =>
 		{
-			Debug.WriteLine($"[TASK EXCEPTION] {e.Exception}");
-			Console.WriteLine($"[TASK EXCEPTION] {e.Exception}");
+			LogDebug($"[TASK EXCEPTION] {e.Exception}");
 			e.SetObserved();
 		};
-
-		InitializeComponent();
 	}
 
 	protected override Window CreateWindow(IActivationState? activationState)
 	{
+		LogDebug("CreateWindow started");
 		try
 		{
 			var mainPage = Handler?.MauiContext?.Services.GetRequiredService<MainPage>();
+			LogDebug("MainPage resolved successfully");
 			return new Window(mainPage!);
 		}
 		catch (Exception ex)
 		{
-			Debug.WriteLine($"[CREATEWINDOW ERROR] {ex}");
-			Console.WriteLine($"[CREATEWINDOW ERROR] {ex}");
+			LogDebug($"[CREATEWINDOW ERROR] {ex}");
 			throw;
 		}
+	}
+
+	private void LogDebug(string message)
+	{
+		try
+		{
+			var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Nodus_Debug.log");
+			var logLine = $"[{DateTime.Now:HH:mm:ss}] {message}";
+			System.IO.File.AppendAllText(logPath, logLine + Environment.NewLine);
+			Console.WriteLine(logLine);
+		}
+		catch { }
 	}
 }

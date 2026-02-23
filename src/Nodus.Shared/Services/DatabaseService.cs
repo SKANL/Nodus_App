@@ -445,4 +445,27 @@ public class DatabaseService : IDatabaseService
             return Result.Failure("Transaction execution failed", ex);
         }
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // STUBS de Judge — Solo para satisfacer IDatabaseService en compilación.
+    // En runtime, el DI inyecta MongoDbService; estos métodos NUNCA se ejecutan.
+    // ─────────────────────────────────────────────────────────────────────────
+
+    public Task<Result<List<Judge>>> GetJudgesAsync(string eventId, CancellationToken ct = default)
+    {
+        _logger.LogError("GetJudgesAsync: use MongoDbService, no DatabaseService (SQLite).");
+        return Task.FromResult(Result<List<Judge>>.Failure("Requires MongoDbService."));
+    }
+
+    public Task<Result<Judge>> GetJudgeAsync(string id, CancellationToken ct = default)
+    {
+        _logger.LogError("GetJudgeAsync: use MongoDbService, no DatabaseService (SQLite).");
+        return Task.FromResult(Result<Judge>.Failure("Requires MongoDbService."));
+    }
+
+    public Task<Result> SaveJudgeAsync(Judge judge, CancellationToken ct = default)
+    {
+        _logger.LogError("SaveJudgeAsync: use MongoDbService, no DatabaseService (SQLite).");
+        return Task.FromResult(Result.Failure("Requires MongoDbService."));
+    }
 }

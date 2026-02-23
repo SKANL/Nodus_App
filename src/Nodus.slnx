@@ -1,6 +1,0 @@
-<Solution>
-  <Project Path="Nodus.Client/Nodus.Client.csproj" />
-  <Project Path="Nodus.Server/Nodus.Server.csproj" />
-  <Project Path="Nodus.Shared/Nodus.Shared.csproj" />
-  <Project Path="Nodus.Web/Nodus.Web.csproj" />
-</Solution>

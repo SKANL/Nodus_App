@@ -22,49 +22,53 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = browser
 build_property.RootNamespace = Nodus.Web
 build_property.RootNamespace = Nodus.Web
-build_property.ProjectDir = C:\code\project_kiosko\nodusApp\src\Nodus.Web\
+build_property.ProjectDir = C:\Gaspar-kiosco\Nodus_App\src\Nodus.Web\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = false
 build_property.RazorLangVersion = 9.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\code\project_kiosko\nodusApp\src\Nodus.Web
+build_property.MSBuildProjectDirectory = C:\Gaspar-kiosco\Nodus_App\src\Nodus.Web
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 10.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/code/project_kiosko/nodusApp/src/Nodus.Web/App.razor]
+[C:/Gaspar-kiosco/Nodus_App/src/Nodus.Web/App.razor]
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/code/project_kiosko/nodusApp/src/Nodus.Web/Layout/OfflineIndicator.razor]
+[C:/Gaspar-kiosco/Nodus_App/src/Nodus.Web/Layout/OfflineIndicator.razor]
 build_metadata.AdditionalFiles.TargetPath = TGF5b3V0XE9mZmxpbmVJbmRpY2F0b3IucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/code/project_kiosko/nodusApp/src/Nodus.Web/Pages/Home.razor]
+[C:/Gaspar-kiosco/Nodus_App/src/Nodus.Web/Pages/Home.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSG9tZS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/code/project_kiosko/nodusApp/src/Nodus.Web/Pages/NotFound.razor]
+[C:/Gaspar-kiosco/Nodus_App/src/Nodus.Web/Pages/NotFound.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTm90Rm91bmQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/code/project_kiosko/nodusApp/src/Nodus.Web/Pages/ProjectDisplay.razor]
+[C:/Gaspar-kiosco/Nodus_App/src/Nodus.Web/Pages/ProjectDisplay.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvamVjdERpc3BsYXkucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/code/project_kiosko/nodusApp/src/Nodus.Web/Pages/RegisterProject.razor]
+[C:/Gaspar-kiosco/Nodus_App/src/Nodus.Web/Pages/RegisterProject.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUmVnaXN0ZXJQcm9qZWN0LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/code/project_kiosko/nodusApp/src/Nodus.Web/_Imports.razor]
+[C:/Gaspar-kiosco/Nodus_App/src/Nodus.Web/Pages/TestMongo.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVGVzdE1vbmdvLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Gaspar-kiosco/Nodus_App/src/Nodus.Web/_Imports.razor]
 build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/code/project_kiosko/nodusApp/src/Nodus.Web/Layout/MainLayout.razor]
+[C:/Gaspar-kiosco/Nodus_App/src/Nodus.Web/Layout/MainLayout.razor]
 build_metadata.AdditionalFiles.TargetPath = TGF5b3V0XE1haW5MYXlvdXQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = b-blhgh0b9z6
 
-[C:/code/project_kiosko/nodusApp/src/Nodus.Web/Layout/NavMenu.razor]
+[C:/Gaspar-kiosco/Nodus_App/src/Nodus.Web/Layout/NavMenu.razor]
 build_metadata.AdditionalFiles.TargetPath = TGF5b3V0XE5hdk1lbnUucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = b-ruws503suz
