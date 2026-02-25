@@ -33,6 +33,7 @@ public partial class VotingViewModel : ObservableObject, IDisposable
     [ObservableProperty] private Project? _currentProject;
     [ObservableProperty] private string _statusMessage = "Ready to Vote";
     [ObservableProperty] private bool _isSubmitting;
+    [ObservableProperty] private string _comment = "";
     
     public ObservableCollection<CategoryScore> Categories { get; } = new();
 
@@ -175,13 +176,15 @@ public partial class VotingViewModel : ObservableObject, IDisposable
             Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(50));
 
         // 2. Prepare Vote
-        var judgeId = await SecureStorage.Default.GetAsync("judge_id") ?? "Unknown";
+        var judgeId = await SecureStorage.Default.GetAsync(Nodus.Shared.NodusConstants.KEY_JUDGE_NAME) ?? "Unknown";
         
-        var payload = new Dictionary<string, double>();
+        var payload = new Dictionary<string, object>();
         foreach (var cat in Categories)
         {
             payload[cat.Name] = cat.Score;
         }
+        if (!string.IsNullOrWhiteSpace(Comment))
+            payload["comment"] = Comment.Trim();
 
         var vote = new Vote
         {

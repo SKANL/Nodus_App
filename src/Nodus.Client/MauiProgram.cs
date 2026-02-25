@@ -72,18 +72,17 @@ public static class MauiProgram
         builder.Services.AddSingleton<IFileService, FileService>();
         builder.Services.AddSingleton<MediaSyncService>();
         builder.Services.AddSingleton<Nodus.Shared.Protocol.PacketTracker>();
-        builder.Services.AddSingleton<IBleClientService, BleClientService>();
-        builder.Services.AddSingleton<BleClientService>(); // Register concrete type as well (required by HomeViewModel)
+        // Single instance registrations — concrete type registered first, interface resolves to same instance
+        builder.Services.AddSingleton<BleClientService>();
+        builder.Services.AddSingleton<IBleClientService>(sp => sp.GetRequiredService<BleClientService>());
+        builder.Services.AddSingleton<SwarmService>();
+        builder.Services.AddSingleton<ISwarmService>(sp => sp.GetRequiredService<SwarmService>());
         builder.Services.AddSingleton<IRelayHostingService, RelayHostingService>();
         builder.Services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
-        builder.Services.AddSingleton<ISwarmService, SwarmService>();
-        builder.Services.AddSingleton<SwarmService>(); // Register concrete type (required by HomeViewModel and other ViewModels)
 
-		// Pages & ViewModels (Transient for fresh state)
+		// Pages & ViewModels (Transient for fresh state per navigation)
 		builder.Services.AddTransient<Nodus.Client.Views.HomePage>();
 		builder.Services.AddTransient<Nodus.Client.ViewModels.HomeViewModel>();
-		builder.Services.AddTransient<Nodus.Client.Views.JudgeRegistrationPage>();
-		builder.Services.AddTransient<Nodus.Client.ViewModels.JudgeRegistrationViewModel>();
 		builder.Services.AddTransient<Nodus.Client.Views.VotingPage>();
 		builder.Services.AddTransient<Nodus.Client.ViewModels.VotingViewModel>();
 		builder.Services.AddTransient<Nodus.Client.Views.ScanPage>();

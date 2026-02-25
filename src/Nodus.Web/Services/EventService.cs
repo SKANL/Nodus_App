@@ -66,11 +66,25 @@ public class EventService
     }
 
     public async Task<List<string>> GetCategoriesAsync()
+        => await GetCategoriesAsync(null);
+
+    public async Task<List<string>> GetCategoriesAsync(string? eventId)
     {
-        var evt = await GetActiveEventAsync();
+        Event? evt = null;
+
+        if (!string.IsNullOrWhiteSpace(eventId))
+        {
+            // Try to get the specific event first
+            var localResult = await _localDb.GetEventAsync(eventId);
+            if (localResult.IsSuccess) evt = localResult.Value;
+        }
+
+        // Fallback to the active event if not found
+        evt ??= await GetActiveEventAsync();
+
         if (evt == null || string.IsNullOrWhiteSpace(evt.RubricJson))
         {
-            return new List<string> { "Software", "Hardware", "Inovation" }; // Default fallback
+            return new List<string> { "Software", "Hardware", "Innovation" }; // Default fallback
         }
 
         try

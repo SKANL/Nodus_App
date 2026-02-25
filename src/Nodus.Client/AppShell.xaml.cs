@@ -7,6 +7,5 @@ public partial class AppShell : Shell
 		InitializeComponent();
         Routing.RegisterRoute(nameof(Views.ScanPage), typeof(Views.ScanPage));
         Routing.RegisterRoute(nameof(Views.VotingPage), typeof(Views.VotingPage));
-        Routing.RegisterRoute(nameof(Views.JudgeRegistrationPage), typeof(Views.JudgeRegistrationPage));
 	}
 }

@@ -79,6 +79,19 @@
                                 </FlexLayout>
                             </VerticalStackLayout>
 
+                            <!-- Web Portal URL -->
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="URL del Portal Web (Estudiantes)" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource Gray100}" />
+                                <Entry Text="{Binding WebPortalUrl}" 
+                                       Placeholder="http://192.168.x.x:5000" 
+                                       PlaceholderColor="{StaticResource Gray600}"
+                                       Style="{StaticResource PremiumEntry}"
+                                       Keyboard="Url" />
+                                <Label Text="{Binding NetworkAddresses, StringFormat='Detección automática: {0}'}" 
+                                       FontSize="11" TextColor="{StaticResource Gray500}" Margin="5,0,0,0"
+                                       LineBreakMode="TailTruncation" />
+                            </VerticalStackLayout>
+
                             <Button Text="GENERAR ACTIVOS DE PRODUCCIÓN" 
                                     Command="{Binding CreateAndGenerateCommand}"
                                     Style="{StaticResource PrimaryButton}"

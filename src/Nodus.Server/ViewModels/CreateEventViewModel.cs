@@ -1,8 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using Nodus.Shared.Models;
 using Nodus.Shared.Services;
-using Nodus.Shared.Abstractions; // Added
+using Nodus.Shared.Abstractions;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using QRCoder;
@@ -14,33 +17,39 @@ public partial class CreateEventViewModel : ObservableObject
     private readonly IDatabaseService _db;
     private readonly Services.BleServerService _bleService;
     private readonly Nodus.Infrastructure.Services.MongoDbService _mongoDb;
+    private readonly ILogger<CreateEventViewModel> _logger;
 
     [ObservableProperty] private string _eventName = string.Empty;
     [ObservableProperty] private string _judgePassword = string.Empty;
     [ObservableProperty] private string _categories = "Software, Hardware, Innovation";
+    [ObservableProperty] private string _webPortalUrl = GetLocalIpAddress();
     
     [ObservableProperty] private ImageSource? _judgeQrCode;
     [ObservableProperty] private ImageSource? _studentQrCode;
     [ObservableProperty] private bool _isGenerated;
+    [ObservableProperty] private string _networkAddresses = string.Empty;
 
     public CreateEventViewModel(
         IDatabaseService db, 
         Services.BleServerService bleService,
-        Infrastructure.Services.MongoDbService mongoDb)
+        Infrastructure.Services.MongoDbService mongoDb,
+        ILogger<CreateEventViewModel> logger)
     {
         _db = db;
         _bleService = bleService;
         _mongoDb = mongoDb;
+        _logger = logger;
+        NetworkAddresses = GetLocalIpAddress();
     }
 
     [RelayCommand]
     private async Task CreateAndGenerate()
     {
-        System.Diagnostics.Debug.WriteLine($"[DEBUG] CreateAndGenerate Command Triggered. Name='{EventName}', Pwd='{JudgePassword}'");
+        _logger.LogDebug("CreateAndGenerate Command Triggered. Name='{Name}'", EventName);
         
         if (string.IsNullOrWhiteSpace(EventName) || string.IsNullOrWhiteSpace(JudgePassword))
         {
-            System.Diagnostics.Debug.WriteLine("[DEBUG] Validation Failed: Missing Name or Password");
+            _logger.LogWarning("Validation failed: missing name or password");
             var page = Application.Current?.Windows[0].Page;
             if (page != null)
             {
@@ -114,7 +123,10 @@ public partial class CreateEventViewModel : ObservableObject
 
             // 5. Generate QR Codes using the pre-saved GUID Id
             JudgeQrCode = GenerateQrImage($"nodus://judge?eid={eventIdForQr}&data={System.Net.WebUtility.UrlEncode(qrPayload)}");
-            StudentQrCode = GenerateQrImage($"http://192.168.1.1:5000/register?eid={eventIdForQr}");
+            var studentRegistrationUrl = $"{WebPortalUrl.TrimEnd('/')}/register?eid={eventIdForQr}";
+            StudentQrCode = GenerateQrImage(studentRegistrationUrl);
+            _logger.LogInformation("Generated student QR with URL: {Url}", studentRegistrationUrl);
+            _logger.LogInformation("Event '{Name}' created with ID: {Id}", EventName, eventIdForQr);
             
             IsGenerated = true;
 
@@ -123,6 +135,7 @@ public partial class CreateEventViewModel : ObservableObject
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error creating event");
             var page = Application.Current?.Windows[0].Page;
             if (page != null)
             {
@@ -132,12 +145,34 @@ public partial class CreateEventViewModel : ObservableObject
         }
     }
 
+
     private ImageSource GenerateQrImage(string content)
     {
         using var qrGenerator = new QRCodeGenerator();
         using var qrCodeData = qrGenerator.CreateQrCode(content, QRCodeGenerator.ECCLevel.Q);
         using var qrCode = new PngByteQRCode(qrCodeData);
-        byte[] qrCodeAsAsBytes = qrCode.GetGraphic(20);
-        return ImageSource.FromStream(() => new MemoryStream(qrCodeAsAsBytes));
+        byte[] qrCodeAsBytes = qrCode.GetGraphic(20);
+        return ImageSource.FromStream(() => new MemoryStream(qrCodeAsBytes));
+    }
+
+    /// <summary>Detects the machine's primary local IP for the student QR URL default.</summary>
+    private static string GetLocalIpAddress()
+    {
+        try
+        {
+            foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (ni.OperationalStatus != OperationalStatus.Up) continue;
+                if (ni.NetworkInterfaceType == NetworkInterfaceType.Loopback) continue;
+
+                foreach (var ua in ni.GetIPProperties().UnicastAddresses)
+                {
+                    if (ua.Address.AddressFamily == AddressFamily.InterNetwork)
+                        return $"http://{ua.Address}:5000";
+                }
+            }
+        }
+        catch { /* Fallback below */ }
+        return "http://localhost:5000";
     }
 }

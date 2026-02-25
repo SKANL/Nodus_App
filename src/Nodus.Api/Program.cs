@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Cors;
 using Nodus.Shared.Abstractions;
 using Nodus.Shared.Services;
+using Nodus.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -203,7 +203,11 @@ public partial class ScanViewModel : ObservableObject
                 _logger.LogWarning("Failed to start BLE scanning: {Error}", startResult.Error);
             }
 
-            await ShowAlertAsync("Success", "Keys decrypted and stored securely.", "OK", ct: ct);
+            await ShowAlertAsync(
+                "¡Sesión iniciada!",
+                $"Hola, {judgeName} 👋\n\nEstás registrado en el evento. Ahora puedes escanear los QR de los proyectos para comenzar a evaluar.",
+                "Empezar a evaluar",
+                ct: ct);
             await Shell.Current.GoToAsync("..");
 
             return Result.Success();

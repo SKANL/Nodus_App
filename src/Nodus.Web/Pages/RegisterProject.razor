@@ -95,13 +95,20 @@
 </div>
 
 @code {
+    [SupplyParameterFromQuery(Name = "eid")]
+    [Parameter] public string? EventId { get; set; }
+
     private Project project = new();
     private List<string>? categories;
     private bool isSubmitting = false;
 
     protected override async Task OnInitializedAsync()
     {
-        categories = await EventService.GetCategoriesAsync();
+        // Pre-fill EventId from the student QR code URL (eid= query param)
+        if (!string.IsNullOrWhiteSpace(EventId))
+            project.EventId = EventId;
+
+        categories = await EventService.GetCategoriesAsync(EventId);
         if (categories?.Any() == true)
         {
             project.Category = categories.First();
@@ -113,6 +120,10 @@
         isSubmitting = true;
         try
         {
+            // Ensure EventId is always set before saving
+            if (!string.IsNullOrWhiteSpace(EventId))
+                project.EventId = EventId;
+
             var savedProject = await ProjectService.SaveProjectAsync(project);
             if (savedProject != null)
             {
