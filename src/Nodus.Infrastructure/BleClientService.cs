@@ -524,18 +524,22 @@ public class BleClientService : IBleClientService, IDisposable
 
         try
         {
-            await _connectedServer.WriteCharacteristicAsync(
-                NodusConstants.SERVICE_UUID,
-                NodusConstants.CHARACTERISTIC_UUID,
-                data,
-                withResponse: false,
-                ct
-            );
-            return Result.Success();
+            return await RetryWithBackoffAsync(async () =>
+            {
+                await _connectedServer.WriteCharacteristicAsync(
+                    NodusConstants.SERVICE_UUID,
+                    NodusConstants.CHARACTERISTIC_UUID,
+                    data,
+                    withResponse: false,
+                    ct
+                );
+                return Result.Success();
+            }, MaxRetries, ct);
         }
         catch (Exception ex)
         {
-            return Result.Failure("Write failed", ex);
+            _logger.LogError(ex, "Write raw data failed after retries");
+            return Result.Failure("Write failed after retries", ex);
         }
     }
 

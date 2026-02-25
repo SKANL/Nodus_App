@@ -3,40 +3,154 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Nodus.Server.ViewModels"
              x:Class="Nodus.Server.Views.CreateEventPage"
-             Title="Setup New Event">
+             Title="Configurar Nuevo Evento">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="30" Spacing="20">
-            
-            <Label Text="Event Configuration" Style="{StaticResource Headline}" />
-
-            <Entry Placeholder="Event Name" Text="{Binding EventName}" />
-            
-            <Entry Placeholder="Judge Password (Shared Secret)" 
-                   IsPassword="True" 
-                   Text="{Binding JudgePassword}" />
-
-            <Editor Placeholder="Categories (comma separated)" 
-                    Text="{Binding Categories}"
-                    HeightRequest="100" />
-
-            <Button Text="Generate Event &amp; QRs" 
-                    Command="{Binding CreateAndGenerateCommand}" />
-
-            <HorizontalStackLayout IsVisible="{Binding IsGenerated}" Spacing="20" HorizontalOptions="Center">
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="JUDGE ACCESS (APP)" HorizontalOptions="Center" FontAttributes="Bold" />
-                    <Image Source="{Binding JudgeQrCode}" HeightRequest="250" WidthRequest="250" />
-                    <Label Text="Scan with Nodus App" HorizontalOptions="Center" FontSize="12" />
-                </VerticalStackLayout>
-
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="STUDENT REG (WEB)" HorizontalOptions="Center" FontAttributes="Bold" />
-                    <Image Source="{Binding StudentQrCode}" HeightRequest="250" WidthRequest="250" />
-                    <Label Text="Scan to Register Project" HorizontalOptions="Center" FontSize="12" />
-                </VerticalStackLayout>
-            </HorizontalStackLayout>
-
+    <Grid BackgroundColor="{StaticResource DeepBackground}" RowDefinitions="Auto, *">
+        
+        <!-- Header Section -->
+        <VerticalStackLayout Grid.Row="0" Padding="40,40,40,20" Spacing="5">
+            <Label Text="Configuración del Evento" Style="{StaticResource Headline}" />
+            <Label Text="Configure su entorno de votación y genere los tokens de acceso" 
+                   TextColor="{StaticResource Gray400}" FontSize="14" />
         </VerticalStackLayout>
-    </ScrollView>
+
+        <ScrollView Grid.Row="1">
+            <Grid ColumnDefinitions="3*, 2*" ColumnSpacing="30" Padding="40,0,40,40">
+                
+                <!-- Left: Configuration Form -->
+                <VerticalStackLayout Grid.Column="0" Spacing="25">
+                    
+                    <Frame Style="{StaticResource PremiumCard}" Padding="30">
+                        <VerticalStackLayout Spacing="25">
+                            <HorizontalStackLayout Spacing="10">
+                                <Label Text="⚙️" FontSize="18" VerticalOptions="Center"/>
+                                <Label Text="CONFIGURACIÓN GENERAL" FontSize="12" FontAttributes="Bold" 
+                                       TextColor="{StaticResource PrimaryAccent}" CharacterSpacing="1.5" VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+
+                            <!-- Event Name -->
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="Identidad del Evento" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource Gray100}" />
+                                <Entry Text="{Binding EventName}" 
+                                       Placeholder="e.g., Annual Science Fair 2024" 
+                                       PlaceholderColor="{StaticResource Gray600}"
+                                       Style="{StaticResource PremiumEntry}" />
+                                <Label Text="Visible para todos los participantes en la app móvil" FontSize="11" TextColor="{StaticResource Gray500}" Margin="5,0,0,0"/>
+                            </VerticalStackLayout>
+
+                            <!-- Password -->
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="Seguridad de Acceso (Juez)" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource Gray100}" />
+                                <Entry Text="{Binding JudgePassword}" 
+                                       IsPassword="True" 
+                                       Placeholder="Clave compartida para jueces..." 
+                                       PlaceholderColor="{StaticResource Gray600}"
+                                       Style="{StaticResource PremiumEntry}" />
+                                <Label Text="Requerido por los jueces para desbloquear la llave del evento" FontSize="11" TextColor="{StaticResource Gray500}" Margin="5,0,0,0"/>
+                            </VerticalStackLayout>
+
+                            <!-- Categories -->
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="Categorías de Evaluación" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource Gray100}" />
+                                <Entry Text="{Binding Categories}" 
+                                       Placeholder="Software, Hardware, Innovation..." 
+                                       PlaceholderColor="{StaticResource Gray600}"
+                                       Style="{StaticResource PremiumEntry}" />
+                                <Label Text="Separe las categorías por comas" FontSize="11" TextColor="{StaticResource Gray500}" Margin="5,0,0,0"/>
+                                
+                                <!-- Chip Display -->
+                                <FlexLayout Wrap="Wrap" 
+                                            Direction="Row" 
+                                            JustifyContent="Start" 
+                                            Margin="0,10,0,0"
+                                            BindableLayout.ItemsSource="{Binding Categories, Converter={StaticResource StringSplitConverter}}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border StrokeShape="RoundRectangle 20" 
+                                                    StrokeThickness="1" 
+                                                    Stroke="{StaticResource PrimaryAccent}"
+                                                    BackgroundColor="{StaticResource SurfaceLight}"
+                                                    Padding="12,6" 
+                                                    Margin="0,0,8,8">
+                                                <Label Text="{Binding .}" FontSize="12" TextColor="{StaticResource White}" FontAttributes="Bold" />
+                                            </Border>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </FlexLayout>
+                            </VerticalStackLayout>
+
+                            <Button Text="GENERAR ACTIVOS DE PRODUCCIÓN" 
+                                    Command="{Binding CreateAndGenerateCommand}"
+                                    Style="{StaticResource PrimaryButton}"
+                                    HeightRequest="60"
+                                    Margin="0,10,0,0"
+                                    FontSize="16" />
+                        </VerticalStackLayout>
+                    </Frame>
+                    
+                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Label Text="🔒" VerticalOptions="Center"/>
+                        <Label Text="Encriptación avanzada activa (AES-256 + PBKDF2)" FontSize="12" TextColor="{StaticResource Success}" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Right: Assets Preview -->
+                <VerticalStackLayout Grid.Column="1" Spacing="25">
+                    
+                    <!-- Judge QR Card -->
+                    <Frame Style="{StaticResource PremiumCard}" Padding="25">
+                        <VerticalStackLayout Spacing="15" HorizontalOptions="Center">
+                            <Label Text="👨‍⚖️ ACCESO APP JUECES" HorizontalOptions="Center" FontAttributes="Bold" TextColor="{StaticResource White}" FontSize="14" />
+                            
+                            <Grid HeightRequest="240" WidthRequest="240">
+                                <!-- Placeholder when not generated -->
+                                <Border IsVisible="{Binding IsGenerated, Converter={StaticResource InvertedBoolConverter}}"
+                                        StrokeShape="RoundRectangle 12" StrokeThickness="2" StrokeDashArray="4,2" Stroke="{StaticResource Gray600}"
+                                        BackgroundColor="{StaticResource Gray950}">
+                                    <Label Text="Los tokens aparecerán aquí&#10;luego de la generación" 
+                                           HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
+                                           TextColor="{StaticResource Gray500}" FontSize="12" />
+                                </Border>
+
+                                <!-- Real QR -->
+                                <Border IsVisible="{Binding IsGenerated}"
+                                        StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="15" BackgroundColor="White">
+                                    <Image Source="{Binding JudgeQrCode}" />
+                                </Border>
+                            </Grid>
+
+                            <Label Text="Escanee con el dispositivo del Juez" HorizontalOptions="Center" FontSize="11" TextColor="{StaticResource Gray400}" IsVisible="{Binding IsGenerated}" />
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Student QR Card -->
+                    <Frame Style="{StaticResource PremiumCard}" Padding="25">
+                        <VerticalStackLayout Spacing="15" HorizontalOptions="Center">
+                            <Label Text="🎓 PORTAL DE PARTICIPANTES" HorizontalOptions="Center" FontAttributes="Bold" TextColor="{StaticResource White}" FontSize="14" />
+                            
+                            <Grid HeightRequest="240" WidthRequest="240">
+                                <!-- Placeholder -->
+                                <Border IsVisible="{Binding IsGenerated, Converter={StaticResource InvertedBoolConverter}}"
+                                        StrokeShape="RoundRectangle 12" StrokeThickness="2" StrokeDashArray="4,2" Stroke="{StaticResource Gray600}"
+                                        BackgroundColor="{StaticResource Gray950}">
+                                    <Label Text="Vista previa del token" 
+                                           HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
+                                           TextColor="{StaticResource Gray500}" FontSize="12" />
+                                </Border>
+
+                                <!-- Real QR -->
+                                <Border IsVisible="{Binding IsGenerated}"
+                                        StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="15" BackgroundColor="White">
+                                    <Image Source="{Binding StudentQrCode}" />
+                                </Border>
+                            </Grid>
+
+                            <Label Text="Punto de registro público" HorizontalOptions="Center" FontSize="11" TextColor="{StaticResource Gray400}" IsVisible="{Binding IsGenerated}" />
+                        </VerticalStackLayout>
+                    </Frame>
+
+                </VerticalStackLayout>
+            </Grid>
+        </ScrollView>
+    </Grid>
 </ContentPage>

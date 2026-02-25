@@ -17,32 +17,59 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
     private readonly IFileSaverService _fileSaver;
     private readonly ILogger<ResultsViewModel> _logger;
     
-    public ObservableCollection<Vote> Votes { get; } = new();
+    [ObservableProperty] private ObservableCollection<ProjectLeaderboardEntry> _top3 = new();
+    [ObservableProperty] private ObservableCollection<ProjectLeaderboardEntry> _remaining = new();
+    [ObservableProperty] private bool _hasResults;
 
     public ResultsViewModel(
+        IDatabaseService db,
         VoteAggregatorService aggregator, 
         ExportService exportService,
         IFileSaverService fileSaver,
         ILogger<ResultsViewModel> logger)
     {
+        _db = db;
         _aggregator = aggregator;
         _exportService = exportService;
         _fileSaver = fileSaver;
         _logger = logger;
         
-        // Initial Load (if any)
-        var existing = _aggregator.GetAllVotes();
-        foreach (var v in existing) Votes.Add(v);
+        RefreshLeaderboard();
 
         // Register for updates
         WeakReferenceMessenger.Default.Register(this);
+    }
+
+    private readonly IDatabaseService _db;
+
+    private async void RefreshLeaderboard()
+    {
+        var data = _aggregator.GetLeaderboard();
+        var projects = await _db.GetAllProjectsAsync();
+
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            var enriched = data.Select(entry => {
+                var project = projects.ValueOr(null)?.FirstOrDefault(p => p.Id == entry.ProjectId);
+                entry.ProjectName = project?.Name ?? entry.ProjectId;
+                return entry;
+            }).ToList();
+
+            Top3.Clear();
+            foreach (var item in enriched.Take(3)) Top3.Add(item);
+
+            Remaining.Clear();
+            foreach (var item in enriched.Skip(3)) Remaining.Add(item);
+
+            HasResults = enriched.Any();
+        });
     }
 
     public void Receive(VoteReceivedMessage message)
     {
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            Votes.Insert(0, message.Value);
+            RefreshLeaderboard();
         });
     }
 
@@ -51,7 +78,7 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
     {
         try
         {
-            var eventId = Votes.FirstOrDefault()?.EventId ?? "default";
+            var eventId = _aggregator.GetAllVotes().FirstOrDefault()?.EventId ?? "default";
             var bytes = await _exportService.ExportToCsvAsync(eventId);
             var fileName = $"votes_{eventId}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
             await SaveFileAsync(fileName, bytes, "text/csv");
@@ -61,7 +88,7 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
             var page = Application.Current?.Windows[0].Page;
             if (page != null)
             {
-                await page.DisplayAlertAsync("Error", $"Export failed: {ex.Message}", "OK");
+                await page.DisplayAlertAsync("Error", $"Exportación fallida: {ex.Message}", "OK");
             }
         }
     }
@@ -71,7 +98,7 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
     {
         try
         {
-            var eventId = Votes.FirstOrDefault()?.EventId ?? "default";
+            var eventId = _aggregator.GetAllVotes().FirstOrDefault()?.EventId ?? "default";
             var bytes = await _exportService.ExportToExcelAsync(eventId);
             var fileName = $"votes_{eventId}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
             await SaveFileAsync(fileName, bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -81,7 +108,7 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
             var page = Application.Current?.Windows[0].Page;
             if (page != null)
             {
-                await page.DisplayAlertAsync("Error", $"Export failed: {ex.Message}", "OK");
+                await page.DisplayAlertAsync("Error", $"Exportación fallida: {ex.Message}", "OK");
             }
         }
     }
@@ -96,7 +123,7 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
             var page = Application.Current?.Windows[0].Page;
             if (page != null)
             {
-                await page.DisplayAlertAsync("Success", $"File saved to {result.FilePath}", "OK");
+                await page.DisplayAlertAsync("Éxito", $"Archivo guardado en {result.FilePath}", "OK");
             }
         }
         else
@@ -107,7 +134,7 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
                 var page = Application.Current?.Windows[0].Page;
                 if (page != null)
                 {
-                    await page.DisplayAlertAsync("Error", $"Save failed: {result.Exception.Message}", "OK");
+                    await page.DisplayAlertAsync("Error", $"Error al guardar: {result.Exception.Message}", "OK");
                 }
             }
         }

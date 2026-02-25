@@ -59,16 +59,28 @@ public class MongoDataApiService
             filter = new { _id = project.Id },
             update = new { @set = project },
             upsert = true
-        });
+        }, isWrite: true);
 
         return response.IsSuccess ? Result.Success() : Result.Failure(response.Error);
     }
 
-    private async Task<Result<T>> ActionAsync<T>(string action, object body)
+    private async Task<Result<T>> ActionAsync<T>(string action, object body, bool isWrite = false)
     {
         try
         {
-            var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/{action}", body);
+            var contentBody = JsonContent.Create(body);
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{_baseUrl}/{action}")
+            {
+                Content = contentBody
+            };
+
+            if (isWrite)
+            {
+                request.Headers.Add("X-Nodus-Event-Key", AppSecrets.NodusEventApiKey);
+            }
+
+            var response = await _httpClient.SendAsync(request);
+            
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadFromJsonAsync<DataApiResponse<T>>();

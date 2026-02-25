@@ -18,20 +18,20 @@ public class DialogService : IDialogService
 
     public async Task ShowErrorAsync(string message, string title = "Error")
     {
-        await ShowAlertAsync(title, message, "OK");
+        await ShowAlertAsync(title, message, "Aceptar");
     }
 
-    public async Task ShowSuccessAsync(string message, string title = "Success")
+    public async Task ShowSuccessAsync(string message, string title = "Éxito")
     {
-        await ShowAlertAsync(title, message, "OK");
+        await ShowAlertAsync(title, message, "Aceptar");
     }
 
-    public async Task ShowInfoAsync(string message, string title = "Information")
+    public async Task ShowInfoAsync(string message, string title = "Información")
     {
-        await ShowAlertAsync(title, message, "OK");
+        await ShowAlertAsync(title, message, "Aceptar");
     }
 
-    public async Task<bool> ShowConfirmAsync(string message, string title = "Confirm", string accept = "Yes", string cancel = "No")
+    public async Task<bool> ShowConfirmAsync(string message, string title = "Confirmar", string accept = "Sí", string cancel = "No")
     {
         try
         {

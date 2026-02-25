@@ -63,8 +63,34 @@ public class CloudSyncService
                 }
             }
 
-            _logger.LogInformation("Cloud -> Local Sync completed successfully");
-        }
+            // 3. Upload Pending Votes -> Cloud
+            _logger.LogInformation("Uploading pending votes to Cloud...");
+            var pendingVotes = await _localDb.GetPendingVotesAsync();
+            if (pendingVotes.IsSuccess && pendingVotes.Value.Count > 0)
+            {
+                int synced = 0, failed = 0;
+                foreach (var vote in pendingVotes.Value)
+                {
+                    var uploadResult = await _mongoDb.SaveVoteAsync(vote);
+                    if (uploadResult.IsSuccess)
+                    {
+                        vote.Status = SyncStatus.Synced;
+                        await _localDb.SaveVoteAsync(vote);
+                        synced++;
+                    }
+                    else
+                    {
+                        vote.Status = SyncStatus.SyncError;
+                        // Opcional: guardar el error si la clase Vote lo soporta, o solo registrar
+                        await _localDb.SaveVoteAsync(vote);
+                        failed++;
+                        _logger.LogWarning("Failed to sync vote {VoteId}: {Error}", vote.Id, uploadResult.Error);
+                    }
+                }
+                _logger.LogInformation("Vote upload: {Synced} synced, {Failed} failed", synced, failed);
+            }
+
+            _logger.LogInformation("Cloud <-> Local Sync completed successfully");        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Cloud -> Local Sync failed");

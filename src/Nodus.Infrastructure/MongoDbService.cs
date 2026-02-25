@@ -78,7 +78,13 @@ public class MongoDbService : IDatabaseService
                 new CreateIndexModel<VoteDocument>(
                     Builders<VoteDocument>.IndexKeys
                         .Ascending(v => v.LocalPhotoPath)
-                        .Ascending(v => v.IsMediaSynced))
+                        .Ascending(v => v.IsMediaSynced)),
+                // Índice para evitar duplicidad real del mismo juez votando por el mismo proyecto
+                new CreateIndexModel<VoteDocument>(
+                    Builders<VoteDocument>.IndexKeys
+                        .Ascending(v => v.ProjectId)
+                        .Ascending(v => v.JudgeId),
+                    new CreateIndexOptions { Unique = true, Name = "uq_vote_project_judge" })
             });
 
             // judges: índice por eventId

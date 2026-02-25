@@ -15,6 +15,7 @@
             <converters:StatusToColorConverter x:Key="StatusToColorConverter" />
             <converters:QualityToColorConverter x:Key="QualityToColorConverter" />
             <converters:PacketLossToColorConverter x:Key="PacketLossToColorConverter" />
+            <converters:StringSplitConverter x:Key="StringSplitConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

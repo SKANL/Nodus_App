@@ -8,8 +8,21 @@ public partial class App : Application
 	public App()
 	{
 		LogDebug("App Constructor started");
-		InitializeComponent();
-		LogDebug("InitializeComponent completed");
+		try
+		{
+			InitializeComponent();
+			LogDebug("InitializeComponent completed");
+		}
+		catch (Exception ex)
+		{
+			LogDebug($"[APP INIT ERROR] {ex.Message}");
+			LogDebug($"[APP INIT STACK] {ex.StackTrace}");
+			if (ex.InnerException != null)
+			{
+				LogDebug($"[APP INIT INNER] {ex.InnerException.Message}");
+			}
+			throw;
+		}
 
 		AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
 		{

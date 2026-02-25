@@ -44,7 +44,7 @@ public partial class CreateEventViewModel : ObservableObject
             var page = Application.Current?.Windows[0].Page;
             if (page != null)
             {
-                await page.DisplayAlertAsync("Validation Error", "Please enter Event Name and Password", "OK");
+                await page.DisplayAlertAsync("Error de Validación", "Por favor ingrese el nombre del evento y la contraseña", "OK");
             }
             return;
         }
@@ -70,7 +70,7 @@ public partial class CreateEventViewModel : ObservableObject
             var encryptedSharedKeyBase64 = Convert.ToBase64String(encryptedSharedKeyBlob);
             
             // Payload: Salt|EncryptedKey
-            var qrPayload = $"{saltBase64}|{encryptedSharedKeyBase64}"; 
+            var qrPayload = $"{saltBase64}|{encryptedSharedKeyBase64}";
 
             // 3. Save Event
             var newEvent = new Event
@@ -81,7 +81,12 @@ public partial class CreateEventViewModel : ObservableObject
                 SharedAesKeyEncrypted = sharedKeyBase64, // Persist for Admin use
                 IsActive = true
             };
-            
+
+            // IMPORTANT: Capture the GUID Id BEFORE saving to the database.
+            // LiteDB can replace string Ids with auto-incremented integers during Upsert,
+            // which would corrupt the URL embedded in the QR code.
+            var eventIdForQr = newEvent.Id;
+
             var saveResult = await _db.SaveEventAsync(newEvent);
             if (saveResult.IsFailure)
             {
@@ -89,7 +94,7 @@ public partial class CreateEventViewModel : ObservableObject
                 if (page != null)
                 {
                     await page.DisplayAlertAsync("Error", 
-                        $"Failed to save event locally: {saveResult.Error}", "OK");
+                        $"Error al guardar el evento localmente: {saveResult.Error}", "OK");
                 }
                 return;
             }
@@ -107,9 +112,9 @@ public partial class CreateEventViewModel : ObservableObject
                 }
             });
 
-            // 5. Generate QR Codes
-            JudgeQrCode = GenerateQrImage($"nodus://judge?eid={newEvent.Id}&data={System.Net.WebUtility.UrlEncode(qrPayload)}");
-            StudentQrCode = GenerateQrImage($"http://192.168.1.1:5000/register?eid={newEvent.Id}");
+            // 5. Generate QR Codes using the pre-saved GUID Id
+            JudgeQrCode = GenerateQrImage($"nodus://judge?eid={eventIdForQr}&data={System.Net.WebUtility.UrlEncode(qrPayload)}");
+            StudentQrCode = GenerateQrImage($"http://192.168.1.1:5000/register?eid={eventIdForQr}");
             
             IsGenerated = true;
 
@@ -122,7 +127,7 @@ public partial class CreateEventViewModel : ObservableObject
             if (page != null)
             {
                 await page.DisplayAlertAsync("Error", 
-                    $"Failed to create event: {ex.Message}", "OK");
+                    $"Error al crear el evento: {ex.Message}", "OK");
             }
         }
     }

@@ -2,7 +2,10 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Nodus.Client.Views;
 using Nodus.Shared.Common;
+using Nodus.Shared.Abstractions;
+using Nodus.Shared.Models;
 using Microsoft.Extensions.Logging;
+using System.Web;
 
 namespace Nodus.Client.ViewModels;
 
@@ -12,13 +15,20 @@ namespace Nodus.Client.ViewModels;
 public partial class ScanViewModel : ObservableObject
 {
     private readonly ILogger<ScanViewModel> _logger;
+    private readonly IDatabaseService _db;
+    private readonly IBleClientService _bleService;
 
     [ObservableProperty]
     private bool _isScanning = true;
 
-    public ScanViewModel(ILogger<ScanViewModel> logger)
+    public ScanViewModel(
+        ILogger<ScanViewModel> logger,
+        IDatabaseService db,
+        IBleClientService bleService)
     {
         _logger = logger;
+        _db = db;
+        _bleService = bleService;
     }
 
     [RelayCommand]
@@ -55,8 +65,8 @@ public partial class ScanViewModel : ObservableObject
                 _logger.LogWarning("Failed to process project QR: {Error}", result.Error);
             }
 
-            // 2. Judge/Event QR: nodus://setup?id=...&name=...&salt=...
-            if (qrContent.StartsWith("nodus://setup") || qrContent.Contains("salt="))
+            // 2. Judge/Event QR: nodus://judge?eid=...&data=...
+            if (qrContent.StartsWith("nodus://judge"))
             {
                 var result = await ProcessEventQrAsync(qrContent, ct);
                 if (result.IsSuccess) return;
@@ -102,40 +112,50 @@ public partial class ScanViewModel : ObservableObject
         }
     }
 
-    private async Task<Result> ProcessEventQrAsync(string qrContent, CancellationToken ct)
+    private async Task<Result> ProcessEventQrAsync(string rawContent, CancellationToken ct)
     {
-        try
+        try 
         {
-            var query = ParseQueryString(qrContent);
-            if (!query.TryGetValue("name", out var eventName) || 
-                !query.TryGetValue("salt", out var saltHex))
+            if (string.IsNullOrWhiteSpace(rawContent) || !rawContent.StartsWith("nodus://judge"))
             {
-                return Result.Failure("Invalid event QR format");
+                return Result.Failure("Invalid QR format");
             }
 
-            bool accept = await ShowAlertAsync(
-                "Join Event", 
-                $"Do you want to join '{eventName}' as a Judge?", 
-                "Yes", "Cancel", ct);
+            var uri = new Uri(rawContent);
+            var query = HttpUtility.ParseQueryString(uri.Query);
+            var encryptedData = query["data"];
+            var eventId = query["eid"];
 
-            if (!accept) return Result.Failure("User cancelled");
+            if (string.IsNullOrEmpty(encryptedData) || string.IsNullOrEmpty(eventId))
+            {
+                return Result.Failure("Incomplete QR Data");
+            }
 
             // Prompt for Event Password
             string? password = await ShowPromptAsync(
-                "Security", 
-                $"Enter password for {eventName}:", 
-                maxLength: 20, 
+                "Security Check", 
+                "Enter Event Password to decrypt credentials:", 
+                maxLength: 50, 
                 ct: ct);
-
+            
             if (string.IsNullOrWhiteSpace(password))
             {
-                return Result.Failure("Password required");
+                return Result.Failure("Password required for decryption");
             }
 
-            // Derive Shared AES Key
-            var salt = Convert.FromBase64String(saltHex);
-            var sharedKey = Nodus.Shared.Security.CryptoHelper.DeriveKeyFromPassword(password, salt);
-            var sharedKeyBase64 = Convert.ToBase64String(sharedKey);
+            // Parse and Decrypt
+            var parts = encryptedData.Split('|');
+            if (parts.Length != 2) return Result.Failure("Invalid payload format");
+
+            var saltBytes = Convert.FromBase64String(parts[0]);
+            var encryptedKeyBlob = Convert.FromBase64String(parts[1]);
+
+            // Derive key using PBKDF2 (expensive, run in background)
+            var derivedKey = await Task.Run(() => 
+                Nodus.Shared.Security.CryptoHelper.DeriveKeyFromPassword(password, saltBytes), ct);
+            
+            var sharedKeyBytes = Nodus.Shared.Security.CryptoHelper.Decrypt(encryptedKeyBlob, derivedKey);
+            var sharedKeyBase64 = Convert.ToBase64String(sharedKeyBytes);
 
             // Generate My Identity
             var myKeys = Nodus.Shared.Security.CryptoHelper.GenerateSigningKeys();
@@ -150,24 +170,52 @@ public partial class ScanViewModel : ObservableObject
             if (string.IsNullOrWhiteSpace(judgeName)) 
                 judgeName = "Judge " + new Random().Next(100, 999);
 
-            // Save to Secure Storage
-            await SecureStorage.Default.SetAsync(Nodus.Shared.NodusConstants.KEY_EVENT_ID, query.GetValueOrDefault("id", "unknown"));
+            // Persistence (Secure Storage)
+            await SecureStorage.Default.SetAsync(Nodus.Shared.NodusConstants.KEY_EVENT_ID, eventId);
             await SecureStorage.Default.SetAsync(Nodus.Shared.NodusConstants.KEY_SHARED_AES, sharedKeyBase64);
             await SecureStorage.Default.SetAsync(Nodus.Shared.NodusConstants.KEY_PRIVATE_KEY, myKeys.PrivateKeyBase64);
             await SecureStorage.Default.SetAsync(Nodus.Shared.NodusConstants.KEY_PUBLIC_KEY, myKeys.PublicKeyBase64);
             await SecureStorage.Default.SetAsync(Nodus.Shared.NodusConstants.KEY_JUDGE_NAME, judgeName);
 
-            _logger.LogInformation("Judge {JudgeName} registered successfully", judgeName);
+            _logger.LogInformation("Successfully persisted keys for Event {EventId}", eventId);
 
-            await ShowAlertAsync("Success", "You are now registered!", "OK", ct: ct);
+            var nameForId = judgeName.Replace(" ", string.Empty);
+            var judge = new Judge
+            {
+                Id = $"JUDGE-{nameForId}-{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}",
+                Name = judgeName,
+                EventId = eventId,
+                PublicKey = myKeys.PublicKeyBase64,
+                IsActive = true,
+                RegisteredAtUtc = DateTime.UtcNow
+            };
+
+            var judgeResult = await _db.SaveJudgeAsync(judge, ct);
+            if (judgeResult.IsFailure)
+            {
+                _logger.LogWarning("No se pudo registrar Judge {Name} en MongoDB: {Error}.", judge.Name, judgeResult.Error);
+            }
+
+            // Start BLE Protocol
+            var startResult = await _bleService.StartScanningForServerAsync(ct);
+            if (startResult.IsFailure)
+            {
+                _logger.LogWarning("Failed to start BLE scanning: {Error}", startResult.Error);
+            }
+
+            await ShowAlertAsync("Success", "Keys decrypted and stored securely.", "OK", ct: ct);
             await Shell.Current.GoToAsync("..");
-            
+
             return Result.Success();
+        }
+        catch (OperationCanceledException)
+        {
+            return Result.Failure("Registration cancelled");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Event QR processing failed");
-            return Result.Failure("Failed to process event QR", ex);
+            _logger.LogError(ex, "Unexpected error during registration");
+            return Result.Failure("Registration failed with an internal error", ex);
         }
     }
 

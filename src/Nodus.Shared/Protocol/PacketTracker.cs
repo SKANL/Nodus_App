@@ -10,6 +10,7 @@ namespace Nodus.Shared.Protocol;
 public class PacketTracker
 {
     private readonly IDateTimeProvider _dateTime;
+    private const int MaxCacheSize = 10000;
     // Thread-safe dictionary: PacketID -> ExpiryTime
     private readonly ConcurrentDictionary<string, DateTime> _seenPackets = new();
     
@@ -47,6 +48,12 @@ public class PacketTracker
             // Expired, update expiry
             _seenPackets[packetId] = now.Add(_retentionPeriod);
             return true; // Re-process if expired (though ideally unique IDs shouldn't recur)
+        }
+
+        if (_seenPackets.Count >= MaxCacheSize)
+        {
+            // Emergency clear if we are flooded to prevent OOM
+            _seenPackets.Clear();
         }
 
         // Add to cache

@@ -161,6 +161,8 @@ public class VoteIngestionService
                           vote.SyncedAtUtc = DateTime.UtcNow;
                           await _db.SaveVoteAsync(vote);
                           await _aggregator.ProcessVoteAsync(vote);
+                          _logger.LogInformation("Successfully ingested Vote {VoteId} for Project {ProjectId} from Judge {JudgeId}", 
+                              vote.Id, vote.ProjectId, vote.JudgeId);
                       }
                  }
              }

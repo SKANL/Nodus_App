@@ -3,40 +3,123 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Nodus.Server.ViewModels"
              x:Class="Nodus.Server.Views.ResultsPage"
-             Title="Live Results">
+             Title="Resultados en Vivo">
 
-    <Grid RowDefinitions="Auto, Auto, *">
-        <Label Grid.Row="0"
-               Text="Incoming Votes" 
-               FontSize="24" 
-               FontAttributes="Bold" 
-               Padding="20"/>
+    <Grid BackgroundColor="{StaticResource DeepBackground}" RowDefinitions="Auto, *">
+        
+        <!-- Header Section -->
+        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Padding="40,40,40,20">
+            <VerticalStackLayout Grid.Column="0" Spacing="5">
+                <Label Text="Resultados en Vivo" Style="{StaticResource Headline}" />
+                <Label Text="Clasificación de proyectos y métricas de desempeño en tiempo real" 
+                       TextColor="{StaticResource Gray400}" FontSize="14" />
+            </VerticalStackLayout>
+            
+            <HorizontalStackLayout Grid.Column="1" Spacing="10" VerticalOptions="Center">
+                <Button Text="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource SecondaryButton}" WidthRequest="80" />
+                <Button Text="EXCEL" Command="{Binding ExportExcelCommand}" Style="{StaticResource SecondaryButton}" WidthRequest="80" />
+            </HorizontalStackLayout>
+        </Grid>
 
-        <StackLayout Grid.Row="1" Orientation="Horizontal" Spacing="10" Padding="20,0,20,10">
-            <Button Text="Export CSV" 
-                    Command="{Binding ExportCsvCommand}" 
-                    BackgroundColor="{StaticResource Secondary}"
-                    TextColor="White"/>
-            <Button Text="Export Excel" 
-                    Command="{Binding ExportExcelCommand}" 
-                    BackgroundColor="{StaticResource Secondary}"
-                    TextColor="White"/>
-        </StackLayout>
+        <!-- Main Content -->
+        <Grid Grid.Row="1" Padding="40,0,40,40">
+            
+            <!-- Empty State -->
+            <VerticalStackLayout IsVisible="{Binding HasResults, Converter={StaticResource InvertedBoolConverter}}" 
+                                 VerticalOptions="Center" HorizontalOptions="Center" Spacing="20">
+                <Label Text="📡" FontSize="60" HorizontalOptions="Center" />
+                <Label Text="Esperando Votos Entrantes..." 
+                       TextColor="{StaticResource Gray500}" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center" />
+                <Label Text="Los resultados se actualizarán automáticamente conforme los jueces envíen evaluaciones" 
+                       TextColor="{StaticResource Gray600}" FontSize="12" HorizontalOptions="Center" />
+            </VerticalStackLayout>
 
-        <CollectionView Grid.Row="2" ItemsSource="{Binding Votes}">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Grid Padding="10" ColumnDefinitions="*, Auto">
-                        <VerticalStackLayout>
-                            <Label Text="{Binding ProjectId}" FontAttributes="Bold" />
-                            <Label Text="{Binding JudgeId}" TextColor="Gray" FontSize="12"/>
-                        </VerticalStackLayout>
-                        <Label Grid.Column="1" 
-                               Text="{Binding Timestamp, StringFormat='{0:HH:mm:ss}'}" 
-                               VerticalOptions="Center" />
+            <!-- Results Display -->
+            <ScrollView IsVisible="{Binding HasResults}">
+                <VerticalStackLayout Spacing="30">
+                    
+                    <!-- Top 3 Podium -->
+                    <Grid ColumnDefinitions="*, *, *" ColumnSpacing="20" HeightRequest="220">
+                        
+                        <!-- 2nd Place -->
+                        <Frame Grid.Column="0" Style="{StaticResource PremiumCard}" Padding="15" HeightRequest="180" VerticalOptions="End">
+                            <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                                <Border StrokeShape="RoundRectangle 22" StrokeThickness="0" BackgroundColor="#C0C0C0" HeightRequest="44" WidthRequest="44" HorizontalOptions="Center">
+                                    <Label Text="2" TextColor="{StaticResource DeepBackground}" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" FontSize="18"/>
+                                </Border>
+                                <Label Text="{Binding Top3[1].ProjectName}" FontAttributes="Bold" FontSize="14" TextColor="White" HorizontalOptions="Center" HorizontalTextAlignment="Center" MaxLines="2"/>
+                                <Label Text="{Binding Top3[1].AverageScore, StringFormat='{0:F1}'}" FontSize="24" FontAttributes="Bold" TextColor="#C0C0C0" HorizontalOptions="Center"/>
+                                <Label Text="PUNTAJE PROM" FontSize="10" TextColor="{StaticResource Gray500}" HorizontalOptions="Center" CharacterSpacing="1"/>
+                            </VerticalStackLayout>
+                        </Frame>
+
+                        <!-- 1st Place -->
+                        <Frame Grid.Column="1" Style="{StaticResource PremiumCard}" Padding="20" HeightRequest="220" BorderColor="#FFD700" VerticalOptions="End">
+                            <VerticalStackLayout Spacing="15" HorizontalOptions="Center">
+                                <Border StrokeShape="RoundRectangle 28" StrokeThickness="0" BackgroundColor="#FFD700" HeightRequest="56" WidthRequest="56" HorizontalOptions="Center">
+                                    <Label Text="🏆" HorizontalOptions="Center" VerticalOptions="Center" FontSize="24"/>
+                                </Border>
+                                <Label Text="{Binding Top3[0].ProjectName}" FontAttributes="Bold" FontSize="18" TextColor="White" HorizontalOptions="Center" HorizontalTextAlignment="Center" MaxLines="2"/>
+                                <Label Text="{Binding Top3[0].AverageScore, StringFormat='{0:F1}'}" FontSize="32" FontAttributes="Bold" TextColor="#FFD700" HorizontalOptions="Center"/>
+                                <Label Text="LÍDER" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource Gray500}" HorizontalOptions="Center" CharacterSpacing="1.5"/>
+                            </VerticalStackLayout>
+                        </Frame>
+
+                        <!-- 3rd Place -->
+                        <Frame Grid.Column="2" Style="{StaticResource PremiumCard}" Padding="15" HeightRequest="160" VerticalOptions="End">
+                            <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                                <Border StrokeShape="RoundRectangle 20" StrokeThickness="0" BackgroundColor="#CD7F32" HeightRequest="40" WidthRequest="40" HorizontalOptions="Center">
+                                    <Label Text="3" TextColor="{StaticResource DeepBackground}" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" FontSize="16"/>
+                                </Border>
+                                <Label Text="{Binding Top3[2].ProjectName}" FontAttributes="Bold" FontSize="13" TextColor="White" HorizontalOptions="Center" HorizontalTextAlignment="Center" MaxLines="2"/>
+                                <Label Text="{Binding Top3[2].AverageScore, StringFormat='{0:F1}'}" FontSize="20" FontAttributes="Bold" TextColor="#CD7F32" HorizontalOptions="Center"/>
+                                <Label Text="PUNTAJE PROM" FontSize="10" TextColor="{StaticResource Gray500}" HorizontalOptions="Center" CharacterSpacing="1"/>
+                            </VerticalStackLayout>
+                        </Frame>
                     </Grid>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+
+                    <!-- All Rankings -->
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="CLASIFICACIÓN COMPLETA" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource PrimaryAccent}" CharacterSpacing="1.5" Margin="5,0,0,0"/>
+                        
+                        <CollectionView ItemsSource="{Binding Remaining}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Frame Style="{StaticResource PremiumCard}" Margin="0,0,0,12" Padding="15">
+                                        <Grid ColumnDefinitions="50, *, 100, 80">
+                                            <!-- Rank -->
+                                            <Label Grid.Column="0" Text="{Binding Rank}" 
+                                                   TextColor="{StaticResource Gray500}" FontSize="18" FontAttributes="Bold" 
+                                                   VerticalOptions="Center" HorizontalOptions="Center"/>
+                                            
+                                            <!-- Name -->
+                                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                                <Label Text="{Binding ProjectName}" FontAttributes="Bold" FontSize="16" TextColor="White" />
+                                                <Label Text="{Binding ProjectId}" FontSize="11" TextColor="{StaticResource Gray600}" FontFamily="Consolas" />
+                                            </VerticalStackLayout>
+
+                                            <!-- Votes -->
+                                            <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" HorizontalOptions="Center" Spacing="2">
+                                                <Label Text="{Binding TotalVotes}" FontAttributes="Bold" FontSize="16" TextColor="{StaticResource White}" HorizontalOptions="Center"/>
+                                                <Label Text="VOTOS" FontSize="10" TextColor="{StaticResource Gray600}" HorizontalOptions="Center"/>
+                                            </VerticalStackLayout>
+
+                                            <!-- Score -->
+                                            <Border Grid.Column="3" StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource SurfaceLight}" Padding="5" VerticalOptions="Center">
+                                                <Label Text="{Binding AverageScore, StringFormat='{0:F1}'}" 
+                                                       FontSize="18" FontAttributes="Bold" 
+                                                       TextColor="{Binding RankColor}" 
+                                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                                            </Border>
+                                        </Grid>
+                                    </Frame>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </Grid>
     </Grid>
 </ContentPage>

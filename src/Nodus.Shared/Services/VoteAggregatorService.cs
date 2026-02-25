@@ -115,9 +115,83 @@ public class VoteAggregatorService
         }
         return scores;
     }
+
+    public List<ProjectLeaderboardEntry> GetLeaderboard()
+    {
+        var leaderboard = new List<ProjectLeaderboardEntry>();
+        foreach(var kvp in _votesByProject)
+        {
+            var projectId = kvp.Key;
+            var votes = kvp.Value;
+            double totalScore = 0;
+            int validVotes = 0;
+
+            foreach(var vote in votes)
+            {
+                try 
+                {
+                    using var doc = JsonDocument.Parse(vote.PayloadJson);
+                    if (doc.RootElement.TryGetProperty("CategoryScores", out var scoresArray))
+                    {
+                        double voteTotal = 0;
+                        int catCount = 0;
+                        foreach(var scoreObj in scoresArray.EnumerateArray())
+                        {
+                            if (scoreObj.TryGetProperty("Score", out var scoreVal))
+                            {
+                                voteTotal += scoreVal.GetDouble();
+                                catCount++;
+                            }
+                        }
+                        if (catCount > 0)
+                        {
+                            totalScore += (voteTotal / catCount);
+                            validVotes++;
+                        }
+                    }
+                } 
+                catch { }
+            }
+
+            leaderboard.Add(new ProjectLeaderboardEntry 
+            {
+                ProjectId = projectId,
+                AverageScore = validVotes > 0 ? (totalScore / validVotes) : 0,
+                TotalVotes = votes.Count
+            });
+        }
+        
+        var sorted = leaderboard.OrderByDescending(x => x.AverageScore).ToList();
+        
+        // Assign ranks and colors
+        for (int i = 0; i < sorted.Count; i++)
+        {
+            sorted[i].Rank = i + 1;
+            sorted[i].RankColor = (i + 1) switch
+            {
+                1 => "#FFD700", // Gold
+                2 => "#C0C0C0", // Silver
+                3 => "#CD7F32", // Bronze
+                _ => "#94A3B8"  // Slate 400
+            };
+        }
+
+        return sorted;
+    }
 }
 
 public class VoteReceivedMessage : CommunityToolkit.Mvvm.Messaging.Messages.ValueChangedMessage<Vote>
 {
     public VoteReceivedMessage(Vote vote) : base(vote) { }
 }
+
+public class ProjectLeaderboardEntry
+{
+    public string ProjectId { get; set; } = string.Empty;
+    public string ProjectName { get; set; } = string.Empty;
+    public double AverageScore { get; set; }
+    public int TotalVotes { get; set; }
+    public int Rank { get; set; }
+    public string RankColor { get; set; } = "#94A3B8";
+}
+

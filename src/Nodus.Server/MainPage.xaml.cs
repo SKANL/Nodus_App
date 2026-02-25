@@ -9,8 +9,8 @@ public partial class MainPage : TabbedPage
 	{
 		InitializeComponent();
 
-        Children.Add(new NavigationPage(createEventPage) { Title = "Events", IconImageSource = "calendar.png" });
-        Children.Add(new NavigationPage(resultsPage) { Title = "Live Results", IconImageSource = "chart.png" });
-        Children.Add(new NavigationPage(topologyPage) { Title = "Swarm Map", IconImageSource = "network.png" });
+        Children.Add(new NavigationPage(createEventPage) { Title = "Eventos", IconImageSource = "calendar.png" });
+        Children.Add(new NavigationPage(resultsPage) { Title = "Resultados", IconImageSource = "chart.png" });
+        Children.Add(new NavigationPage(topologyPage) { Title = "Mapa de Red", IconImageSource = "network.png" });
 	}
 }
