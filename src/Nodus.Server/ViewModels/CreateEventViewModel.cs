@@ -145,6 +145,18 @@ public partial class CreateEventViewModel : ObservableObject
         }
     }
 
+    [RelayCommand]
+    private async Task PresentQrs()
+    {
+        if (!IsGenerated) return;
+
+        var page = Application.Current?.Windows[0].Page;
+        if (page != null)
+        {
+            var projectionPage = new Nodus.Server.Views.QrProjectionWindow(this);
+            await page.Navigation.PushModalAsync(projectionPage);
+        }
+    }
 
     private ImageSource GenerateQrImage(string content)
     {

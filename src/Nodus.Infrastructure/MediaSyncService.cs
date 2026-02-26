@@ -269,7 +269,7 @@ public class MediaSyncService
                 _pendingAcks.TryRemove(vote.Id, out _);
                 throw new Exception($"Failed to send chunk: {writeResult.Error}");
             }
-            await Task.Delay(20); 
+            // Hyper-Optimization: Removed Task.Delay(20) to enable burst media transmission
         }
 
         // Wait for ACK

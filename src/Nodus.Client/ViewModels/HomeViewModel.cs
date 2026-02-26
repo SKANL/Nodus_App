@@ -17,6 +17,7 @@ public partial class HomeViewModel : ObservableObject, IDisposable
     private readonly IDatabaseService _db;
     private readonly BleClientService _bleService;
     private readonly SwarmService _swarmService;
+    private readonly Nodus.Client.Services.CloudProjectSyncService _cloudSync;
     private readonly ILogger<HomeViewModel> _logger;
     private readonly CancellationTokenSource _lifetimeCts = new();
 
@@ -40,11 +41,13 @@ public partial class HomeViewModel : ObservableObject, IDisposable
         IDatabaseService db,
         BleClientService bleService,
         SwarmService swarmService,
+        Nodus.Client.Services.CloudProjectSyncService cloudSync,
         ILogger<HomeViewModel> logger)
     {
         _db = db;
         _bleService = bleService;
         _swarmService = swarmService;
+        _cloudSync = cloudSync;
         _logger = logger;
 
         _bleService.ConnectionStatusChanged += OnConnectionStatusChanged;
@@ -83,6 +86,12 @@ public partial class HomeViewModel : ObservableObject, IDisposable
             // Load event name from DB
             if (!string.IsNullOrEmpty(eventId))
             {
+                // Trigger cloud sync if possible
+                _ = Task.Run(async () => 
+                {
+                    await _cloudSync.SyncProjectsAsync(eventId, _lifetimeCts.Token);
+                });
+
                 var eventResult = await _db.GetEventAsync(eventId, _lifetimeCts.Token);
                 EventName = eventResult.IsSuccess ? eventResult.Value.Name : "Active Event";
             }
@@ -126,6 +135,10 @@ public partial class HomeViewModel : ObservableObject, IDisposable
             int pending = pendingResult.IsSuccess ? pendingResult.Value?.Count ?? 0 : 0;
             PendingVoteCount = pending;
 
+            // Update synced count via SyncStats
+            var statsResult = await _db.GetSyncStatsAsync(ct);
+            SyncedVoteCount = statsResult.IsSuccess ? statsResult.Value.SyncedVotes : 0;
+
             // Traffic Light
             if (_swarmService.IsMuleMode)
             {
@@ -145,6 +158,25 @@ public partial class HomeViewModel : ObservableObject, IDisposable
                         await Task.Delay(500, ct);
                         await SyncPendingVotesAsync(ct);
                     }, ct);
+
+                // Trigger true offline Project sync (BLE via GATT stream)
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        var projs = await _db.GetProjectsAsync(this.EventName, ct); // just grab all
+                        var allProjsResult = await _db.GetAllProjectsAsync(ct);
+                        if (allProjsResult.IsSuccess && allProjsResult.Value.Count == 0)
+                        {
+                            var bleResult = await _bleService.GetProjectsFromServerAsync(ct);
+                            if (bleResult.IsSuccess && bleResult.Value != null)
+                            {
+                                foreach(var p in bleResult.Value) await _db.SaveProjectAsync(p, ct);
+                            }
+                        }
+                    }
+                    catch (Exception ex) { _logger.LogError(ex, "BLE Project Sync Trigger failed"); }
+                }, ct);
             }
             else if (pending > 0)
             {
@@ -169,16 +201,55 @@ public partial class HomeViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private async Task NavigateToRegistrationAsync(CancellationToken ct)
     {
-        try { await Shell.Current.GoToAsync(nameof(ScanPage)); }
-        catch (Exception ex) { _logger.LogError(ex, "Navigation failed"); }
+        try
+        {
+            await Shell.Current.GoToAsync($"{nameof(Views.ScanPage)}?Mode=JudgeRegistration");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to navigate to ScanPage for JudgeRegistration");
+            if (Application.Current?.MainPage != null)
+            {
+                await Application.Current.MainPage.DisplayAlert("Navigation Error", "Could not start judge registration.", "OK");
+            }
+        }
     }
 
     /// <summary>Scan Project QR to vote (after judge is registered).</summary>
     [RelayCommand]
     private async Task NavigateToScanAsync(CancellationToken ct)
     {
-        try { await Shell.Current.GoToAsync(nameof(ScanPage)); }
-        catch (Exception ex) { _logger.LogError(ex, "Navigation failed"); }
+        try
+        {
+            await Shell.Current.GoToAsync($"{nameof(Views.ScanPage)}?Mode=ProjectScan");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to navigate to ScanPage for ProjectScan");
+            if (Application.Current?.MainPage != null)
+            {
+                await Application.Current.MainPage.DisplayAlert("Navigation Error", "Could not start project scanning.", "OK");
+            }
+        }
+    }
+
+    [RelayCommand]
+    private async Task ShowConnectionMetricsAsync(CancellationToken ct)
+    {
+        var role = "Client";
+#if ANDROID
+        role = _swarmService.CurrentState == Nodus.Infrastructure.Services.SwarmState.Link ? "Router (Firefly)" : "Client";
+#endif
+        var signal = _bleService.LastRssi != 0 ? $"{_bleService.LastRssi} dBm" : "N/A";
+        var peers = _swarmService.NeighborLinkCount;
+
+        var message = $"Rol de Nodus: {role}\nSeñal del Servidor: {signal}\nNodos Cercanos: {peers}";
+        
+        var page = Application.Current?.Windows[0].Page;
+        if (page != null)
+        {
+            await page.DisplayAlertAsync("Métricas de Conexión", message, "Cerrar");
+        }
     }
 
     // ── Sync ───────────────────────────────────────────────────────────────

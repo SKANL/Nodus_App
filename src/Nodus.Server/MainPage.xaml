@@ -5,6 +5,13 @@
              x:Class="Nodus.Server.MainPage"
              Title="Nodus Admin">
 
+    <!-- Event Configuration & Registration Projection -->
+    <views:CreateEventPage Title="Configuration" IconImageSource="dotnet_bot.png" />
+    
+    <!-- Live Swarm Topology -->
+    <views:TopologyPage Title="Live Network" IconImageSource="dotnet_bot.png" />
 
+    <!-- Event Results & Export -->
+    <views:ResultsPage Title="Results" IconImageSource="dotnet_bot.png" />
 
 </TabbedPage>

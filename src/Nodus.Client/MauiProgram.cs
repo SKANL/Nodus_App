@@ -55,6 +55,12 @@ public static class MauiProgram
         // Secure Storage
         builder.Services.AddSingleton<ISecureStorageService, SecureStorageService>();
         
+        // HTTP & Cloud Sync
+        builder.Services.AddSingleton(sp => 
+            new HttpClient { BaseAddress = new Uri(AppSecrets.ApiBaseUrl + "/") }
+        );
+        builder.Services.AddSingleton<CloudProjectSyncService>();
+        
         // UI Services
         builder.Services.AddSingleton<IDialogService, Nodus.Client.Services.DialogService>();
 
@@ -87,6 +93,8 @@ public static class MauiProgram
 		builder.Services.AddTransient<Nodus.Client.ViewModels.VotingViewModel>();
 		builder.Services.AddTransient<Nodus.Client.Views.ScanPage>();
 		builder.Services.AddTransient<Nodus.Client.ViewModels.ScanViewModel>();
+        builder.Services.AddTransient<Nodus.Client.Views.ConnectionProgressPage>();
+        builder.Services.AddTransient<Nodus.Client.ViewModels.ConnectionProgressViewModel>();
         builder.Services.AddTransient<Nodus.Client.Views.SettingsPage>();
         builder.Services.AddTransient<Nodus.Client.ViewModels.SettingsViewModel>();
 

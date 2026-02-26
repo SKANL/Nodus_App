@@ -20,7 +20,11 @@ builder.Services.AddScoped<EventService>();
 
 builder.Services.AddScoped<ProjectService>();
 builder.Services.AddScoped<QrGeneratorService>();
-builder.Services.AddScoped<MongoDataApiService>();
+builder.Services.AddScoped<NodusApiService>(sp => 
+{
+    var http = new HttpClient { BaseAddress = new Uri(Nodus.Shared.Config.AppSecrets.ApiBaseUrl + "/") };
+    return new NodusApiService(http);
+});
 builder.Services.AddBlazoredLocalStorage(); // Keep for legacy/migration if needed, or remove later
 
 await builder.Build().RunAsync();

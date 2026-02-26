@@ -61,6 +61,7 @@ public static class MauiProgram
             builder.Services.AddSingleton<Nodus.Server.Services.CloudSyncService>();
             
             builder.Services.AddSingleton<Nodus.Shared.Services.TelemetryService>();
+            builder.Services.AddSingleton<Nodus.Shared.Abstractions.IChunkerService, Nodus.Shared.Services.ChunkerService>();
             builder.Services.AddSingleton<Nodus.Shared.Services.VoteAggregatorService>();
             builder.Services.AddSingleton<Nodus.Shared.Services.VoteIngestionService>();
             builder.Services.AddSingleton<Nodus.Server.Services.ExportService>();

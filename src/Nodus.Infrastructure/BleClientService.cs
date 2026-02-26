@@ -150,7 +150,7 @@ public class BleClientService : IBleClientService, IDisposable
                     withResponse: false
                 );
                 
-                await Task.Delay(20, ct); // Throttle
+                // Hyper-Optimization: Removed Task.Delay(20) to enable burst transmission
             }
 
             return Result.Success();
@@ -314,7 +314,6 @@ public class BleClientService : IBleClientService, IDisposable
             {
                 _connectedServer = peripheral;
                 ConnectionStatusChanged?.Invoke(this, true);
-                ConnectionStatusChanged?.Invoke(this, true);
                 _logger.LogInformation("Successfully connected to {Name}", peripheral.Name);
             }
             else
@@ -390,21 +389,57 @@ public class BleClientService : IBleClientService, IDisposable
         try
         {
             var projectCharUuidStr = "00002A01-0000-1000-8000-00805F9B34FB";
-            var result = await _connectedServer.ReadCharacteristicAsync(NodusConstants.SERVICE_UUID, projectCharUuidStr, ct);
+            var tcs = new TaskCompletionSource<List<Nodus.Shared.Models.Project>>();
+            var assembler = new Nodus.Shared.Services.ChunkerService.ChunkAssembler();
             
-            if (result.Data != null)
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(TimeSpan.FromSeconds(30)); // 30 sec timeout for project sync
+            
+            using var reg = cts.Token.Register(() => tcs.TrySetException(new TimeoutException("Project sync timed out")));
+
+            var sub = _connectedServer
+                .NotifyCharacteristic(NodusConstants.SERVICE_UUID, projectCharUuidStr)
+                .Subscribe(
+                    result => 
+                    {
+                        if (result.Data != null && assembler.Add(result.Data))
+                        {
+                            if (assembler.IsComplete)
+                            {
+                                var payload = assembler.GetPayload();
+                                if (payload != null && payload.Length > 1 && payload[0] == NodusConstants.PACKET_TYPE_PROJECTS)
+                                {
+                                    try
+                                    {
+                                        var json = System.Text.Encoding.UTF8.GetString(payload, 1, payload.Length - 1);
+                                        var projects = System.Text.Json.JsonSerializer.Deserialize<List<Nodus.Shared.Models.Project>>(json);
+                                        tcs.TrySetResult(projects ?? new List<Nodus.Shared.Models.Project>());
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        tcs.TrySetException(ex);
+                                    }
+                                }
+                                else
+                                {
+                                    tcs.TrySetException(new InvalidOperationException("Invalid project payload"));
+                                }
+                            }
+                        }
+                    },
+                    ex => tcs.TrySetException(ex)
+                );
+
+            using (sub)
             {
-                var json = System.Text.Encoding.UTF8.GetString(result.Data);
-                var projects = System.Text.Json.JsonSerializer.Deserialize<List<Nodus.Shared.Models.Project>>(json);
-                return Result<List<Nodus.Shared.Models.Project>>.Success(projects ?? new List<Nodus.Shared.Models.Project>());
+                var projects = await tcs.Task;
+                return Result<List<Nodus.Shared.Models.Project>>.Success(projects);
             }
-            
-            return Result<List<Nodus.Shared.Models.Project>>.Failure("No data received from server");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to read projects from server");
-            return Result<List<Nodus.Shared.Models.Project>>.Failure("Failed to read projects from server", ex);
+            _logger.LogError(ex, "Failed to read projects from server via BLE stream");
+            return Result<List<Nodus.Shared.Models.Project>>.Failure("Failed to read projects from server via BLE stream", ex);
         }
     }
 

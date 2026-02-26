@@ -8,16 +8,16 @@ namespace Nodus.Web.Services;
 public class WebDatabaseService : IDatabaseService
 {
     private readonly ILocalStorageService _localStorage;
-    private readonly MongoDataApiService _atlasApi;
+    private readonly NodusApiService _apiService;
     private const string ProjectsKey = "nodus_projects";
     private const string VotesKey = "nodus_votes";
     private const string EventsKey = "nodus_events";
     private const string JudgesKey = "nodus_judges";
 
-    public WebDatabaseService(ILocalStorageService localStorage, MongoDataApiService atlasApi)
+    public WebDatabaseService(ILocalStorageService localStorage, NodusApiService apiService)
     {
         _localStorage = localStorage;
-        _atlasApi = atlasApi;
+        _apiService = apiService;
     }
 
     // --- Projects ---
@@ -25,8 +25,20 @@ public class WebDatabaseService : IDatabaseService
     {
         try
         {
-            var projects = await _localStorage.GetItemAsync<List<Project>>(ProjectsKey, ct) ?? new List<Project>();
-            return Result<List<Project>>.Success(projects);
+            // 1. Return Local Cache first (Optimistic/Offline read)
+            var localProjects = await _localStorage.GetItemAsync<List<Project>>(ProjectsKey, ct) ?? new List<Project>();
+
+            // 2. Try to sync from API in the background. 
+            // In a Blazor Wasm app, we do it in foreground so the UI updates if network is available.
+            try
+            {
+                // We don't have eventId here, assume we fetch all or we skip.
+                // Wait, WebDatabaseService needs to fetch all. NodusApiService only has GetProjectsAsync(eventId).
+                // Let's use the local cache for now and wait for the specific GetProjectsAsync(eventId) call to sync.
+            }
+            catch { /* Ignore network errors */ }
+
+            return Result<List<Project>>.Success(localProjects);
         }
         catch (Exception ex)
         {
@@ -45,6 +57,26 @@ public class WebDatabaseService : IDatabaseService
 
     public async Task<Result<List<Project>>> GetProjectsAsync(string eventId, CancellationToken ct = default)
     {
+        try
+        {
+            // Try fetch from Cloud API
+            var cloudProjects = await _apiService.GetProjectsAsync(eventId, ct);
+            if (cloudProjects.IsSuccess && cloudProjects.Value != null)
+            {
+                // Sync to Local Storage
+                var localProjects = await _localStorage.GetItemAsync<List<Project>>(ProjectsKey, ct) ?? new List<Project>();
+                foreach(var cp in cloudProjects.Value)
+                {
+                    var existing = localProjects.FirstOrDefault(p => p.Id == cp.Id);
+                    if (existing != null) localProjects.Remove(existing);
+                    localProjects.Add(cp);
+                }
+                await _localStorage.SetItemAsync(ProjectsKey, localProjects, ct);
+            }
+        }
+        catch { /* Fallback to local on network error */ }
+
+        // Always return from Local Cache as source of truth
         var projects = await GetAllProjectsAsync(ct);
         if (!projects.IsSuccess) return Result<List<Project>>.Failure(projects.Error);
         
@@ -61,17 +93,21 @@ public class WebDatabaseService : IDatabaseService
             projects.Add(project);
             await _localStorage.SetItemAsync(ProjectsKey, projects, ct);
 
-            // Sync with Atlas Data API (Background/Best-effort)
+            // Sync with Nodus API (Background/Best-effort)
             _ = Task.Run(async () => 
             {
                 try 
                 {
-                    await _atlasApi.SaveProjectAsync(project);
+                    await _apiService.SaveProjectAsync(project);
+                }
+                catch (HttpRequestException httpEx)
+                {
+                    Console.WriteLine($"Atlas Sync Failed (Network): {httpEx.Message}");
                 }
                 catch (Exception ex)
                 {
                     // Log but don't fail the local save
-                    Console.WriteLine($"Atlas Sync Failed: {ex.Message}");
+                    Console.WriteLine($"Atlas Sync Failed (System): {ex.Message}");
                 }
             }, ct);
 

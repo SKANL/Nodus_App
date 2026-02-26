@@ -23,6 +23,7 @@ public partial class CategoryScore : ObservableObject
 /// Implements Result pattern, AsyncRelayCommand, and proper resource management.
 /// </summary>
 [QueryProperty(nameof(ProjectId), "ProjectId")]
+[QueryProperty(nameof(EventId), "EventId")]
 public partial class VotingViewModel : ObservableObject, IDisposable
 {
     private readonly IDatabaseService _db;
@@ -37,10 +38,11 @@ public partial class VotingViewModel : ObservableObject, IDisposable
     
     public ObservableCollection<CategoryScore> Categories { get; } = new();
 
-    private string _eventId = string.Empty;
-
     [ObservableProperty]
     private string _projectId = string.Empty;
+
+    [ObservableProperty]
+    private string _eventId = string.Empty;
 
     public VotingViewModel(
         IDatabaseService db, 
@@ -53,13 +55,20 @@ public partial class VotingViewModel : ObservableObject, IDisposable
         _logger.LogInformation("VotingViewModel initialized");
     }
 
-    partial void OnProjectIdChanged(string value)
+    /// <summary>Called by Shell when ProjectId query param arrives.</summary>
+    partial void OnProjectIdChanged(string value) => TryInitialize();
+
+    /// <summary>Called by Shell when EventId query param arrives.</summary>
+    partial void OnEventIdChanged(string value) => TryInitialize();
+
+    /// <summary>
+    /// Triggers initialization only when ProjectId is available.
+    /// EventId may arrive before or after ProjectId via Shell params.
+    /// </summary>
+    private void TryInitialize()
     {
-        if (!string.IsNullOrEmpty(value))
-        {
-            // Trigger initialization when ProjectId is set via Shell
-            _ = InitializeAsync(value, _eventId, _cts.Token);
-        }
+        if (!string.IsNullOrEmpty(ProjectId))
+            _ = InitializeAsync(ProjectId, EventId, _cts.Token);
     }
 
     public async Task InitializeAsync(string projectId, string eventId, CancellationToken ct = default)

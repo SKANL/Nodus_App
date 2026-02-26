@@ -1,0 +1,138 @@
+@page "/projects"
+@using Nodus.Shared.Models
+@using Nodus.Shared.Abstractions
+@using Nodus.Web.Services
+@inject ProjectService ProjectService
+@inject ISettingsService SettingsService
+@inject NavigationManager Navigation
+
+<PageTitle>Project Gallery | Nodus</PageTitle>
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-5 border-bottom pb-4">
+        <div>
+            <h1 class="display-5 fw-bold text-dark mb-1">Project Gallery</h1>
+            <p class="text-muted lead mb-0">Discover and support innovations in the Nodus network</p>
+        </div>
+        <div>
+            <span class="badge bg-primary text-white p-2 rounded-pill">
+                <i class="bi bi-broadcast me-1"></i> Live: @currentEventId
+            </span>
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-grow text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+            <h4 class="mt-3 text-muted fw-light">Syncing projects from Swarm...</h4>
+        </div>
+    }
+    else if (!projects.Any())
+    {
+        <div class="text-center py-5 bg-light rounded-4 border border-dashed">
+            <i class="bi bi-inboxes text-muted" style="font-size: 4rem;"></i>
+            <h3 class="mt-3">No projects found for this event</h3>
+            <p class="text-muted">Be the first to register your innovation!</p>
+            <button class="btn btn-primary rounded-pill px-4 mt-2" @onclick='() => Navigation.NavigateTo("/register")'>
+                Register Now
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var p in projects)
+            {
+                <div class="col">
+                    <div class="card h-100 border-0 shadow-sm project-card cursor-pointer" @onclick="() => ViewProject(p.Id)">
+                        <div class="card-header bg-white border-0 pt-4 pb-0 d-flex justify-content-between align-items-start">
+                            <span class="badge bg-primary-soft text-primary rounded-pill px-3 py-2">@p.Category</span>
+                        </div>
+                        <div class="card-body">
+                            <h4 class="card-title fw-bold text-dark mb-3">@p.Name</h4>
+                            <p class="card-text text-muted line-clamp-3">@p.Description</p>
+                        </div>
+                        <div class="card-footer bg-white border-top-0 pt-0 pb-4">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-circle theme-gradient text-white d-flex align-items-center justify-content-center fw-bold me-3 shadow-sm">
+                                    @(string.IsNullOrWhiteSpace(p.Authors) ? "?" : p.Authors[0].ToString().ToUpper())
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 text-dark fw-bold">Team</h6>
+                                    <small class="text-muted">@p.Authors</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<Project> projects = new();
+    private bool isLoading = true;
+    private string currentEventId = "LOCAL-EVENT";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var eventId = await SettingsService.GetCurrentEventIdAsync();
+            if (!string.IsNullOrEmpty(eventId))
+            {
+                currentEventId = eventId;
+            }
+
+            // This will pull from Cloud (via API) thanks to the WebDatabaseService changes!
+            var db = (IDatabaseService)ProjectService.GetType().GetField("_databaseService", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.GetValue(ProjectService)!;
+            var result = await db.GetProjectsAsync(currentEventId);
+
+            if (result.IsSuccess)
+            {
+                projects = result.Value;
+            }
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ViewProject(string id)
+    {
+        Navigation.NavigateTo($"/display/{id}");
+    }
+}
+
+<style>
+    .project-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+    .project-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg) !important;
+    }
+    .cursor-pointer { cursor: pointer; }
+    
+    .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;  
+        overflow: hidden;
+    }
+    
+    .bg-primary-soft { background-color: rgba(79, 70, 229, 0.1); }
+    .theme-gradient { background: linear-gradient(135deg, #0f172a 0%, #4338ca 100%); }
+    
+    .avatar-circle {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        font-size: 1.2rem;
+    }
+</style>

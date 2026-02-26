@@ -24,12 +24,15 @@ public class BleServerService
     private readonly Nodus.Shared.Services.ChunkerService.ChunkAssembler _assembler;
     private readonly VoteIngestionService _ingestion;
     private readonly Nodus.Shared.Abstractions.IDatabaseService _db;
+    private readonly Nodus.Shared.Abstractions.IChunkerService _chunker;
 
-    public BleServerService(IBleHostingManager bleHosting, VoteIngestionService ingestion, Nodus.Shared.Abstractions.IDatabaseService db, ILogger<BleServerService> logger)
+    public BleServerService(IBleHostingManager bleHosting, VoteIngestionService ingestion, Nodus.Shared.Abstractions.IDatabaseService db, Nodus.Shared.Abstractions.IChunkerService chunker, ILogger<BleServerService> logger)
     {
         _bleHosting = bleHosting;
         _ingestion = ingestion;
         _db = db;
+        _chunker = chunker;
+        _assembler = new Nodus.Shared.Services.ChunkerService.ChunkAssembler();
         _logger = logger;
         
         // Load active event key and projects
@@ -86,12 +89,39 @@ public class BleServerService
             _gattService = await _bleHosting.AddService(NodusConstants.SERVICE_UUID, true, serviceBuilder =>
             {
                 // Characteristic for Project Discovery
-                serviceBuilder.AddCharacteristic(Guid.Parse("00002A01-0000-1000-8000-00805F9B34FB"), cb => 
+                serviceBuilder.AddCharacteristic("00002A01-0000-1000-8000-00805F9B34FB", cb => 
                 {
                     cb.SetRead(request => 
                     {
                         var json = JsonSerializer.Serialize(_activeProjects);
                         return Task.FromResult(GattResult.Success(Encoding.UTF8.GetBytes(json)));
+                    });
+
+                    cb.SetNotification(async request => 
+                    {
+                        try
+                        {
+                            _logger.LogInformation("Client subscribed to Project Sync. Preparing stream...");
+                            var json = JsonSerializer.Serialize(_activeProjects);
+                            var jsonBytes = Encoding.UTF8.GetBytes(json);
+                            
+                            var payload = new byte[jsonBytes.Length + 1];
+                            payload[0] = NodusConstants.PACKET_TYPE_PROJECTS;
+                            Array.Copy(jsonBytes, 0, payload, 1, jsonBytes.Length);
+                            
+                            var chunks = _chunker.Split(payload, 0xFF); // Message ID 255
+                            _logger.LogInformation("Streaming {Count} chunks...", chunks.Count);
+                            
+                            foreach(var chunk in chunks)
+                            {
+                                await request.Characteristic.Notify(chunk);
+                            }
+                            _logger.LogInformation("Project stream complete.");
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Failed to stream projects");
+                        }
                     });
                 });
 

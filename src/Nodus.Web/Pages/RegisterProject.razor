@@ -11,8 +11,8 @@
     <div class="col-12 col-lg-8">
         <div class="card-premium">
             <div class="mb-5 text-center">
-                <h1 class="display-5 mb-2">Project Registration</h1>
-                <p class="text-muted lead">Join the Nodus network and share your innovation.</p>
+                <h1 class="display-5 mb-2">@(isEditMode ? "Edit Project" : "Project Registration")</h1>
+                <p class="text-muted lead">@(isEditMode ? "Update your project details below." : "Join the Nodus network and share your innovation.")</p>
                 <div class="d-flex justify-content-center mt-3">
                     <span class="badge bg-light text-primary border px-3 py-2 rounded-pill">
                         <i class="bi bi-shield-check me-1"></i> Data saved locally & synced to Atlas
@@ -85,7 +85,7 @@
                         }
                         else
                         {
-                            <span>Register Project</span>
+                            <span>@(isEditMode ? "Update Project" : "Register Project")</span>
                         }
                     </button>
                 </div>
@@ -101,6 +101,7 @@
     private Project project = new();
     private List<string>? categories;
     private bool isSubmitting = false;
+    private bool isEditMode = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -108,8 +109,16 @@
         if (!string.IsNullOrWhiteSpace(EventId))
             project.EventId = EventId;
 
+        // Try to load existing project for editing
+        var existingProject = await ProjectService.GetCurrentProjectAsync();
+        if (existingProject != null)
+        {
+            project = existingProject;
+            isEditMode = true;
+        }
+
         categories = await EventService.GetCategoriesAsync(EventId);
-        if (categories?.Any() == true)
+        if (categories?.Any() == true && !isEditMode)
         {
             project.Category = categories.First();
         }

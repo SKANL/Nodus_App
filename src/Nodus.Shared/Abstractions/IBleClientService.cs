@@ -70,6 +70,11 @@ public interface IBleClientService
     Task<Result> ConnectAsync(IBlePeripheralWrapper peripheral, TimeSpan? timeout = null, CancellationToken ct = default);
     
     /// <summary>
+    /// Fetches the project catalog from the connected server via BLE stream.
+    /// </summary>
+    Task<Result<List<Project>>> GetProjectsFromServerAsync(CancellationToken ct = default);
+    
+    /// <summary>
     /// Sends a vote packet with encryption and signing.
     /// </summary>
     Task<Result> SendVoteAsync(Vote vote, CancellationToken ct = default);

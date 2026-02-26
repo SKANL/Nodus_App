@@ -55,6 +55,11 @@ public partial class TopologyViewModel : ObservableObject, IDisposable
         try
         {
             var topology = _telemetryService.GetCurrentTopology();
+            if (topology == null) 
+            {
+                _logger.LogWarning("Topology data is currently unavailable.");
+                return;
+            }
             
             MainThread.BeginInvokeOnMainThread(() =>
             {

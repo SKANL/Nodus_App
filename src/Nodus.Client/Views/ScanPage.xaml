@@ -28,7 +28,7 @@
             </Border.StrokeShape>
         </Border>
 
-        <Label Text="Scan Judge or Project QR" 
+        <Label Text="{Binding InstructionText}" 
                TextColor="White" 
                BackgroundColor="#80000000"
                Padding="10,5"

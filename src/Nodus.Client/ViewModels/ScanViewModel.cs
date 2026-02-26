@@ -10,8 +10,14 @@ using System.Web;
 namespace Nodus.Client.ViewModels;
 
 /// <summary>
+/// Distinguishes between scanning for Judge event QR vs scanning for a Project QR.
+/// </summary>
+public enum ScanMode { JudgeRegistration, ProjectScan }
+
+/// <summary>
 /// Professional ScanViewModel with proper error handling and async patterns.
 /// </summary>
+[QueryProperty(nameof(Mode), "Mode")]
 public partial class ScanViewModel : ObservableObject
 {
     private readonly ILogger<ScanViewModel> _logger;
@@ -20,6 +26,23 @@ public partial class ScanViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _isScanning = true;
+
+    /// <summary>Current scanning context — drives UI label and logic branching.</summary>
+    public ScanMode Mode
+    {
+        get => _mode;
+        set
+        {
+            if (SetProperty(ref _mode, value))
+                OnPropertyChanged(nameof(InstructionText));
+        }
+    }
+    private ScanMode _mode = ScanMode.ProjectScan;
+
+    /// <summary>Human-readable instruction shown in the scan overlay.</summary>
+    public string InstructionText => Mode == ScanMode.JudgeRegistration
+        ? "Point camera at the Judge Access QR projected on screen"
+        : "Scan a Project QR to start evaluating";
 
     public ScanViewModel(
         ILogger<ScanViewModel> logger,
@@ -88,8 +111,9 @@ public partial class ScanViewModel : ObservableObject
         }
         finally
         {
-            // Resume scanning if not navigated
-            IsScanning = true;
+            // Only resume scanning if IsScanning was explicitly set to false without a successful nav.
+            // Successful flows handle their own navigation & scanning state.
+            if (!IsScanning) IsScanning = true;
         }
     }
 
@@ -103,12 +127,26 @@ public partial class ScanViewModel : ObservableObject
                 return Result.Failure("Missing project ID in QR");
             }
 
-            await Shell.Current.GoToAsync($"{nameof(VotingPage)}?ProjectId={pid}");
+            // Pass the current EventId so VotingViewModel can load the correct rubric
+            var eventId = await SecureStorage.Default.GetAsync(Nodus.Shared.NodusConstants.KEY_EVENT_ID) ?? string.Empty;
+            var navUrl = $"{nameof(VotingPage)}?ProjectId={Uri.EscapeDataString(pid)}&EventId={Uri.EscapeDataString(eventId)}";
+            
+            try 
+            {
+                await Shell.Current.GoToAsync(navUrl);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Routing failed to VotingPage: {Url}", navUrl);
+                await ShowAlertAsync("Navigation Error", "Could not open voting page for this project. Check routes.", "OK", ct: ct);
+                return Result.Failure("Routing failed", ex);
+            }
+            
             return Result.Success();
         }
         catch (Exception ex)
         {
-            return Result.Failure("Failed to navigate to voting page", ex);
+            return Result.Failure("Failed to process project QR", ex);
         }
     }
 
@@ -196,19 +234,30 @@ public partial class ScanViewModel : ObservableObject
                 _logger.LogWarning("No se pudo registrar Judge {Name} en MongoDB: {Error}.", judge.Name, judgeResult.Error);
             }
 
-            // Start BLE Protocol
-            var startResult = await _bleService.StartScanningForServerAsync(ct);
-            if (startResult.IsFailure)
+            // Request Permissions before BLE operations
+            var locStatus = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+            if (locStatus != PermissionStatus.Granted)
             {
-                _logger.LogWarning("Failed to start BLE scanning: {Error}", startResult.Error);
+                locStatus = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+                if (locStatus != PermissionStatus.Granted)
+                    return Result.Failure("Location permission required for Bluetooth scanning");
             }
 
-            await ShowAlertAsync(
-                "¡Sesión iniciada!",
-                $"Hola, {judgeName} 👋\n\nEstás registrado en el evento. Ahora puedes escanear los QR de los proyectos para comenzar a evaluar.",
-                "Empezar a evaluar",
-                ct: ct);
-            await Shell.Current.GoToAsync("..");
+#if ANDROID
+            if (OperatingSystem.IsAndroidVersionAtLeast(31))
+            {
+                var bleScanStatus = await Permissions.CheckStatusAsync<Permissions.Bluetooth>();
+                if (bleScanStatus != PermissionStatus.Granted)
+                {
+                    bleScanStatus = await Permissions.RequestAsync<Permissions.Bluetooth>();
+                    if (bleScanStatus != PermissionStatus.Granted)
+                        return Result.Failure("Bluetooth permissions required");
+                }
+            }
+#endif
+
+            // Navigate to Connection Progress
+            await Shell.Current.GoToAsync($"{nameof(ConnectionProgressPage)}?JudgeName={Uri.EscapeDataString(judgeName)}");
 
             return Result.Success();
         }

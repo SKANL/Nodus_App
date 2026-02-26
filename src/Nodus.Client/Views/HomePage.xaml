@@ -39,6 +39,9 @@
                     Stroke="#1E293B"
                     BackgroundColor="#1E293B"
                     Padding="20,16">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ShowConnectionMetricsCommand}" />
+                </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="Auto, *" ColumnSpacing="14">
                     <!-- Dot indicator -->
                     <Border Grid.Column="0"

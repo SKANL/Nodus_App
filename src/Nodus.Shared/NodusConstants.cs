@@ -15,6 +15,7 @@ public static class NodusConstants
     // Packet Types
     public const byte PACKET_TYPE_JSON = 0x01;
     public const byte PACKET_TYPE_MEDIA = 0x02;
+    public const byte PACKET_TYPE_PROJECTS = 0x03;
     public const byte PACKET_TYPE_ACK = 0xA1;
 
     // Protocol Constraints
