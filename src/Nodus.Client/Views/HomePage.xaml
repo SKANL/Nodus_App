@@ -94,48 +94,36 @@
             <VerticalStackLayout Spacing="12" Margin="16,0,16,16">
 
                 <!-- Not registered: Show "Scan Judge QR" -->
-                <Border StrokeShape="RoundRectangle 16"
-                        BackgroundColor="#6366F1"
+                <Button Text="🔑  Escanear QR de Juez"
+                        Command="{Binding NavigateToRegistrationCommand}"
                         IsVisible="{Binding IsJudgeRegistered, Converter={StaticResource InvertedBoolConverter}}"
-                        Padding="0">
-                    <Button Text="🔑  Escanear QR de Juez"
-                            Command="{Binding NavigateToRegistrationCommand}"
-                            BackgroundColor="Transparent"
-                            TextColor="White"
-                            FontSize="17" FontAttributes="Bold"
-                            HeightRequest="56"
-                            CornerRadius="16" />
-                </Border>
+                        BackgroundColor="#6366F1"
+                        TextColor="White"
+                        FontSize="17" FontAttributes="Bold"
+                        HeightRequest="56"
+                        CornerRadius="16" />
 
                 <!-- Registered: Show "Scan Project QR" -->
-                <Border StrokeShape="RoundRectangle 16"
-                        BackgroundColor="#6366F1"
+                <Button Text="📷  Escanear Proyecto para Votar"
+                        Command="{Binding NavigateToScanCommand}"
                         IsVisible="{Binding IsJudgeRegistered}"
-                        Padding="0">
-                    <Button Text="📷  Escanear Proyecto para Votar"
-                            Command="{Binding NavigateToScanCommand}"
-                            BackgroundColor="Transparent"
-                            TextColor="White"
-                            FontSize="17" FontAttributes="Bold"
-                            HeightRequest="56"
-                            CornerRadius="16" />
-                </Border>
+                        BackgroundColor="#6366F1"
+                        TextColor="White"
+                        FontSize="17" FontAttributes="Bold"
+                        HeightRequest="56"
+                        CornerRadius="16" />
 
-                <!-- Sync button: only when pending > 0 -->
-                <Border StrokeShape="RoundRectangle 16"
-                        StrokeThickness="1.5"
-                        Stroke="#F59E0B"
-                        BackgroundColor="Transparent"
+                <!-- Sync button: only when syncing -->
+                <Button Text="⏳  Sincronizando votos..."
                         IsVisible="{Binding IsSyncing}"
-                        Padding="0">
-                    <Button Text="⏳  Sincronizando votos..."
-                            BackgroundColor="Transparent"
-                            TextColor="#F59E0B"
-                            FontSize="15"
-                            HeightRequest="48"
-                            CornerRadius="14"
-                            IsEnabled="False" />
-                </Border>
+                        BackgroundColor="Transparent"
+                        BorderColor="#F59E0B"
+                        BorderWidth="1.5"
+                        TextColor="#F59E0B"
+                        FontSize="15"
+                        HeightRequest="48"
+                        CornerRadius="14"
+                        IsEnabled="False" />
 
             </VerticalStackLayout>
 

@@ -18,15 +18,18 @@ public partial class CreateEventViewModel : ObservableObject
     private readonly ILogger<CreateEventViewModel> _logger;
 
     // ── Observable State ───────────────────────────────────────────────────
-    [ObservableProperty] private string _eventName = string.Empty;
-    [ObservableProperty] private string _judgePassword = string.Empty;
-    [ObservableProperty] private string _categories = "Software, Hardware, Innovación";
-    [ObservableProperty] private string _webPortalUrl = string.Empty;
-    [ObservableProperty] private string _networkAddresses = string.Empty;
+    [ObservableProperty] public partial string EventName { get; set; } = string.Empty;
+    [ObservableProperty] public partial string JudgePassword { get; set; } = string.Empty;
+    [ObservableProperty] public partial string Categories { get; set; } = "Software, Hardware, Innovación";
+    [ObservableProperty] public partial string WebPortalUrl { get; set; } = string.Empty;
+    [ObservableProperty] public partial string NetworkAddresses { get; set; } = string.Empty;
 
-    [ObservableProperty] private ImageSource? _judgeQrCode;
-    [ObservableProperty] private ImageSource? _studentQrCode;
-    [ObservableProperty] private bool _isGenerated;
+    [ObservableProperty] public partial ImageSource? JudgeQrCode { get; set; }
+    [ObservableProperty] public partial ImageSource? StudentQrCode { get; set; }
+    [ObservableProperty] public partial bool IsGenerated { get; set; }
+
+    /// <summary>True while the event create/generate operation is running (shows loading overlay).</summary>
+    [ObservableProperty] public partial bool IsLoading { get; set; }
 
     public CreateEventViewModel(
         IDatabaseService db,
@@ -56,6 +59,7 @@ public partial class CreateEventViewModel : ObservableObject
             return;
         }
 
+        IsLoading = true;
         try
         {
             // 1. Delegate all crypto work to dedicated service (SRP)
@@ -111,6 +115,10 @@ public partial class CreateEventViewModel : ObservableObject
         {
             _logger.LogError(ex, "Unhandled exception in CreateAndGenerate");
             await ShowAlertAsync("Error inesperado", ex.Message);
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
 

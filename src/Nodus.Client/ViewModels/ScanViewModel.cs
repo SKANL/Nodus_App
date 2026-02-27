@@ -31,7 +31,7 @@ public partial class ScanViewModel : ObservableObject
     private readonly IBleClientService _bleService;
 
     [ObservableProperty]
-    private bool _isScanning = true;
+    public partial bool IsScanning { get; set; } = true;
 
     /// <summary>
     /// String adapter for Shell QueryProperty → keeps the enum strongly typed inside the VM.

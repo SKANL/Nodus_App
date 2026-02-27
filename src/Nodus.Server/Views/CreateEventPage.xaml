@@ -94,6 +94,7 @@
 
                             <Button Text="GENERAR ACTIVOS DE PRODUCCIÓN" 
                                     Command="{Binding CreateAndGenerateCommand}"
+                                    IsEnabled="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}"
                                     Style="{StaticResource PrimaryButton}"
                                     HeightRequest="60"
                                     Margin="0,10,0,0"
@@ -175,5 +176,27 @@
                 </VerticalStackLayout>
             </Grid>
         </ScrollView>
+
+        <!-- Loading Overlay: shown while MongoDB connection + key generation are in progress -->
+        <Grid Grid.RowSpan="2"
+              IsVisible="{Binding IsLoading}"
+              BackgroundColor="#CC0F172A"
+              ZIndex="99">
+            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="20">
+                <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                   Color="{StaticResource PrimaryAccent}"
+                                   HeightRequest="56" WidthRequest="56" />
+                <Label Text="Generando credenciales seguras..."
+                       TextColor="{StaticResource White}"
+                       FontSize="17" FontAttributes="Bold"
+                       HorizontalOptions="Center" />
+                <Label Text="Conectando a MongoDB • Generando llaves AES-256 • Creando QR codes"
+                       TextColor="{StaticResource Gray400}"
+                       FontSize="12"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+        </Grid>
+
     </Grid>
 </ContentPage>

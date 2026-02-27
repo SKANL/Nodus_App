@@ -13,8 +13,8 @@ namespace Nodus.Client.ViewModels;
 
 public partial class CategoryScore : ObservableObject
 {
-    [ObservableProperty] private string _name = string.Empty;
-    [ObservableProperty] private double _score = 5;
+    [ObservableProperty] public partial string Name { get; set; } = string.Empty;
+    [ObservableProperty] public partial double Score { get; set; } = 5;
     public double MaxScore { get; set; } = 10;
 }
 
@@ -31,18 +31,18 @@ public partial class VotingViewModel : ObservableObject, IDisposable
     private readonly ILogger<VotingViewModel> _logger;
     private readonly CancellationTokenSource _cts = new();
 
-    [ObservableProperty] private Project? _currentProject;
-    [ObservableProperty] private string _statusMessage = "Listo para Votar";
-    [ObservableProperty] private bool _isSubmitting;
-    [ObservableProperty] private string _comment = "";
+    [ObservableProperty] public partial Project? CurrentProject { get; set; }
+    [ObservableProperty] public partial string StatusMessage { get; set; } = "Listo para Votar";
+    [ObservableProperty] public partial bool IsSubmitting { get; set; }
+    [ObservableProperty] public partial string Comment { get; set; } = "";
 
     public ObservableCollection<CategoryScore> Categories { get; } = new();
 
     [ObservableProperty]
-    private string _projectId = string.Empty;
+    public partial string ProjectId { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _eventId = string.Empty;
+    public partial string EventId { get; set; } = string.Empty;
 
     public VotingViewModel(
         IDatabaseService db,

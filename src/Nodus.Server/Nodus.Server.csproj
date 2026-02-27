@@ -28,6 +28,10 @@
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
+		<!-- Enable C# 13 partial property syntax required by CommunityToolkit.Mvvm 8.3+ -->
+		<!-- This eliminates MVVMTK0045 AOT-incompatible ObservableProperty warnings on Windows/WinRT -->
+		<LangVersion>preview</LangVersion>
+
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
 		<WindowsPackageType>None</WindowsPackageType>
 

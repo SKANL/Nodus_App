@@ -16,11 +16,12 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
     private readonly VoteAggregatorService _aggregator;
     private readonly IFileSaverService _fileSaver;
     private readonly ILogger<ResultsViewModel> _logger;
+    private readonly IDatabaseService _db;
 
     // ── Observable State ───────────────────────────────────────────────────
-    [ObservableProperty] private ObservableCollection<ProjectLeaderboardEntry> _top3 = new();
-    [ObservableProperty] private ObservableCollection<ProjectLeaderboardEntry> _remaining = new();
-    [ObservableProperty] private bool _hasResults;
+    [ObservableProperty] public partial ObservableCollection<ProjectLeaderboardEntry> Top3 { get; set; } = new();
+    [ObservableProperty] public partial ObservableCollection<ProjectLeaderboardEntry> Remaining { get; set; } = new();
+    [ObservableProperty] public partial bool HasResults { get; set; }
 
     public ResultsViewModel(
         IDatabaseService db,
@@ -40,8 +41,6 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
         // Register for updates
         WeakReferenceMessenger.Default.Register(this);
     }
-
-    private readonly IDatabaseService _db;
 
     private async void RefreshLeaderboard()
     {

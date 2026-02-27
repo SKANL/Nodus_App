@@ -14,25 +14,25 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     private readonly ILogger<SettingsViewModel> _logger;
 
     [ObservableProperty]
-    private string _statusMessage = "Listo";
+    public partial string StatusMessage { get; set; } = "Listo";
 
     [ObservableProperty]
-    private double _syncProgress;
+    public partial double SyncProgress { get; set; }
 
     [ObservableProperty]
-    private bool _isSyncing;
+    public partial bool IsSyncing { get; set; }
 
     [ObservableProperty]
-    private bool _isBusy;
+    public partial bool IsBusy { get; set; }
 
     [ObservableProperty]
-    private int _pendingVotesCount;
+    public partial int PendingVotesCount { get; set; }
 
     [ObservableProperty]
-    private int _pendingMediaCount;
+    public partial int PendingMediaCount { get; set; }
 
     [ObservableProperty]
-    private string _syncStatsText = "Cargando...";
+    public partial string SyncStatsText { get; set; } = "Cargando...";
 
     public SettingsViewModel(
         MediaSyncService mediaSyncService,

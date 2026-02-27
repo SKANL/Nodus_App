@@ -105,18 +105,14 @@
                    HorizontalOptions="Center"
                    FontSize="13"
                    TextColor="{Binding IsSubmitting, Converter={StaticResource BoolToColorConverter}}" />
-            <Border StrokeShape="RoundRectangle 16"
+            <Button Text="{Binding IsSubmitting, Converter={StaticResource BoolToSubmitTextConverter}, ConverterParameter='Enviando...|Votar ✓'}"
+                    Command="{Binding SubmitVoteCommand}"
+                    IsEnabled="{Binding IsSubmitting, Converter={StaticResource InvertedBoolConverter}}"
                     BackgroundColor="#6366F1"
-                    Padding="0">
-                <Button Text="{Binding IsSubmitting, Converter={StaticResource BoolToSubmitTextConverter}, ConverterParameter='Enviando...|Votar ✓'}"
-                        Command="{Binding SubmitVoteCommand}"
-                        IsEnabled="{Binding IsSubmitting, Converter={StaticResource InvertedBoolConverter}}"
-                        BackgroundColor="Transparent"
-                        TextColor="White"
-                        FontSize="17" FontAttributes="Bold"
-                        HeightRequest="56"
-                        CornerRadius="16" />
-            </Border>
+                    TextColor="White"
+                    FontSize="17" FontAttributes="Bold"
+                    HeightRequest="56"
+                    CornerRadius="16" />
         </VerticalStackLayout>
 
     </Grid>

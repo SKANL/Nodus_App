@@ -14,12 +14,12 @@ public partial class TopologyViewModel : ObservableObject, IDisposable
     private System.Timers.Timer? _refreshTimer;
 
     // ── Observable State ───────────────────────────────────────────────────
-    [ObservableProperty] private ObservableCollection<NetworkMetrics> _nodes = new();
-    [ObservableProperty] private int _totalNodes;
-    [ObservableProperty] private int _activeNodes;
-    [ObservableProperty] private int _relayNodes;
-    [ObservableProperty] private double _averageConnectionQuality;
-    [ObservableProperty] private string _lastUpdateTime = "Nunca";
+    [ObservableProperty] public partial ObservableCollection<NetworkMetrics> Nodes { get; set; } = new();
+    [ObservableProperty] public partial int TotalNodes { get; set; }
+    [ObservableProperty] public partial int ActiveNodes { get; set; }
+    [ObservableProperty] public partial int RelayNodes { get; set; }
+    [ObservableProperty] public partial double AverageConnectionQuality { get; set; }
+    [ObservableProperty] public partial string LastUpdateTime { get; set; } = "Nunca";
 
     public TopologyViewModel(TelemetryService telemetryService, ILogger<TopologyViewModel> logger)
     {

@@ -11,11 +11,11 @@ public partial class ConnectionProgressViewModel : ObservableObject
     private readonly IBleClientService _bleService;
     private readonly ILogger<ConnectionProgressViewModel> _logger;
 
-    [ObservableProperty] private string _judgeName = string.Empty;
-    [ObservableProperty] private string _statusMessage = "Buscando servidor...";
-    [ObservableProperty] private string _detailMessage = "Asegúrate de estar cerca del Nodus Server.";
-    [ObservableProperty] private bool _isConnecting = true;
-    [ObservableProperty] private bool _isConnected = false;
+    [ObservableProperty] public partial string JudgeName { get; set; } = string.Empty;
+    [ObservableProperty] public partial string StatusMessage { get; set; } = "Buscando servidor...";
+    [ObservableProperty] public partial string DetailMessage { get; set; } = "Asegúrate de estar cerca del Nodus Server.";
+    [ObservableProperty] public partial bool IsConnecting { get; set; } = true;
+    [ObservableProperty] public partial bool IsConnected { get; set; } = false;
 
     private IDisposable? _connectionSub;
 

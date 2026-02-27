@@ -41,18 +41,15 @@
                                TextColor="#22C55E" />
                     </Grid>
 
-                    <Border StrokeShape="RoundRectangle 10"
-                            StrokeThickness="1" Stroke="#6366F1"
+                    <Button Text="↻  Refrescar Estadísticas"
+                            Command="{Binding RefreshStatsCommand}"
                             BackgroundColor="Transparent"
-                            Padding="0">
-                        <Button Text="↻  Refrescar Estadísticas"
-                                Command="{Binding RefreshStatsCommand}"
-                                BackgroundColor="Transparent"
-                                TextColor="#6366F1"
-                                HeightRequest="40"
-                                FontSize="14" FontAttributes="Bold"
-                                CornerRadius="10" />
-                    </Border>
+                            BorderColor="#6366F1"
+                            BorderWidth="1"
+                            TextColor="#6366F1"
+                            HeightRequest="40"
+                            FontSize="14" FontAttributes="Bold"
+                            CornerRadius="10" />
                 </VerticalStackLayout>
             </Border>
 

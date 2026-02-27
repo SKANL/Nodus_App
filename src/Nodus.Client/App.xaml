@@ -6,11 +6,17 @@
              x:Class="Nodus.Client.App">
     <Application.Resources>
         <ResourceDictionary>
-            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- Converters -->
+            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+            <converters:BoolToColorConverter x:Key="BoolToColorConverter"
+                                             TrueColor="#EF4444"
+                                             FalseColor="#22C55E" />
+            <converters:BoolToTextConverter x:Key="BoolToSubmitTextConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

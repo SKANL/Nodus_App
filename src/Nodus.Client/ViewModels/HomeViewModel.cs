@@ -22,23 +22,27 @@ public partial class HomeViewModel : ObservableObject, IDisposable
     private readonly CancellationTokenSource _lifetimeCts = new();
 
     // ── Status Bar (Traffic Light) ─────────────────────────────────────────
-    [ObservableProperty] private string _statusMessage = "Iniciando...";
-    [ObservableProperty] private Color _statusColor = Colors.Gray;
-    [ObservableProperty] private string _statusIcon = "⚪";
+    [ObservableProperty] public partial string StatusMessage { get; set; } = "Iniciando...";
+    [ObservableProperty] public partial Color StatusColor { get; set; } = Colors.Gray;
+    [ObservableProperty] public partial string StatusIcon { get; set; } = "⚪";
 
     // ── Judge Identity ─────────────────────────────────────────────────────
-    [ObservableProperty] private string _judgeName = "";
-    [ObservableProperty] private string _judgeInitial = "?";
-    [ObservableProperty] private bool _isJudgeRegistered;
-    [ObservableProperty] private string _eventName = "";
+    [ObservableProperty] public partial string JudgeName { get; set; } = "";
+    [ObservableProperty] public partial string JudgeInitial { get; set; } = "?";
+    [ObservableProperty] public partial bool IsJudgeRegistered { get; set; }
+    [ObservableProperty] public partial string EventName { get; set; } = "";
 
     // ── Stats Row ──────────────────────────────────────────────────────────
-    [ObservableProperty] private int _pendingVoteCount;
-    [ObservableProperty] private int _syncedVoteCount;
-    [ObservableProperty] private bool _isSyncing;
+    [ObservableProperty] public partial int PendingVoteCount { get; set; }
+    [ObservableProperty] public partial int SyncedVoteCount { get; set; }
+    [ObservableProperty] public partial bool IsSyncing { get; set; }
 
     // ── BLE availability ──────────────────────────────────────────────────
     private bool _bleAvailable = true;
+
+    // ── Cached event ID from SecureStorage ────────────────────────────────
+    // Separate from EventName (human-readable name) — used for DB queries.
+    private string _currentEventId = "";
 
     public HomeViewModel(
         IDatabaseService db,
@@ -107,6 +111,8 @@ public partial class HomeViewModel : ObservableObject, IDisposable
             // Load event name from DB
             if (!string.IsNullOrEmpty(eventId))
             {
+                _currentEventId = eventId; // cache for use in UpdateStatusAsync
+
                 // Trigger cloud sync if possible
                 _ = Task.Run(async () =>
                 {
@@ -194,7 +200,7 @@ public partial class HomeViewModel : ObservableObject, IDisposable
                 {
                     try
                     {
-                        var projs = await _db.GetProjectsAsync(this.EventName, ct); // just grab all
+                        // Use _currentEventId (the actual event ID) not EventName (the display name)
                         var allProjsResult = await _db.GetAllProjectsAsync(ct);
                         if (allProjsResult.IsSuccess && allProjsResult.Value?.Count == 0)
                         {
