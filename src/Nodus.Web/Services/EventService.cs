@@ -14,7 +14,7 @@ public class EventService
     private Event? _activeEvent;
 
     public EventService(
-        NodusApiService apiService, 
+        NodusApiService apiService,
         IDatabaseService localDb,
         ILogger<EventService> logger)
     {
@@ -29,10 +29,10 @@ public class EventService
 
         // 1. Try to find an active event in cloud
         var cloudResult = await _apiService.GetEventsAsync();
-        if (cloudResult.IsSuccess && cloudResult.Value.Any())
+        if (cloudResult.IsSuccess && (cloudResult.Value ?? []).Any())
         {
             // Pick the first active event, or the last updated one
-            _activeEvent = cloudResult.Value
+            _activeEvent = (cloudResult.Value ?? [])
                 .Where(e => e.IsActive)
                 .OrderByDescending(e => e.Id) // In lieu of a proper timestamp for now
                 .FirstOrDefault();
@@ -40,7 +40,7 @@ public class EventService
             if (_activeEvent != null)
             {
                 _logger.LogInformation("Discovered active event from cloud: {Name}", _activeEvent.Name);
-                
+
                 // Sync to local DB for offline support
                 await _localDb.SaveEventAsync(_activeEvent);
                 return _activeEvent;
@@ -49,12 +49,12 @@ public class EventService
 
         // 2. Fallback: Try local DB
         var localResult = await _localDb.GetEventsAsync();
-        if (localResult.IsSuccess && localResult.Value.Any())
+        if (localResult.IsSuccess && (localResult.Value ?? []).Any())
         {
-            _activeEvent = localResult.Value
+            _activeEvent = (localResult.Value ?? [])
                 .Where(e => e.IsActive)
                 .FirstOrDefault();
-            
+
             if (_activeEvent != null)
             {
                 _logger.LogInformation("Found active event in local storage: {Name}", _activeEvent.Name);

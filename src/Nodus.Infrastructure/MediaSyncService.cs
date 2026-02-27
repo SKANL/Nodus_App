@@ -11,7 +11,7 @@ namespace Nodus.Infrastructure.Services;
 public class MediaSyncService
 {
     private readonly IBleClientService _bleService;
-    private readonly IDatabaseService _databaseService; 
+    private readonly IDatabaseService _databaseService;
     private readonly IChunkerService _chunker;
     private readonly IImageCompressionService _compressor;
     private readonly IFileService _fileService;
@@ -21,7 +21,7 @@ public class MediaSyncService
     private CancellationTokenSource? _rssiCts;
 
     public bool IsConnected => _bleService.IsConnected;
-    
+
     // Store pending ACKs: VoteId -> TaskCompletionSource
     private readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> _pendingAcks = new();
 
@@ -32,7 +32,7 @@ public class MediaSyncService
     public event EventHandler<double>? SyncProgressChanged;
 
     public MediaSyncService(
-        IBleClientService bleService, 
+        IBleClientService bleService,
         IDatabaseService databaseService,
         IChunkerService chunker,
         IImageCompressionService compressor,
@@ -45,11 +45,11 @@ public class MediaSyncService
         _compressor = compressor;
         _fileService = fileService;
         _logger = logger;
-        
+
         _bleService.ConnectionState.Subscribe(OnConnectionStateChanged);
         _bleService.Notifications.Subscribe(OnNotificationReceived);
     }
-    
+
     // ...
 
     private void OnNotificationReceived(byte[] data)
@@ -89,7 +89,7 @@ public class MediaSyncService
             _rssiCts = null;
         }
     }
-    
+
     private async Task MonitorRssiLoopAsync(CancellationToken ct)
     {
         while (!ct.IsCancellationRequested && _bleService.IsConnected)
@@ -122,7 +122,7 @@ public class MediaSyncService
     private DateTime? _circuitBreakerOpenUntil;
     protected virtual int MaxConsecutiveFailures => 5;
     private readonly TimeSpan _circuitBreakerResetTime = TimeSpan.FromMinutes(1);
-    
+
     // Configurable settings
     protected virtual int MaxRetries => 3;
     protected virtual int BaseDelayMs => 500;
@@ -130,7 +130,7 @@ public class MediaSyncService
     public async Task CheckAndSyncAsync(int currentRssi = -999)
     {
         if (_isSyncing || !_bleService.IsConnected) return;
-        
+
         // Circuit Breaker Check
         if (_circuitBreakerOpenUntil.HasValue && DateTime.UtcNow < _circuitBreakerOpenUntil.Value)
         {
@@ -142,10 +142,10 @@ public class MediaSyncService
         int rssi = currentRssi != -999 ? currentRssi : _bleService.LastRssi;
 
         // Strict Check: RSSI > -70 (Updated per plan)
-        if (rssi < RssiThreshold) 
+        if (rssi < RssiThreshold)
         {
-             _logger.LogDebug("Signal too weak for Media Sync ({Rssi} < {Threshold})", rssi, RssiThreshold);
-             return; 
+            _logger.LogDebug("Signal too weak for Media Sync ({Rssi} < {Threshold})", rssi, RssiThreshold);
+            return;
         }
 
         try
@@ -166,10 +166,10 @@ public class MediaSyncService
         var result = await _databaseService.GetVotesWithPendingMediaAsync();
         if (result.IsFailure)
         {
-             _logger.LogError("Failed to get pending media votes: {Error}", result.Error);
-             return;
+            _logger.LogError("Failed to get pending media votes: {Error}", result.Error);
+            return;
         }
-        
+
         var pendingVotes = result.Value;
         if (pendingVotes == null || !pendingVotes.Any()) return;
 
@@ -187,7 +187,7 @@ public class MediaSyncService
             }
 
             bool success = await TrySyncVoteMediaWithRetryAsync(vote);
-            
+
             if (success)
             {
                 _consecutiveFailures = 0; // Reset circuit breaker
@@ -199,7 +199,7 @@ public class MediaSyncService
             {
                 _consecutiveFailures++;
                 _logger.LogWarning("Failed to sync vote {Id}. Consecutive failures: {Count}", vote.Id, _consecutiveFailures);
-                
+
                 if (_consecutiveFailures >= MaxConsecutiveFailures)
                 {
                     _circuitBreakerOpenUntil = DateTime.UtcNow.Add(_circuitBreakerResetTime);
@@ -209,7 +209,7 @@ public class MediaSyncService
                 }
             }
         }
-        
+
         if (!_circuitBreakerOpenUntil.HasValue)
             SyncStatusChanged?.Invoke(this, "Sync complete");
     }
@@ -226,7 +226,7 @@ public class MediaSyncService
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Attempt {Attempt}/{Max} failed to sync vote {Id}", attempt, MaxRetries, vote.Id);
-                
+
                 if (attempt < MaxRetries)
                 {
                     int delay = BaseDelayMs * (int)Math.Pow(2, attempt - 1);
@@ -242,18 +242,18 @@ public class MediaSyncService
         if (string.IsNullOrEmpty(vote.LocalPhotoPath)) return;
         byte[] originalBytes = await _fileService.ReadAllBytesAsync(vote.LocalPhotoPath);
         byte[] imageBytes = _compressor.Compress(originalBytes);
-        
+
         // Construct Payload: [0x02 (Type)][VoteId (16)][ImageBytes...]
         var voteIdBytes = Guid.Parse(vote.Id).ToByteArray();
         var payload = new byte[1 + 16 + imageBytes.Length];
-        
+
         payload[0] = 0x02; // Media Type
         Array.Copy(voteIdBytes, 0, payload, 1, 16);
         Array.Copy(imageBytes, 0, payload, 17, imageBytes.Length);
 
-        byte msgId = (byte)(vote.Id.GetHashCode() & 0xFF); 
+        byte msgId = (byte)(vote.Id.GetHashCode() & 0xFF);
         var chunks = _chunker.Split(payload, msgId);
-        
+
         _logger.LogInformation("Sending photo for vote {Id}: {Size} bytes, {Chunks} chunks", vote.Id, imageBytes.Length, chunks.Count);
 
         // Register pending ACK BEFORE sending to avoid race condition where ACK arrives before registration
@@ -285,7 +285,7 @@ public class MediaSyncService
         // ACK Received
         vote.IsMediaSynced = true;
         await _databaseService.SaveVoteAsync(vote);
-        
+
         _logger.LogInformation("Synced media for vote {Id}", vote.Id);
         SyncStatusChanged?.Invoke(this, $"Synced media for vote {vote.Id}");
     }

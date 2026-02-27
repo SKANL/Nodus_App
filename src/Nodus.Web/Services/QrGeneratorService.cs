@@ -20,11 +20,11 @@ public class QrGeneratorService
         using var qrGenerator = new QRCodeGenerator();
         using var qrCodeData = qrGenerator.CreateQrCode(content, QRCodeGenerator.ECCLevel.Q);
         using var qrCode = new PngByteQRCode(qrCodeData);
-        
+
         var qrCodeBytes = qrCode.GetGraphic(pixelsPerModule);
         return Convert.ToBase64String(qrCodeBytes);
     }
-    
+
     /// <summary>
     /// Generates a voting QR code for a specific project.
     /// Format: nodus://vote?pid={projectId}&cat={category}
@@ -34,7 +34,7 @@ public class QrGeneratorService
         var content = $"nodus://vote?pid={projectId}&cat={Uri.EscapeDataString(category)}";
         return GenerateQrCodeBase64(content, size);
     }
-    
+
     /// <summary>
     /// Generates an event registration QR code.
     /// Format: nodus://event?id={eventId}&key={encryptedKey}
@@ -44,7 +44,7 @@ public class QrGeneratorService
         var content = $"nodus://event?id={eventId}&key={Uri.EscapeDataString(encryptedKey)}";
         return GenerateQrCodeBase64(content, size);
     }
-    
+
     /// <summary>
     /// Generates a project display QR code with custom branding.
     /// </summary>

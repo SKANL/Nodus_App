@@ -19,7 +19,7 @@
                        CharacterSpacing="0.5" />
             </Border>
             <!-- Project name -->
-            <Label Grid.Row="1" Text="{Binding CurrentProject.Name, TargetNullValue='Loading...'}"
+            <Label Grid.Row="1" Text="{Binding CurrentProject.Name, TargetNullValue='Cargando...'}"
                    FontSize="26" FontAttributes="Bold" TextColor="White"
                    Margin="0,10,0,0" MaxLines="2" LineBreakMode="TailTruncation" />
         </Grid>
@@ -29,7 +29,7 @@
             <VerticalStackLayout Spacing="0" Padding="16,0,16,16">
 
                 <!-- Category Sliders -->
-                <StackLayout BindableLayout.ItemsSource="{Binding Categories}">
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Categories}">
                     <BindableLayout.ItemTemplate>
                         <DataTemplate x:DataType="vm:CategoryScore">
                             <Border StrokeShape="RoundRectangle 16"
@@ -63,10 +63,10 @@
                                             ThumbColor="#6366F1" />
                                     <!-- Scale labels -->
                                     <Grid ColumnDefinitions="*, *">
-                                        <Label Grid.Column="0" Text="Needs Work"
+                                        <Label Grid.Column="0" Text="Por mejorar"
                                                FontSize="10" TextColor="#475569"
                                                HorizontalOptions="Start" />
-                                        <Label Grid.Column="1" Text="Excellent"
+                                        <Label Grid.Column="1" Text="Excelente"
                                                FontSize="10" TextColor="#475569"
                                                HorizontalOptions="End" />
                                     </Grid>
@@ -74,18 +74,18 @@
                             </Border>
                         </DataTemplate>
                     </BindableLayout.ItemTemplate>
-                </StackLayout>
+                </VerticalStackLayout>
 
                 <!-- Comments Field -->
                 <Border StrokeShape="RoundRectangle 16"
                         StrokeThickness="1" Stroke="#1E293B"
                         BackgroundColor="#1E293B" Padding="20,16">
                     <VerticalStackLayout Spacing="10">
-                        <Label Text="💬  Notes (optional)"
+                        <Label Text="💬  Notas (opcional)"
                                FontSize="14" FontAttributes="Bold"
                                TextColor="#94A3B8" />
                         <Editor Text="{Binding Comment}"
-                                Placeholder="Add qualitative feedback for the team..."
+                                Placeholder="Escribe tus comentarios para el equipo..."
                                 PlaceholderColor="#475569"
                                 BackgroundColor="Transparent"
                                 TextColor="White"
@@ -108,7 +108,7 @@
             <Border StrokeShape="RoundRectangle 16"
                     BackgroundColor="#6366F1"
                     Padding="0">
-                <Button Text="{Binding IsSubmitting, Converter={StaticResource BoolToSubmitTextConverter}, ConverterParameter='Submitting...|Submit Vote ✓'}"
+                <Button Text="{Binding IsSubmitting, Converter={StaticResource BoolToSubmitTextConverter}, ConverterParameter='Enviando...|Votar ✓'}"
                         Command="{Binding SubmitVoteCommand}"
                         IsEnabled="{Binding IsSubmitting, Converter={StaticResource InvertedBoolConverter}}"
                         BackgroundColor="Transparent"

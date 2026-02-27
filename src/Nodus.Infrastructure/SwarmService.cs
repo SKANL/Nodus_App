@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Nodus.Shared;
@@ -24,32 +24,54 @@ public interface ISwarmService
     // Task StartServiceAsync? Or automatic on ctor? Nodus is automatic usually.
 }
 
-public partial class SwarmService : ObservableObject, ISwarmService
+public class SwarmService : ISwarmService, INotifyPropertyChanged
 {
     private readonly IBleClientService _bleClient;
-    private readonly IRelayHostingService _relayService; 
+    private readonly IRelayHostingService _relayService;
     private readonly ILogger<SwarmService> _logger;
     private readonly ITimerFactory _timerFactory;
     private readonly IDateTimeProvider _dateTime;
 
-    [ObservableProperty] private SwarmState _currentState = SwarmState.Seeker;
-    [ObservableProperty] private int _neighborLinkCount = 0;
-    [ObservableProperty] private bool _isMuleMode = false;
-    
+    // INotifyPropertyChanged implementation
+    public event PropertyChangedEventHandler? PropertyChanged;
+    private void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+    private SwarmState _currentState = SwarmState.Seeker;
+    public SwarmState CurrentState
+    {
+        get => _currentState;
+        set { if (_currentState == value) return; _currentState = value; OnPropertyChanged(); }
+    }
+
+    private int _neighborLinkCount;
+    public int NeighborLinkCount
+    {
+        get => _neighborLinkCount;
+        private set { if (_neighborLinkCount == value) return; _neighborLinkCount = value; OnPropertyChanged(); }
+    }
+
+    private bool _isMuleMode;
+    public bool IsMuleMode
+    {
+        get => _isMuleMode;
+        private set { if (_isMuleMode == value) return; _isMuleMode = value; OnPropertyChanged(); }
+    }
+
     private IAppTimer? _heartbeat;
     private DateTime _cooldownExpiresAt = DateTime.MinValue;
     private DateTime _linkStartedAt = DateTime.MinValue;
     private DateTime _lastServerConnectionAt; // Set in ctor
-    
+
     private const int RSSI_THRESHOLD = -75; // Strong signal required
     private const int MAX_LINK_DURATION_SECONDS = 60;
     private const int COOLDOWN_MINUTES = 5;
     private const int MULE_MODE_THRESHOLD_MINUTES = 10;
 
     public SwarmService(
-        IBleClientService bleClient, 
-        IRelayHostingService relayService, 
-        ITimerFactory timerFactory, 
+        IBleClientService bleClient,
+        IRelayHostingService relayService,
+        ITimerFactory timerFactory,
         IDateTimeProvider dateTime,
         ILogger<SwarmService> logger)
     {
@@ -58,16 +80,16 @@ public partial class SwarmService : ObservableObject, ISwarmService
         _timerFactory = timerFactory;
         _dateTime = dateTime;
         _logger = logger;
-        
+
         _lastServerConnectionAt = _dateTime.UtcNow;
 
-        _bleClient.LinkCountChanged += (s, count) => 
+        _bleClient.LinkCountChanged += (s, count) =>
         {
             NeighborLinkCount = count;
             _logger.LogDebug("Neighbor Link Count Updated: {Count}", count);
         };
-        
-        _bleClient.ConnectionStatusChanged += (s, isConnected) => 
+
+        _bleClient.ConnectionStatusChanged += (s, isConnected) =>
         {
             if (isConnected) _lastServerConnectionAt = _dateTime.UtcNow;
         };
@@ -127,16 +149,16 @@ public partial class SwarmService : ObservableObject, ISwarmService
             // Note: We need to expose RSSI from BleClientService more robustly. 
             // For now, assuming if Connected, RSSI is decent enough (simplified).
             // Ideal: _bleClient.LastRssi > RSSI_THRESHOLD
-            
+
             // Simplified Check:
-            if (_bleClient.IsConnected) 
+            if (_bleClient.IsConnected)
             {
                 // Enter Candidate Mode
                 // Random Wait (Trickle) to avoid collision
                 CurrentState = SwarmState.Candidate;
                 var randomWait = Random.Shared.Next(2000, 10000);
                 _logger.LogDebug("Candidate! Waiting {RandomWait}ms...", randomWait);
-                
+
                 await _dateTime.Delay(TimeSpan.FromMilliseconds(randomWait));
 
                 // Redundancy Check (The "k" constant)

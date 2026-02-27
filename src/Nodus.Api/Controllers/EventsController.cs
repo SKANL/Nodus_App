@@ -46,8 +46,8 @@ public class EventsController : ControllerBase
     {
         var result = await _db.GetEventAsync(id, ct);
         if (result.IsFailure) return NotFound($"Event '{id}' not found.");
-        
-        var evt = result.Value;
+
+        var evt = result.Value!;
         var categories = (evt.RubricJson ?? "{}")
             .TrimStart()
             .StartsWith("{")

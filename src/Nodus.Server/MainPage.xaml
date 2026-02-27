@@ -1,17 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <TabbedPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:views="clr-namespace:Nodus.Server.Views"
              x:Class="Nodus.Server.MainPage"
              Title="Nodus Admin">
-
-    <!-- Event Configuration & Registration Projection -->
-    <views:CreateEventPage Title="Configuration" IconImageSource="dotnet_bot.png" />
-    
-    <!-- Live Swarm Topology -->
-    <views:TopologyPage Title="Live Network" IconImageSource="dotnet_bot.png" />
-
-    <!-- Event Results & Export -->
-    <views:ResultsPage Title="Results" IconImageSource="dotnet_bot.png" />
-
+    <!--
+        Las pestañas se construyen en code-behind (MainPage.xaml.cs) via DI,
+        ya que CreateEventPage, ResultsPage y TopologyPage requieren constructor injection.
+        No se declaran aquí para evitar XamlParseException por falta de constructor sin parámetros.
+    -->
 </TabbedPage>

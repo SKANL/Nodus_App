@@ -25,7 +25,7 @@ public interface IBlePeripheralWrapper
     IObservable<(string Characteristic, byte[] Data)> NotifyCharacteristic(string serviceUuid, string characteristicUuid);
     IObservable<(string Characteristic, byte[] Data)> WriteCharacteristic(string serviceUuid, string characteristicUuid, byte[] data, bool withResponse);
     Task<BleResult> ReadCharacteristicAsync(string serviceUuid, string characteristicUuid, CancellationToken ct = default);
-    
+
     // Direct IPeripheral methods
     void CancelConnection();
 }

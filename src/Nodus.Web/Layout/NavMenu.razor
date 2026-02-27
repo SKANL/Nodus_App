@@ -1,33 +1,57 @@
 ﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">Nodus Portal</a>
+        <a class="navbar-brand d-flex align-items-center gap-2" href="">
+            <span class="brand-icon">⬡</span>
+            <span>Nodus Portal</span>
+        </a>
     </div>
 </div>
 
-<div class="nav-scrollable" @onclick="NotifyClicked">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                Home
-            </NavLink>
+<nav class="nav-scrollable flex-column" @onclick="NotifyClicked">
+
+    <div class="nav-section-label">PRINCIPAL</div>
+
+    <div class="nav-item px-3">
+        <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+            <i class="bi bi-house-door nav-icon"></i>
+            <span>Inicio</span>
+        </NavLink>
+    </div>
+
+    <div class="nav-item px-3">
+        <NavLink class="nav-link" href="register">
+            <i class="bi bi-pencil-square nav-icon"></i>
+            <span>Registrar Proyecto</span>
+        </NavLink>
+    </div>
+
+    <div class="nav-section-label mt-2">MI PROYECTO</div>
+
+    <div class="nav-item px-3">
+        <NavLink class="nav-link" href="display/current">
+            <i class="bi bi-qr-code nav-icon"></i>
+            <span>Mi Código QR</span>
+        </NavLink>
+    </div>
+
+    <div class="nav-item px-3">
+        <NavLink class="nav-link" href="projects">
+            <i class="bi bi-grid-3x3-gap nav-icon"></i>
+            <span>Ver Todos</span>
+        </NavLink>
+    </div>
+
+    <div class="nav-footer">
+        <div class="d-flex align-items-center gap-2 text-muted">
+            <i class="bi bi-shield-check text-success"></i>
+            <span class="small">Cifrado AES-256</span>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="register">
-                Register Project
-            </NavLink>
+        <div class="d-flex align-items-center gap-2 text-muted mt-2">
+            <i class="bi bi-broadcast text-primary"></i>
+            <span class="small">Protocolo Firefly</span>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="projects">
-                Gallery
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="display/current">
-                My Project
-            </NavLink>
-        </div>
-    </nav>
-</div>
+    </div>
+</nav>
 
 @code {
     [Parameter] public EventCallback OnMenuItemClicked { get; set; }
@@ -35,8 +59,46 @@
     private async Task NotifyClicked()
     {
         if (OnMenuItemClicked.HasDelegate)
-        {
             await OnMenuItemClicked.InvokeAsync();
-        }
     }
 }
+
+<style>
+    .brand-icon {
+        font-size: 1.4rem;
+        color: var(--primary);
+        line-height: 1;
+    }
+
+    .nav-section-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        color: #475569;
+        padding: 1rem 1.5rem 0.4rem;
+        text-transform: uppercase;
+    }
+
+    .nav-icon {
+        font-size: 1rem;
+        width: 1.25rem;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .nav-item a {
+        display: flex !important;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .nav-footer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 1.25rem 1.5rem;
+        border-top: 1px solid rgba(255,255,255,0.06);
+        background: rgba(0,0,0,0.15);
+    }
+</style>

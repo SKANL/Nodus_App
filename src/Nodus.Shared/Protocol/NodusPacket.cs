@@ -16,7 +16,7 @@ public class NodusPacket
     public MessageType Type { get; set; }
     public long Timestamp { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
     public string SenderId { get; set; } = string.Empty; // Judge ID or Server ID
-    
+
     // Security Fields
     public byte[] Nonce { get; set; } = Array.Empty<byte>(); // 12 bytes for AES-GCM
     public byte[] Signature { get; set; } = Array.Empty<byte>(); // 64 bytes (Ed25519)

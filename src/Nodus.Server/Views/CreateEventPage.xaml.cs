@@ -5,9 +5,9 @@ namespace Nodus.Server.Views;
 
 public partial class CreateEventPage : ContentPage
 {
-	public CreateEventPage(CreateEventViewModel vm)
-	{
-		InitializeComponent();
-		BindingContext = vm;
-	}
+    public CreateEventPage(CreateEventViewModel vm)
+    {
+        InitializeComponent();
+        BindingContext = vm;
+    }
 }

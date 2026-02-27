@@ -35,19 +35,19 @@ public class RelayHostingService : IRelayHostingService
         _logger = logger;
         _assembler = new ChunkAssembler();
         _assembler.PayloadCompleted += OnPayloadReceived;
-        
+
         _logger.LogInformation("RelayHostingService initialized");
     }
 
     private async void OnPayloadReceived(object? sender, byte[] data)
     {
-        try 
+        try
         {
             var json = Encoding.UTF8.GetString(data);
             var packet = NodusPacket.FromJson(json);
-            
+
             if (packet == null) return;
-            
+
             // Loop Prevention (PacketTracker)
             // If TryProcess returns false, we have seen this packet recently -> DROP IT.
             if (!_packetTracker.TryProcess(packet.Id))
@@ -55,13 +55,13 @@ public class RelayHostingService : IRelayHostingService
                 _logger.LogDebug("Dropped duplicate packet {PacketId} from {SenderId}", packet.Id, packet.SenderId);
                 return;
             }
-            
+
             _logger.LogInformation("Relaying packet {PacketType} from {SenderId}", packet.Type, packet.SenderId);
-            
+
             // Forward to Upstream (Server) without modification
             // We use the new RelayPacketAsync method which sends raw bytes without re-encryption.
             await _upstreamClient.RelayPacketAsync(packet);
-            
+
             _logger.LogInformation("Packet {PacketId} forwarded to upstream", packet.Id);
         }
         catch (Exception ex)
@@ -76,15 +76,15 @@ public class RelayHostingService : IRelayHostingService
     {
         if (_bleHosting.IsAdvertising) return Result.Success();
 
-        try 
+        try
         {
             // 1. Add Service (Same UUID as Server so Seekers find us)
-            _gattService = await _bleHosting.AddService(NodusConstants.SERVICE_UUID, true, sb => 
+            _gattService = await _bleHosting.AddService(NodusConstants.SERVICE_UUID, true, sb =>
             {
-                sb.AddCharacteristic(NodusConstants.CHARACTERISTIC_UUID, cb => 
+                sb.AddCharacteristic(NodusConstants.CHARACTERISTIC_UUID, cb =>
                 {
                     // cb.SetProperties(CharacteristicProperties.WriteWithoutResponse);
-                    cb.SetWrite(request => 
+                    cb.SetWrite(request =>
                     {
                         _assembler.ProcessPacket(request.Data);
                         return Task.CompletedTask;
@@ -98,7 +98,7 @@ public class RelayHostingService : IRelayHostingService
                 ServiceUuids: new[] { NodusConstants.SERVICE_UUID }
                 // ManufacturerData: Shiny API valid check needed
             ));
-            
+
             _logger.LogInformation("Started advertising as Relay");
             return Result.Success();
         }
@@ -115,8 +115,8 @@ public class RelayHostingService : IRelayHostingService
         _bleHosting.StopAdvertising();
         if (_gattService != null)
         {
-             _bleHosting.RemoveService(NodusConstants.SERVICE_UUID);
-             _gattService = null;
+            _bleHosting.RemoveService(NodusConstants.SERVICE_UUID);
+            _gattService = null;
         }
     }
 #else

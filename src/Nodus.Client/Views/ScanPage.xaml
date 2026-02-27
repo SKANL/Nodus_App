@@ -4,7 +4,7 @@
              xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.Maui.Controls"
              xmlns:vm="clr-namespace:Nodus.Client.ViewModels"
              x:Class="Nodus.Client.Views.ScanPage"
-             Title="Scanner"
+             Title="Escáner"
              Shell.TabBarIsVisible="False">
 
     <Grid>
@@ -36,7 +36,7 @@
                VerticalOptions="Start" 
                Margin="0,50,0,0" />
                
-        <Button Text="Cancel"
+        <Button Text="Cancelar"
                 Command="{Binding CancelCommand}"
                 VerticalOptions="End"
                 Margin="20" />

@@ -4,9 +4,9 @@ namespace Nodus.Client.Views;
 
 public partial class SettingsPage : ContentPage
 {
-	public SettingsPage(SettingsViewModel vm)
-	{
-		InitializeComponent();
-		BindingContext = vm;
-	}
+    public SettingsPage(SettingsViewModel vm)
+    {
+        InitializeComponent();
+        BindingContext = vm;
+    }
 }

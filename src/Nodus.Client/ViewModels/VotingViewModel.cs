@@ -32,10 +32,10 @@ public partial class VotingViewModel : ObservableObject, IDisposable
     private readonly CancellationTokenSource _cts = new();
 
     [ObservableProperty] private Project? _currentProject;
-    [ObservableProperty] private string _statusMessage = "Ready to Vote";
+    [ObservableProperty] private string _statusMessage = "Listo para Votar";
     [ObservableProperty] private bool _isSubmitting;
     [ObservableProperty] private string _comment = "";
-    
+
     public ObservableCollection<CategoryScore> Categories { get; } = new();
 
     [ObservableProperty]
@@ -45,7 +45,7 @@ public partial class VotingViewModel : ObservableObject, IDisposable
     private string _eventId = string.Empty;
 
     public VotingViewModel(
-        IDatabaseService db, 
+        IDatabaseService db,
         IBleClientService bleService,
         ILogger<VotingViewModel> logger)
     {
@@ -73,21 +73,21 @@ public partial class VotingViewModel : ObservableObject, IDisposable
 
     public async Task InitializeAsync(string projectId, string eventId, CancellationToken ct = default)
     {
-        _eventId = eventId;
+        EventId = eventId;
         await LoadProjectAsync(projectId, ct);
     }
 
     private async Task LoadProjectAsync(string projectId, CancellationToken ct)
     {
-        StatusMessage = "Loading Project...";
+        StatusMessage = "Cargando Proyecto...";
         var result = await _db.GetProjectAsync(projectId, ct);
-        
+
         if (result.IsSuccess)
         {
             CurrentProject = result.Value;
-            
+
             // Load Rubric from Event
-            var eventResult = await _db.GetEventAsync(_eventId, ct);
+            var eventResult = await _db.GetEventAsync(EventId, ct);
             if (eventResult.IsSuccess && !string.IsNullOrWhiteSpace(eventResult.Value.RubricJson))
             {
                 ParseRubric(eventResult.Value.RubricJson);
@@ -96,11 +96,11 @@ public partial class VotingViewModel : ObservableObject, IDisposable
             {
                 // Fallback rubric
                 Categories.Clear();
-                Categories.Add(new CategoryScore { Name = "Design", Score = 5 });
-                Categories.Add(new CategoryScore { Name = "Functionality", Score = 5 });
+                Categories.Add(new CategoryScore { Name = "Diseño", Score = 5 });
+                Categories.Add(new CategoryScore { Name = "Funcionalidad", Score = 5 });
             }
 
-            StatusMessage = "Evaluate Project";
+            StatusMessage = "Evaluar Proyecto";
             _logger.LogDebug("Project {ProjectId} loaded successfully", projectId);
         }
         else
@@ -136,7 +136,7 @@ public partial class VotingViewModel : ObservableObject, IDisposable
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to parse rubric JSON: {Json}", rubricJson);
-            Categories.Add(new CategoryScore { Name = "Overall", Score = 5 });
+            Categories.Add(new CategoryScore { Name = "General", Score = 5 });
         }
     }
 
@@ -144,9 +144,9 @@ public partial class VotingViewModel : ObservableObject, IDisposable
     private async Task SubmitVoteAsync(CancellationToken ct)
     {
         if (IsSubmitting || CurrentProject == null) return;
-        
+
         IsSubmitting = true;
-        StatusMessage = "Saving...";
+        StatusMessage = "Guardando...";
 
         try
         {
@@ -154,12 +154,13 @@ public partial class VotingViewModel : ObservableObject, IDisposable
 
             if (result.IsSuccess)
             {
-                StatusMessage = "Vote Submitted!";
+                StatusMessage = "¡Voto Enviado!";
                 _logger.LogInformation("Vote for project {ProjectId} submitted successfully", CurrentProject.Id);
-                
+
                 await Task.Delay(1000, ct);
-                await MainThread.InvokeOnMainThreadAsync(async () => {
-                     await Application.Current!.Windows[0].Page!.Navigation.PopAsync();
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    await Application.Current!.Windows[0].Page!.Navigation.PopAsync();
                 });
             }
             else
@@ -170,7 +171,7 @@ public partial class VotingViewModel : ObservableObject, IDisposable
         }
         catch (OperationCanceledException)
         {
-            StatusMessage = "Submission cancelled";
+            StatusMessage = "Envío cancelado";
         }
         finally
         {
@@ -186,7 +187,7 @@ public partial class VotingViewModel : ObservableObject, IDisposable
 
         // 2. Prepare Vote
         var judgeId = await SecureStorage.Default.GetAsync(Nodus.Shared.NodusConstants.KEY_JUDGE_NAME) ?? "Unknown";
-        
+
         var payload = new Dictionary<string, object>();
         foreach (var cat in Categories)
         {
@@ -197,7 +198,7 @@ public partial class VotingViewModel : ObservableObject, IDisposable
 
         var vote = new Vote
         {
-            EventId = _eventId,
+            EventId = EventId,
             ProjectId = CurrentProject!.Id,
             JudgeId = judgeId,
             PayloadJson = JsonSerializer.Serialize(payload),
@@ -209,7 +210,7 @@ public partial class VotingViewModel : ObservableObject, IDisposable
         if (saveResult.IsFailure) return saveResult;
 
         // 4. Attempt BLE Sync
-        StatusMessage = "Syncing via Firefly Swarm...";
+        StatusMessage = "Sincronizando vía Red Firefly...";
         var syncResult = await _bleService.SendVoteAsync(vote, ct);
 
         if (syncResult.IsSuccess)
@@ -217,7 +218,7 @@ public partial class VotingViewModel : ObservableObject, IDisposable
             vote.Status = SyncStatus.Synced;
             vote.SyncedAtUtc = DateTime.UtcNow;
             _logger.LogInformation("Vote {VoteId} synced over BLE", vote.Id);
-            
+
             // Update status in local DB
             await _db.SaveVoteAsync(vote, ct);
             return Result.Success();

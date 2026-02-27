@@ -5,8 +5,8 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#6366f1",
+  "background_color": "#0f172a",
+  "theme_color": "#4f46e5",
   "orientation": "portrait-primary",
   "icons": [
     {
@@ -23,7 +23,7 @@
       "name": "Register Project",
       "short_name": "Register",
       "description": "Register a new project",
-      "url": "registration",
+      "url": "/register",
       "icons": [
         {
           "src": "icons/icon.svg",
@@ -35,7 +35,7 @@
       "name": "Display QR",
       "short_name": "QR Code",
       "description": "Display project QR code",
-      "url": "project-display",
+      "url": "/display/current",
       "icons": [
         {
           "src": "icons/icon.svg",

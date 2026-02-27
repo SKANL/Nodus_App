@@ -22,21 +22,21 @@ public class BleClientService : IBleClientService, IDisposable
     private readonly ILogger<BleClientService> _logger;
     private readonly ISecureStorageService _secureStorage;
     private readonly SemaphoreSlim _connectionLock = new(1, 1);
-    
+
     private IDisposable? _scanSubscription;
     private IBlePeripheralWrapper? _connectedServer;
     private CancellationTokenSource? _connectionCts;
     private IDisposable? _notificationSubscription;
-    
+
     // Neighbor Discovery (Trickle)
     private readonly Dictionary<string, DateTime> _nearbyLinks = new();
     private readonly TimeSpan _neighborTtl = TimeSpan.FromSeconds(15);
-    
+
     // Retry Configuration
     private const int MaxRetries = 3;
     private static readonly TimeSpan InitialRetryDelay = TimeSpan.FromMilliseconds(500);
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
-    
+
     public event EventHandler<string>? ServerDiscovered;
     public event EventHandler<bool>? ConnectionStatusChanged;
     public event EventHandler<int>? LinkCountChanged;
@@ -67,7 +67,7 @@ public class BleClientService : IBleClientService, IDisposable
             _notificationSubscription = _connectedServer
                 .NotifyCharacteristic(NodusConstants.SERVICE_UUID, NodusConstants.CHARACTERISTIC_UUID)
                 .Subscribe(
-                    result => 
+                    result =>
                     {
                         if (result.Data != null)
                         {
@@ -121,17 +121,17 @@ public class BleClientService : IBleClientService, IDisposable
             // Serialize Wrapper
             var wrapperJson = packet.ToJson();
             var jsonBytes = System.Text.Encoding.UTF8.GetBytes(wrapperJson);
-            
+
             // Add Prefix 0x01 (JSON)
             var payload = new byte[jsonBytes.Length + 1];
-            payload[0] = 0x01; 
+            payload[0] = 0x01;
             Array.Copy(jsonBytes, 0, payload, 1, jsonBytes.Length);
-            
+
             // Chunking & Send
             // Message ID: Use Packet ID hash or random? 
             // Packet.Id is string (Guid).
             byte msgId = (byte)(packet.Id.GetHashCode() & 0xFF);
-            
+
             var chunks = _chunker.Split(payload, msgId);
 
             foreach (var chunk in chunks)
@@ -142,14 +142,14 @@ public class BleClientService : IBleClientService, IDisposable
                 {
                     return Result.Failure("Connection lost during transmission");
                 }
-                
+
                 await target.WriteCharacteristicAsync(
-                    NodusConstants.SERVICE_UUID, 
-                    NodusConstants.CHARACTERISTIC_UUID, 
-                    chunk, 
+                    NodusConstants.SERVICE_UUID,
+                    NodusConstants.CHARACTERISTIC_UUID,
+                    chunk,
                     withResponse: false
                 );
-                
+
                 // Hyper-Optimization: Removed Task.Delay(20) to enable burst transmission
             }
 
@@ -166,7 +166,7 @@ public class BleClientService : IBleClientService, IDisposable
         }
     }
 
-    public IObservable<string> ConnectionState => 
+    public IObservable<string> ConnectionState =>
         _connectedServer?.WhenStatusChanged() ?? Observable.Return("Disconnected");
 
     public bool IsConnected => _connectedServer?.ConnectionState == "Connected";
@@ -179,7 +179,7 @@ public class BleClientService : IBleClientService, IDisposable
             _logger.LogDebug("Already scanning, skipping");
             return Result.Success();
         }
-        
+
         // Permission Check assumed handled by caller or Shiny
         // var status = await Permissions.CheckStatusAsync<Permissions.Bluetooth>(); 
         // Note: Permissions is MAUI specific. In Shared we should rely on IBleManager acting or throw if missing.
@@ -211,10 +211,10 @@ public class BleClientService : IBleClientService, IDisposable
         try
         {
             var now = DateTime.UtcNow;
-            
+
             // 1. Neighbor Discovery (Firefly Trickle Logic)
             bool isRelay = result.Peripheral.Name?.Contains("Relay") == true;
-            
+
             if (isRelay)
             {
                 var key = result.Peripheral.Uuid;
@@ -228,8 +228,8 @@ public class BleClientService : IBleClientService, IDisposable
 
             // 2. Server Discovery
             bool isServer = result.Peripheral.Name?.Contains("Nodus Server") == true;
-            
-            _logger.LogDebug("Found Peripheral: {Name} | RSSI: {Rssi} | Relay: {IsRelay} | Server: {IsServer}", 
+
+            _logger.LogDebug("Found Peripheral: {Name} | RSSI: {Rssi} | Relay: {IsRelay} | Server: {IsServer}",
                 result.Peripheral.Name, result.Rssi, isRelay, isServer);
 
             // Update RSSI tracking
@@ -259,7 +259,7 @@ public class BleClientService : IBleClientService, IDisposable
         UpdateLinkCount();
         _logger.LogInformation("Stopped scanning");
     }
-    
+
     private void CleanExpiredLinks()
     {
         var now = DateTime.UtcNow;
@@ -295,7 +295,7 @@ public class BleClientService : IBleClientService, IDisposable
                 return Result.Success();
             }
 
-            _logger.LogInformation("Attempting to connect to {Name} with {Timeout}s timeout", 
+            _logger.LogInformation("Attempting to connect to {Name} with {Timeout}s timeout",
                 peripheral.Name, timeout.Value.TotalSeconds);
 
             _connectionCts?.Cancel();
@@ -353,24 +353,24 @@ public class BleClientService : IBleClientService, IDisposable
 
             // 2. Send Handshake
             var keys = await GetStoredKeysAsync();
-            var handshake = new NodusPacket 
-            { 
-                Type = MessageType.Handshake, 
+            var handshake = new NodusPacket
+            {
+                Type = MessageType.Handshake,
                 SenderId = keys.JudgeName,
             };
 
-            var payload = new HandshakePayload 
-            { 
-                Name = keys.JudgeName, 
-                PublicKey = keys.PublicKey 
+            var payload = new HandshakePayload
+            {
+                Name = keys.JudgeName,
+                PublicKey = keys.PublicKey
             };
-            
+
             var sendResult = await SendPacketAsync(handshake, payload, ct, peripheral);
             if (sendResult.IsFailure)
             {
-                 return Result.Failure($"Handshake failed: {sendResult.Error}");
+                return Result.Failure($"Handshake failed: {sendResult.Error}");
             }
-            
+
             return Result.Success();
         }
         catch (Exception ex)
@@ -391,16 +391,16 @@ public class BleClientService : IBleClientService, IDisposable
             var projectCharUuidStr = "00002A01-0000-1000-8000-00805F9B34FB";
             var tcs = new TaskCompletionSource<List<Nodus.Shared.Models.Project>>();
             var assembler = new Nodus.Shared.Services.ChunkerService.ChunkAssembler();
-            
+
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(TimeSpan.FromSeconds(30)); // 30 sec timeout for project sync
-            
+
             using var reg = cts.Token.Register(() => tcs.TrySetException(new TimeoutException("Project sync timed out")));
 
             var sub = _connectedServer
                 .NotifyCharacteristic(NodusConstants.SERVICE_UUID, projectCharUuidStr)
                 .Subscribe(
-                    result => 
+                    result =>
                     {
                         if (result.Data != null && assembler.Add(result.Data))
                         {
@@ -458,7 +458,7 @@ public class BleClientService : IBleClientService, IDisposable
                 Type = MessageType.Vote,
                 SenderId = keys.JudgeName,
             };
-            
+
             // Wrap in retry logic
             return await RetryWithBackoffAsync(
                 async () => await SendPacketAsync(packet, vote, ct),
@@ -489,7 +489,7 @@ public class BleClientService : IBleClientService, IDisposable
         {
             // 1. Get Keys
             var keys = await GetStoredKeysAsync();
-            if (string.IsNullOrEmpty(keys.SharedAesKey)) 
+            if (string.IsNullOrEmpty(keys.SharedAesKey))
             {
                 return Result.Failure("No encryption key found");
             }
@@ -498,18 +498,18 @@ public class BleClientService : IBleClientService, IDisposable
             var jsonPayload = System.Text.Json.JsonSerializer.Serialize(payloadData);
             var payloadBytes = System.Text.Encoding.UTF8.GetBytes(jsonPayload);
             var aesKey = Convert.FromBase64String(keys.SharedAesKey);
-            
+
             packet.EncryptedPayload = CryptoHelper.Encrypt(payloadBytes, aesKey);
 
             // 3. Sign the Packet
             var signable = ConstructSignableBlock(packet);
             packet.Signature = CryptoHelper.SignData(signable, keys.PrivateKey);
-            
+
             var transmitResult = await TransmitPacketAsync(packet, ct, target);
-            
+
             if (transmitResult.IsSuccess)
             {
-                _logger.LogDebug("Sent {PacketType} ({ByteCount} bytes) securely", 
+                _logger.LogDebug("Sent {PacketType} ({ByteCount} bytes) securely",
                     packet.Type, packet.EncryptedPayload?.Length ?? 0);
             }
 
@@ -528,7 +528,7 @@ public class BleClientService : IBleClientService, IDisposable
     /// </summary>
     public async Task<Result> RelayPacketAsync(NodusPacket packet, CancellationToken ct = default)
     {
-        if (!IsConnected) 
+        if (!IsConnected)
         {
             _logger.LogWarning("Cannot relay packet {PacketId}: Not connected to upstream", packet.Id);
             return Result.Failure("Not connected to upstream");
@@ -537,12 +537,12 @@ public class BleClientService : IBleClientService, IDisposable
         try
         {
             var result = await TransmitPacketAsync(packet, ct);
-            
+
             if (result.IsSuccess)
             {
                 _logger.LogInformation("Relayed packet {PacketId} successfully", packet.Id);
             }
-            
+
             return result;
         }
         catch (Exception ex)
@@ -592,7 +592,7 @@ public class BleClientService : IBleClientService, IDisposable
 
             _connectionCts?.Cancel();
             _connectedServer?.CancelConnection();
-            
+
             _connectedServer = null;
             ConnectionStatusChanged?.Invoke(this, false);
 
@@ -614,13 +614,13 @@ public class BleClientService : IBleClientService, IDisposable
         var idBytes = System.Text.Encoding.UTF8.GetBytes(p.Id);
         var senderBytes = System.Text.Encoding.UTF8.GetBytes(p.SenderId);
         var tsBytes = BitConverter.GetBytes(p.Timestamp);
-        
+
         var list = new List<byte>();
         list.AddRange(idBytes);
         list.AddRange(senderBytes);
         list.AddRange(tsBytes);
         list.AddRange(p.EncryptedPayload);
-        
+
         return list.ToArray();
     }
 
@@ -630,7 +630,7 @@ public class BleClientService : IBleClientService, IDisposable
         var priv = await _secureStorage.GetAsync(NodusConstants.KEY_PRIVATE_KEY);
         var pub = await _secureStorage.GetAsync(NodusConstants.KEY_PUBLIC_KEY);
         var name = await _secureStorage.GetAsync(NodusConstants.KEY_JUDGE_NAME);
-        
+
         return (aes ?? "", priv ?? "", pub ?? "", name ?? "Unknown");
     }
 
@@ -638,8 +638,8 @@ public class BleClientService : IBleClientService, IDisposable
     /// Retry logic with exponential backoff and Jitter for transient BLE failures.
     /// </summary>
     private async Task<Result> RetryWithBackoffAsync(
-        Func<Task<Result>> operation, 
-        int maxRetries, 
+        Func<Task<Result>> operation,
+        int maxRetries,
         CancellationToken ct)
     {
         var delay = InitialRetryDelay;
@@ -650,7 +650,7 @@ public class BleClientService : IBleClientService, IDisposable
             ct.ThrowIfCancellationRequested();
 
             var result = await operation();
-            
+
             if (result.IsSuccess)
             {
                 if (attempt > 1)
@@ -666,15 +666,15 @@ public class BleClientService : IBleClientService, IDisposable
                 var jitter = random.NextDouble() * 0.4 + 0.8; // 0.8 to 1.2
                 var actualDelay = delay * jitter;
 
-                _logger.LogWarning("Attempt {Attempt}/{MaxRetries} failed: {Error}. Retrying in {Delay}ms...", 
+                _logger.LogWarning("Attempt {Attempt}/{MaxRetries} failed: {Error}. Retrying in {Delay}ms...",
                     attempt, maxRetries, result.Error, actualDelay.TotalMilliseconds);
-                
+
                 await Task.Delay(actualDelay, ct);
                 delay = TimeSpan.FromMilliseconds(delay.TotalMilliseconds * 2); // Exponential backoff
             }
             else
             {
-                _logger.LogError("Operation failed after {MaxRetries} attempts: {Error}", 
+                _logger.LogError("Operation failed after {MaxRetries} attempts: {Error}",
                     maxRetries, result.Error);
                 return result;
             }

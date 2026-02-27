@@ -16,14 +16,15 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
     private readonly VoteAggregatorService _aggregator;
     private readonly IFileSaverService _fileSaver;
     private readonly ILogger<ResultsViewModel> _logger;
-    
+
+    // ── Observable State ───────────────────────────────────────────────────
     [ObservableProperty] private ObservableCollection<ProjectLeaderboardEntry> _top3 = new();
     [ObservableProperty] private ObservableCollection<ProjectLeaderboardEntry> _remaining = new();
     [ObservableProperty] private bool _hasResults;
 
     public ResultsViewModel(
         IDatabaseService db,
-        VoteAggregatorService aggregator, 
+        VoteAggregatorService aggregator,
         ExportService exportService,
         IFileSaverService fileSaver,
         ILogger<ResultsViewModel> logger)
@@ -33,7 +34,7 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
         _exportService = exportService;
         _fileSaver = fileSaver;
         _logger = logger;
-        
+
         RefreshLeaderboard();
 
         // Register for updates
@@ -49,7 +50,8 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
 
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            var enriched = data.Select(entry => {
+            var enriched = data.Select(entry =>
+            {
                 var project = projects.ValueOr(null)?.FirstOrDefault(p => p.Id == entry.ProjectId);
                 entry.ProjectName = project?.Name ?? entry.ProjectId;
                 return entry;
@@ -116,7 +118,7 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
     private async Task SaveFileAsync(string fileName, byte[] data, string contentType)
     {
         var result = await _fileSaver.SaveAsync(fileName, data, contentType);
-        
+
         if (result.IsSuccessful)
         {
             _logger.LogInformation("File exported successfully: {FilePath}", result.FilePath);

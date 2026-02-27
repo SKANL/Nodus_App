@@ -36,13 +36,22 @@ public class MongoDbService : IDatabaseService
     {
         _logger = logger;
 
-        var client = new MongoClient(connectionString);
+        // Use explicit settings so that connection failures surface quickly with a
+        // meaningful error instead of hanging for the 30-second MongoDB default.
+        // For Atlas URIs the driver overrides these with the SRV-discovered endpoints,
+        // so they only act as a fast-fail guard for localhost / unreachable hosts.
+        var settings = MongoClientSettings.FromConnectionString(connectionString);
+        settings.ServerSelectionTimeout = TimeSpan.FromSeconds(8);
+        settings.ConnectTimeout = TimeSpan.FromSeconds(8);
+        settings.SocketTimeout = TimeSpan.FromSeconds(15);
+
+        var client = new MongoClient(settings);
         _database = client.GetDatabase(databaseName);
 
-        _events   = _database.GetCollection<EventDocument>("events");
+        _events = _database.GetCollection<EventDocument>("events");
         _projects = _database.GetCollection<ProjectDocument>("projects");
-        _votes    = _database.GetCollection<VoteDocument>("votes");
-        _judges   = _database.GetCollection<Judge>("judges");
+        _votes = _database.GetCollection<VoteDocument>("votes");
+        _judges = _database.GetCollection<Judge>("judges");
 
         // Crear índices al inicializar
         _ = CreateIndexesAsync();
@@ -274,9 +283,9 @@ public class MongoDbService : IDatabaseService
     public async Task<Result> SaveVoteAsync(Vote vote, CancellationToken ct = default)
     {
         if (vote == null) return Result.Failure("Vote cannot be null");
-        if (string.IsNullOrWhiteSpace(vote.EventId))   return Result.Failure("EventId cannot be empty");
+        if (string.IsNullOrWhiteSpace(vote.EventId)) return Result.Failure("EventId cannot be empty");
         if (string.IsNullOrWhiteSpace(vote.ProjectId)) return Result.Failure("ProjectId cannot be empty");
-        if (string.IsNullOrWhiteSpace(vote.JudgeId))   return Result.Failure("JudgeId cannot be empty");
+        if (string.IsNullOrWhiteSpace(vote.JudgeId)) return Result.Failure("JudgeId cannot be empty");
 
         try
         {
@@ -371,8 +380,8 @@ public class MongoDbService : IDatabaseService
         }
         catch (Exception ex)
         {
-             _logger.LogError(ex, "Failed to execute transaction action");
-             return Result.Failure("Transaction action failed", ex);
+            _logger.LogError(ex, "Failed to execute transaction action");
+            return Result.Failure("Transaction action failed", ex);
         }
     }
 

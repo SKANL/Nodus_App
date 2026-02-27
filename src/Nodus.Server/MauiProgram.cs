@@ -8,43 +8,47 @@ namespace Nodus.Server;
 
 public static class MauiProgram
 {
-	public static MauiApp CreateMauiApp()
-	{
-		LogDebug("--- Starting Nodus Application ---");
-		try
-		{
-			var builder = MauiApp.CreateBuilder();
-			LogDebug("Builder created");
+    public static MauiApp CreateMauiApp()
+    {
+        LogDebug("--- Starting Nodus Application ---");
+        try
+        {
+            var builder = MauiApp.CreateBuilder();
+            LogDebug("Builder created");
 
-			builder
-				.UseMauiApp<App>()
-				.ConfigureFonts(fonts =>
-				{
-					fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-					fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-				});
+            builder
+                .UseMauiApp<App>()
+                .UseShiny()
+                .ConfigureFonts(fonts =>
+                {
+                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                });
 
 #if DEBUG
-			builder.Logging.AddDebug();
-			builder.Logging.SetMinimumLevel(LogLevel.Debug);
+            builder.Logging.AddDebug();
+            builder.Logging.SetMinimumLevel(LogLevel.Debug);
 #else
 			builder.Logging.SetMinimumLevel(LogLevel.Information);
 #endif
 
-// Database Service — MongoDB Atlas
+            // ─── Database: Single source of truth → MongoDB ───────────────────────
+            // IDatabaseService resolves to MongoDbService everywhere (UI + sync).
+            // LocalDatabaseService (LiteDB) has been removed to eliminate the dual-DB bug
+            // where the UI read from SQLite while cloud writes went to MongoDB.
+            // MongoDbService is registered as BOTH its concrete type (required by CloudSyncService)
+            // and as IDatabaseService abstraction (same singleton instance).
             LogDebug("Registering Database Services");
-            // Database Services
-            // 1. MongoDbService (Concrete) — For synchronization
-            builder.Services.AddSingleton<Nodus.Infrastructure.Services.MongoDbService>(sp => {
+            builder.Services.AddSingleton<Nodus.Infrastructure.Services.MongoDbService>(sp =>
+            {
                 var logger = sp.GetRequiredService<ILogger<Nodus.Infrastructure.Services.MongoDbService>>();
                 return new Nodus.Infrastructure.Services.MongoDbService(
                     AppSecrets.MongoConnectionString,
                     AppSecrets.MongoDatabaseName,
                     logger);
             });
-
-            // 2. LocalDatabaseService (Interface) — For UI & Offline use
-            builder.Services.AddSingleton<Nodus.Shared.Abstractions.IDatabaseService, Nodus.Infrastructure.Services.LocalDatabaseService>();
+            builder.Services.AddSingleton<Nodus.Shared.Abstractions.IDatabaseService>(
+                sp => sp.GetRequiredService<Nodus.Infrastructure.Services.MongoDbService>());
 
             builder.Services.AddSingleton<Nodus.Server.Services.BleServerService>();
 
@@ -59,7 +63,8 @@ public static class MauiProgram
             builder.Services.AddSingleton<Nodus.Shared.Abstractions.IFileService, Nodus.Shared.Services.FileService>();
             builder.Services.AddSingleton<Nodus.Shared.Abstractions.IFileSaverService, Nodus.Server.Services.FileSaverService>();
             builder.Services.AddSingleton<Nodus.Server.Services.CloudSyncService>();
-            
+            builder.Services.AddSingleton<Nodus.Shared.Services.EventSecurityService>();
+
             builder.Services.AddSingleton<Nodus.Shared.Services.TelemetryService>();
             builder.Services.AddSingleton<Nodus.Shared.Abstractions.IChunkerService, Nodus.Shared.Services.ChunkerService>();
             builder.Services.AddSingleton<Nodus.Shared.Services.VoteAggregatorService>();
@@ -82,23 +87,23 @@ public static class MauiProgram
             var app = builder.Build();
             LogDebug("MauiApp built successfully");
             return app;
-		}
-		catch (Exception ex)
-		{
-			LogDebug($"FATAL STARTUP ERROR: {ex}");
-			throw;
-		}
-	}
+        }
+        catch (Exception ex)
+        {
+            LogDebug($"FATAL STARTUP ERROR: {ex}");
+            throw;
+        }
+    }
 
-	private static void LogDebug(string message)
-	{
-		try
-		{
-			var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Nodus_Debug.log");
-			var logLine = $"[{DateTime.Now:HH:mm:ss}] {message}";
-			File.AppendAllText(logPath, logLine + Environment.NewLine);
-			Console.WriteLine(logLine);
-		}
-		catch { }
-	}
+    private static void LogDebug(string message)
+    {
+        try
+        {
+            var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Nodus_Debug.log");
+            var logLine = $"[{DateTime.Now:HH:mm:ss}] {message}";
+            File.AppendAllText(logPath, logLine + Environment.NewLine);
+            Console.WriteLine(logLine);
+        }
+        catch { }
+    }
 }

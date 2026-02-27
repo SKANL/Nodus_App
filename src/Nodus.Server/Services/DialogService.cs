@@ -35,7 +35,7 @@ public class DialogService : IDialogService
     {
         try
         {
-            if (Application.Current?.Windows.Count == 0)
+            if (Application.Current is null || Application.Current.Windows.Count == 0)
             {
                 _logger.LogWarning("Cannot show confirm dialog: No windows available");
                 return false;
@@ -61,7 +61,7 @@ public class DialogService : IDialogService
     {
         try
         {
-            if (Application.Current?.Windows.Count == 0)
+            if (Application.Current is null || Application.Current.Windows.Count == 0)
             {
                 _logger.LogWarning("Cannot show prompt: No windows available");
                 return null;
@@ -92,7 +92,7 @@ public class DialogService : IDialogService
     {
         try
         {
-            if (Application.Current?.Windows.Count == 0)
+            if (Application.Current is null || Application.Current.Windows.Count == 0)
             {
                 _logger.LogWarning("Cannot show alert: No windows available");
                 return;

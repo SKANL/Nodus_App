@@ -17,7 +17,7 @@ public class CloudSyncService
         _mongoDb = mongoDb;
         _localDb = localDb;
         _logger = logger;
-        
+
         _logger.LogInformation("CloudSyncService initialized");
     }
 
@@ -32,32 +32,32 @@ public class CloudSyncService
         _syncTimer = new System.Timers.Timer(TimeSpan.FromMinutes(5).TotalMilliseconds);
         _syncTimer.Elapsed += async (s, e) => await SyncAllAsync();
         _syncTimer.Start();
-        
+
         _logger.LogInformation("CloudSyncService started (Auto-sync: 5m)");
     }
 
     public async Task SyncAllAsync()
     {
-        try 
+        try
         {
             _logger.LogInformation("Starting Cloud -> Local Sync...");
-            
+
             // 1. Sync Projects
             var cloudProjects = await _mongoDb.GetAllProjectsAsync();
             if (cloudProjects.IsSuccess)
             {
-                foreach (var project in cloudProjects.Value)
+                foreach (var project in cloudProjects.Value ?? [])
                 {
                     await _localDb.SaveProjectAsync(project);
                 }
-                _logger.LogInformation("Synced {Count} projects from Cloud", cloudProjects.Value.Count);
+                _logger.LogInformation("Synced {Count} projects from Cloud", cloudProjects.Value?.Count ?? 0);
             }
 
             // 2. Sync Events
             var cloudEvents = await _mongoDb.GetEventsAsync();
             if (cloudEvents.IsSuccess)
             {
-                foreach (var evt in cloudEvents.Value)
+                foreach (var evt in cloudEvents.Value ?? [])
                 {
                     await _localDb.SaveEventAsync(evt);
                 }
@@ -66,10 +66,10 @@ public class CloudSyncService
             // 3. Upload Pending Votes -> Cloud
             _logger.LogInformation("Uploading pending votes to Cloud...");
             var pendingVotes = await _localDb.GetPendingVotesAsync();
-            if (pendingVotes.IsSuccess && pendingVotes.Value.Count > 0)
+            if (pendingVotes.IsSuccess && (pendingVotes.Value?.Count ?? 0) > 0)
             {
                 int synced = 0, failed = 0;
-                foreach (var vote in pendingVotes.Value)
+                foreach (var vote in pendingVotes.Value ?? [])
                 {
                     var uploadResult = await _mongoDb.SaveVoteAsync(vote);
                     if (uploadResult.IsSuccess)
@@ -90,7 +90,8 @@ public class CloudSyncService
                 _logger.LogInformation("Vote upload: {Synced} synced, {Failed} failed", synced, failed);
             }
 
-            _logger.LogInformation("Cloud <-> Local Sync completed successfully");        }
+            _logger.LogInformation("Cloud <-> Local Sync completed successfully");
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Cloud -> Local Sync failed");

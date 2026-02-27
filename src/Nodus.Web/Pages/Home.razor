@@ -4,20 +4,35 @@
 @inject ProjectService ProjectService
 @inject NavigationManager Navigation
 
-<PageTitle>Dashboard | Nodus Portal</PageTitle>
+<PageTitle>Panel de Control | Portal Nodus</PageTitle>
 
 <div class="row g-4">
     <!-- Welcome Header -->
     <div class="col-12 mb-2">
-        <h1 class="display-5 fw-bold text-dark">Welcome back!</h1>
-        <p class="text-muted lead">Manage your innovation and participate in the Nodus ecosystem.</p>
+        <h1 class="display-5 fw-bold text-dark">¡Bienvenido de vuelta!</h1>
+        <p class="text-muted lead">Gestiona tu innovación y participa en el ecosistema Nodus.</p>
     </div>
 
     @if (isLoading)
     {
-        <div class="col-12 mt-4 text-center">
-            <div class="spinner-border text-primary" role="status"></div>
-            <p class="text-muted mt-2">Syncing with Atlas Cloud...</p>
+        <!-- Skeleton loading: mirrors the two-column layout to avoid layout shift -->
+        <div class="col-md-7">
+            <div class="skeleton-card">
+                <div class="skeleton skeleton-badge"></div>
+                <div class="skeleton skeleton-title"></div>
+                <div class="skeleton skeleton-text"></div>
+                <div class="skeleton skeleton-text w-75"></div>
+                <div class="skeleton skeleton-text w-50"></div>
+                <div class="skeleton skeleton-button"></div>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="skeleton-card">
+                <div class="skeleton skeleton-title"></div>
+                <div class="skeleton skeleton-text"></div>
+                <div class="skeleton skeleton-text"></div>
+                <div class="skeleton skeleton-text w-75"></div>
+            </div>
         </div>
     }
     else
@@ -29,7 +44,7 @@
                 <div class="card-premium h-100 overflow-hidden position-relative">
                     <div class="d-flex justify-content-between align-items-start mb-4">
                         <div>
-                            <span class="badge bg-success mb-2"><i class="bi bi-check-circle me-1"></i> Project Registered</span>
+                            <span class="badge bg-success mb-2"><i class="bi bi-check-circle me-1"></i> Proyecto Registrado</span>
                             <h2 class="h3 mb-0">@currentProject.Name</h2>
                         </div>
                         <i class="bi bi-trophy-fill text-warning fs-1 opacity-25"></i>
@@ -39,11 +54,11 @@
                     
                     <div class="mt-4 pt-3 border-top">
                         <div class="d-flex gap-2">
-                            <button class="btn-premium" @onclick='() => Navigation.NavigateTo($"/display/current")'>
-                                View My QR Code
+                            <button class="btn-premium" @onclick='() => Navigation.NavigateTo($"/display/{currentProject!.Id}")'>
+                                Ver Mi Código QR
                             </button>
                             <button class="btn btn-outline-secondary rounded-pill px-4" @onclick='() => Navigation.NavigateTo("/register")'>
-                                Edit Details
+                                Editar Detalles
                             </button>
                         </div>
                     </div>
@@ -53,11 +68,11 @@
             {
                 <div class="card-premium h-100 bg-primary text-white border-0">
                     <div class="mb-4">
-                        <h2 class="h3 mb-2">Ready to Start?</h2>
-                        <p class="opacity-75">You haven't registered a project yet. Register now to enable offline voting for your innovation.</p>
+                        <h2 class="h3 mb-2">¿Listo para comenzar?</h2>
+                        <p class="opacity-75">No has registrado ningún proyecto aún. Regístralo ahora para habilitar la votación sin conexión.</p>
                     </div>
                     <button class="btn btn-light btn-lg rounded-pill px-5 text-primary fw-bold" @onclick='() => Navigation.NavigateTo("/register")'>
-                        Register Project
+                        Registrar Proyecto
                     </button>
                     <i class="bi bi-rocket-takeoff position-absolute bottom-0 end-0 m-4 fs-1 opacity-25"></i>
                 </div>
@@ -67,15 +82,15 @@
         <!-- Quick Stats / Info -->
         <div class="col-md-5">
             <div class="card-premium h-100">
-                <h3 class="h5 mb-4 border-bottom pb-2">Nodus Insights</h3>
+                <h3 class="h5 mb-4 border-bottom pb-2">Información Nodus</h3>
                 
                 <div class="d-flex align-items-center mb-4">
                     <div class="bg-light p-3 rounded-circle me-3">
                         <i class="bi bi-cpu text-primary"></i>
                     </div>
                     <div>
-                        <div class="fw-bold">Firefly Protocol</div>
-                        <div class="text-muted small">Active in local mesh network</div>
+                        <div class="fw-bold">Protocolo Firefly</div>
+                        <div class="text-muted small">Activo en la red de malla (malla local)</div>
                     </div>
                 </div>
 
@@ -84,8 +99,8 @@
                         <i class="bi bi-cloud-check text-success"></i>
                     </div>
                     <div>
-                        <div class="fw-bold">Cloud Sync</div>
-                        <div class="text-muted small">Atlas DB is up to date</div>
+                        <div class="fw-bold">Sincronización Cloud</div>
+                        <div class="text-muted small">Atlas DB está actualizado</div>
                     </div>
                 </div>
 
@@ -94,8 +109,8 @@
                         <i class="bi bi-reception-4 text-info"></i>
                     </div>
                     <div>
-                        <div class="fw-bold">BLE Broadcast</div>
-                        <div class="text-muted small">Server is transmitting nodes</div>
+                        <div class="fw-bold">Emisión BLE</div>
+                        <div class="text-muted small">El servidor está transmitiendo nodos</div>
                     </div>
                 </div>
             </div>
@@ -109,11 +124,11 @@
                         <i class="bi bi-info-square-fill"></i>
                     </div>
                     <div>
-                        <h4 class="h5 fw-bold">About Nodus</h4>
+                        <h4 class="h5 fw-bold">Acerca de Nodus</h4>
                         <p class="mb-0 text-muted">
-                            Nodus is a decentralized evaluation ecosystem designed to work in disconnected environments. 
-                            Using the <strong>Firefly Protocol</strong>, projects and votes are synchronized via a 
-                            Bluetooth Low Energy (BLE) mesh, ensuring data integrity even without internet access.
+                            Nodus es un ecosistema de evaluación descentralizado diseñado para funcionar en entornos desconectados. 
+                            Utilizando el <strong>Protocolo Firefly</strong>, los proyectos y votos se sincronizan a través de una 
+                            red Bluetooth de Baja Energía (BLE), asegurando la integridad de los datos incluso sin acceso a internet.
                         </p>
                     </div>
                 </div>

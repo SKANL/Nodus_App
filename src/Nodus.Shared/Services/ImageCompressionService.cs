@@ -28,7 +28,7 @@ public class ImageCompressionService : IImageCompressionService
         {
             using var inputStream = new MemoryStream(originalImage);
             using var bitmap = SKBitmap.Decode(inputStream);
-            
+
             if (bitmap == null)
             {
                 _logger.LogWarning("Failed to decode image for compression");
@@ -38,7 +38,7 @@ public class ImageCompressionService : IImageCompressionService
             // Attempt 1: Just re-encode with high quality
             using var outputStream = new MemoryStream();
             bitmap.Encode(outputStream, SKEncodedImageFormat.Jpeg, MaxQuality);
-            
+
             if (outputStream.Length <= TargetSize)
             {
                 return outputStream.ToArray();
@@ -46,7 +46,7 @@ public class ImageCompressionService : IImageCompressionService
 
             // Attempt 2: Resize if too big (e.g. > 4MB or just simply massive)
             // Or Step down quality
-            
+
             int quality = MaxQuality;
             byte[] result = outputStream.ToArray();
 
@@ -64,7 +64,7 @@ public class ImageCompressionService : IImageCompressionService
                 // Resize to 75%
                 int newWidth = (int)(bitmap.Width * 0.75);
                 int newHeight = (int)(bitmap.Height * 0.75);
-                
+
                 using var scaled = bitmap.Resize(new SKImageInfo(newWidth, newHeight), new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Nearest));
                 if (scaled != null)
                 {

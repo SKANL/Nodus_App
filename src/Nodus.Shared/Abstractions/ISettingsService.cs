@@ -9,17 +9,17 @@ public interface ISettingsService
     /// Gets the current active event ID.
     /// </summary>
     Task<string?> GetCurrentEventIdAsync();
-    
+
     /// <summary>
     /// Sets the current active event ID.
     /// </summary>
     Task SetCurrentEventIdAsync(string eventId);
-    
+
     /// <summary>
     /// Gets a setting value by key.
     /// </summary>
     Task<string?> GetSettingAsync(string key);
-    
+
     /// <summary>
     /// Sets a setting value by key.
     /// </summary>

@@ -8,12 +8,12 @@ namespace Nodus.Web.Services;
 public class NodusApiService
 {
     private readonly HttpClient _http;
-    
+
     public NodusApiService(HttpClient http)
     {
         _http = http;
     }
-    
+
     public async Task<Result<List<Event>>> GetEventsAsync(CancellationToken ct = default)
     {
         try
@@ -26,7 +26,7 @@ public class NodusApiService
             return Result<List<Event>>.Failure($"Failed to fetch events from API: {ex.Message}");
         }
     }
-    
+
     public async Task<Result<List<Project>>> GetProjectsAsync(string eventId, CancellationToken ct = default)
     {
         try
@@ -39,7 +39,7 @@ public class NodusApiService
             return Result<List<Project>>.Failure($"Failed to fetch projects from API: {ex.Message}");
         }
     }
-    
+
     public async Task<Result<Project>> SaveProjectAsync(Project project, CancellationToken ct = default)
     {
         try

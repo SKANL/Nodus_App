@@ -2,43 +2,48 @@ using Blazored.LocalStorage;
 using Nodus.Shared.Abstractions;
 using Nodus.Shared.Common;
 using Nodus.Shared.Models;
-
 namespace Nodus.Web.Services;
 
+/// <summary>
+/// Blazor WASM implementation of IDatabaseService.
+/// Strategy: LocalStorage is the primary read cache; Nodus.Api is the sync source.
+/// All writes go to LocalStorage immediately (offline-first), then push to the API
+/// in a best-effort fire-and-forget task.
+/// </summary>
 public class WebDatabaseService : IDatabaseService
 {
     private readonly ILocalStorageService _localStorage;
     private readonly NodusApiService _apiService;
+
+    // Key used by SettingsService — read directly to avoid a circular DI dependency
+    // (WebDatabaseService → SettingsService → EventService → WebDatabaseService)
+    private const string CurrentEventIdKey = "CurrentEventId";
+
     private const string ProjectsKey = "nodus_projects";
     private const string VotesKey = "nodus_votes";
     private const string EventsKey = "nodus_events";
     private const string JudgesKey = "nodus_judges";
 
-    public WebDatabaseService(ILocalStorageService localStorage, NodusApiService apiService)
+    public WebDatabaseService(
+        ILocalStorageService localStorage,
+        NodusApiService apiService)
     {
         _localStorage = localStorage;
         _apiService = apiService;
     }
 
     // --- Projects ---
+
+    /// <summary>
+    /// Reads projects from localStorage only. Offline-first: never makes a network call.
+    /// Use GetProjectsAsync(eventId) to also trigger a cloud sync.
+    /// </summary>
     public async Task<Result<List<Project>>> GetAllProjectsAsync(CancellationToken ct = default)
     {
         try
         {
-            // 1. Return Local Cache first (Optimistic/Offline read)
-            var localProjects = await _localStorage.GetItemAsync<List<Project>>(ProjectsKey, ct) ?? new List<Project>();
-
-            // 2. Try to sync from API in the background. 
-            // In a Blazor Wasm app, we do it in foreground so the UI updates if network is available.
-            try
-            {
-                // We don't have eventId here, assume we fetch all or we skip.
-                // Wait, WebDatabaseService needs to fetch all. NodusApiService only has GetProjectsAsync(eventId).
-                // Let's use the local cache for now and wait for the specific GetProjectsAsync(eventId) call to sync.
-            }
-            catch { /* Ignore network errors */ }
-
-            return Result<List<Project>>.Success(localProjects);
+            var local = await _localStorage.GetItemAsync<List<Project>>(ProjectsKey, ct) ?? new List<Project>();
+            return Result<List<Project>>.Success(local);
         }
         catch (Exception ex)
         {
@@ -50,37 +55,53 @@ public class WebDatabaseService : IDatabaseService
     {
         var projects = await GetAllProjectsAsync(ct);
         if (!projects.IsSuccess) return Result<Project>.Failure(projects.Error);
-        
-        var project = projects.Value.FirstOrDefault(p => p.Id == id);
+
+        var project = (projects.Value ?? []).FirstOrDefault(p => p.Id == id);
         return project != null ? Result<Project>.Success(project) : Result<Project>.Failure($"Project {id} not found");
     }
 
+    /// <summary>
+    /// Returns projects for an event. Performs a single cloud sync before returning,
+    /// then falls back to localStorage on network failure.
+    /// </summary>
     public async Task<Result<List<Project>>> GetProjectsAsync(string eventId, CancellationToken ct = default)
     {
+        // Single sync point — no duplicate roundtrips
+        await SyncProjectsFromApiAsync(eventId, ct);
+
+        var allProjects = await GetAllProjectsAsync(ct);
+        if (!allProjects.IsSuccess) return Result<List<Project>>.Failure(allProjects.Error);
+
+        return Result<List<Project>>.Success(
+            (allProjects.Value ?? []).Where(p => p.EventId == eventId).ToList());
+    }
+
+    /// <summary>
+    /// Best-effort cloud sync: fetches projects for an event from the API and merges
+    /// into localStorage. Silently falls through on any network error.
+    /// </summary>
+    private async Task SyncProjectsFromApiAsync(string eventId, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(eventId)) return;
         try
         {
-            // Try fetch from Cloud API
-            var cloudProjects = await _apiService.GetProjectsAsync(eventId, ct);
-            if (cloudProjects.IsSuccess && cloudProjects.Value != null)
-            {
-                // Sync to Local Storage
-                var localProjects = await _localStorage.GetItemAsync<List<Project>>(ProjectsKey, ct) ?? new List<Project>();
-                foreach(var cp in cloudProjects.Value)
-                {
-                    var existing = localProjects.FirstOrDefault(p => p.Id == cp.Id);
-                    if (existing != null) localProjects.Remove(existing);
-                    localProjects.Add(cp);
-                }
-                await _localStorage.SetItemAsync(ProjectsKey, localProjects, ct);
-            }
-        }
-        catch { /* Fallback to local on network error */ }
+            var cloudResult = await _apiService.GetProjectsAsync(eventId, ct);
+            if (!cloudResult.IsSuccess || cloudResult.Value == null || cloudResult.Value.Count == 0)
+                return;
 
-        // Always return from Local Cache as source of truth
-        var projects = await GetAllProjectsAsync(ct);
-        if (!projects.IsSuccess) return Result<List<Project>>.Failure(projects.Error);
-        
-        return Result<List<Project>>.Success(projects.Value.Where(p => p.EventId == eventId).ToList());
+            var local = await _localStorage.GetItemAsync<List<Project>>(ProjectsKey, ct) ?? new List<Project>();
+            foreach (var cp in cloudResult.Value)
+            {
+                var idx = local.FindIndex(x => x.Id == cp.Id);
+                if (idx >= 0) local[idx] = cp;
+                else local.Add(cp);
+            }
+            await _localStorage.SetItemAsync(ProjectsKey, local, ct);
+        }
+        catch
+        {
+            // Network failure is expected when offline — localStorage remains the source of truth
+        }
     }
 
     public async Task<Result> SaveProjectAsync(Project project, CancellationToken ct = default)
@@ -94,9 +115,9 @@ public class WebDatabaseService : IDatabaseService
             await _localStorage.SetItemAsync(ProjectsKey, projects, ct);
 
             // Sync with Nodus API (Background/Best-effort)
-            _ = Task.Run(async () => 
+            _ = Task.Run(async () =>
             {
-                try 
+                try
                 {
                     await _apiService.SaveProjectAsync(project);
                 }
@@ -137,14 +158,14 @@ public class WebDatabaseService : IDatabaseService
     {
         var votes = await GetAllVotesAsync(ct);
         if (!votes.IsSuccess) return Result<List<Vote>>.Failure(votes.Error);
-        return Result<List<Vote>>.Success(votes.Value.Where(v => v.ProjectId == projectId).ToList());
+        return Result<List<Vote>>.Success((votes.Value ?? []).Where(v => v.ProjectId == projectId).ToList());
     }
 
     public async Task<Result<Vote>> GetVoteByIdAsync(string id, CancellationToken ct = default)
     {
         var votes = await GetAllVotesAsync(ct);
         if (!votes.IsSuccess) return Result<Vote>.Failure(votes.Error);
-        var vote = votes.Value.FirstOrDefault(v => v.Id == id);
+        var vote = (votes.Value ?? []).FirstOrDefault(v => v.Id == id);
         return vote != null ? Result<Vote>.Success(vote) : Result<Vote>.Failure($"Vote {id} not found");
     }
 
@@ -169,22 +190,22 @@ public class WebDatabaseService : IDatabaseService
     {
         var votes = await GetAllVotesAsync(ct);
         if (!votes.IsSuccess) return Result<List<Vote>>.Failure(votes.Error);
-        return Result<List<Vote>>.Success(votes.Value.Where(v => v.Status == SyncStatus.Pending).ToList());
+        return Result<List<Vote>>.Success((votes.Value ?? []).Where(v => v.Status == SyncStatus.Pending).ToList());
     }
 
     public async Task<Result<List<Vote>>> GetVotesWithPendingMediaAsync(CancellationToken ct = default)
     {
         var votes = await GetAllVotesAsync(ct);
         if (!votes.IsSuccess) return Result<List<Vote>>.Failure(votes.Error);
-        return Result<List<Vote>>.Success(votes.Value.Where(v => !v.IsMediaSynced && !string.IsNullOrEmpty(v.LocalPhotoPath)).ToList());
+        return Result<List<Vote>>.Success((votes.Value ?? []).Where(v => !v.IsMediaSynced && !string.IsNullOrEmpty(v.LocalPhotoPath)).ToList());
     }
 
     public async Task<Result<SyncStats>> GetSyncStatsAsync(CancellationToken ct = default)
     {
         var votesResult = await GetAllVotesAsync(ct);
         if (!votesResult.IsSuccess) return Result<SyncStats>.Failure(votesResult.Error);
-        
-        var votes = votesResult.Value;
+
+        var votes = votesResult.Value ?? [];
         return Result<SyncStats>.Success(new SyncStats
         {
             TotalVotes = votes.Count,
@@ -212,7 +233,7 @@ public class WebDatabaseService : IDatabaseService
     {
         var events = await GetEventsAsync(ct);
         if (!events.IsSuccess) return Result<Event>.Failure(events.Error);
-        var evt = events.Value.FirstOrDefault(e => e.Id == id);
+        var evt = (events.Value ?? []).FirstOrDefault(e => e.Id == id);
         return evt != null ? Result<Event>.Success(evt) : Result<Event>.Failure($"Event {id} not found");
     }
 

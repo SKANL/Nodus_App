@@ -14,7 +14,7 @@
                 <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Center">
                     <Label Text="NODUS" FontSize="11" FontAttributes="Bold"
                            CharacterSpacing="3" TextColor="#6366F1" />
-                    <Label Text="{Binding EventName, TargetNullValue='No event active'}"
+                    <Label Text="{Binding EventName, TargetNullValue='Sin evento activo'}"
                            FontSize="22" FontAttributes="Bold" TextColor="White" />
                 </VerticalStackLayout>
 
@@ -69,7 +69,7 @@
                         <Label Text="{Binding PendingVoteCount}" FontSize="28"
                                FontAttributes="Bold" TextColor="#F59E0B"
                                HorizontalOptions="Center" />
-                        <Label Text="PENDING" FontSize="10" FontAttributes="Bold"
+                        <Label Text="PENDIENTES" FontSize="10" FontAttributes="Bold"
                                CharacterSpacing="1.5" TextColor="#64748B"
                                HorizontalOptions="Center" />
                     </VerticalStackLayout>
@@ -83,7 +83,7 @@
                         <Label Text="{Binding SyncedVoteCount}" FontSize="28"
                                FontAttributes="Bold" TextColor="#22C55E"
                                HorizontalOptions="Center" />
-                        <Label Text="SYNCED" FontSize="10" FontAttributes="Bold"
+                        <Label Text="SINCRONIZADOS" FontSize="10" FontAttributes="Bold"
                                CharacterSpacing="1.5" TextColor="#64748B"
                                HorizontalOptions="Center" />
                     </VerticalStackLayout>
@@ -98,7 +98,7 @@
                         BackgroundColor="#6366F1"
                         IsVisible="{Binding IsJudgeRegistered, Converter={StaticResource InvertedBoolConverter}}"
                         Padding="0">
-                    <Button Text="🔑  Scan Judge Access QR"
+                    <Button Text="🔑  Escanear QR de Juez"
                             Command="{Binding NavigateToRegistrationCommand}"
                             BackgroundColor="Transparent"
                             TextColor="White"
@@ -112,7 +112,7 @@
                         BackgroundColor="#6366F1"
                         IsVisible="{Binding IsJudgeRegistered}"
                         Padding="0">
-                    <Button Text="📷  Scan Project QR to Vote"
+                    <Button Text="📷  Escanear Proyecto para Votar"
                             Command="{Binding NavigateToScanCommand}"
                             BackgroundColor="Transparent"
                             TextColor="White"
@@ -128,7 +128,7 @@
                         BackgroundColor="Transparent"
                         IsVisible="{Binding IsSyncing}"
                         Padding="0">
-                    <Button Text="⏳  Syncing votes..."
+                    <Button Text="⏳  Sincronizando votos..."
                             BackgroundColor="Transparent"
                             TextColor="#F59E0B"
                             FontSize="15"
@@ -143,9 +143,9 @@
             <VerticalStackLayout Spacing="12" Margin="16,8,16,32"
                                  HorizontalOptions="Center"
                                  IsVisible="{Binding IsJudgeRegistered, Converter={StaticResource InvertedBoolConverter}}">
-                <Label Text="Welcome to Nodus" FontSize="20" FontAttributes="Bold"
+                <Label Text="Bienvenido a Nodus" FontSize="20" FontAttributes="Bold"
                        TextColor="White" HorizontalOptions="Center" />
-                <Label Text="Scan the event QR code projected on screen to register as a judge and start evaluating projects."
+                <Label Text="Escanea el código QR del evento proyectado para registrarte como juez y comenzar a evaluar proyectos."
                        FontSize="14" TextColor="#64748B"
                        HorizontalOptions="Center"
                        HorizontalTextAlignment="Center"
@@ -159,11 +159,11 @@
                     BackgroundColor="#1E293B" Padding="20,16"
                     IsVisible="{Binding IsJudgeRegistered}">
                 <VerticalStackLayout Spacing="6">
-                    <Label Text="JUDGE" FontSize="10" FontAttributes="Bold"
+                    <Label Text="JUEZ" FontSize="10" FontAttributes="Bold"
                            CharacterSpacing="2" TextColor="#6366F1" />
                     <Label Text="{Binding JudgeName}"
                            FontSize="20" FontAttributes="Bold" TextColor="White" />
-                    <Label Text="Tap 'Scan Project QR' to start evaluating projects."
+                    <Label Text="Toca 'Escanear Proyecto' para comenzar a evaluar."
                            FontSize="13" TextColor="#64748B" />
                 </VerticalStackLayout>
             </Border>

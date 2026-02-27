@@ -29,7 +29,7 @@ public class SettingsService : ISettingsService
         {
             return eventId;
         }
-        
+
         // 2. Otherwise discovery from EventService
         var activeEvent = await _eventService.GetActiveEventAsync();
         if (activeEvent != null)
@@ -60,7 +60,7 @@ public class SettingsService : ISettingsService
         {
             return Task.FromResult<string?>(value);
         }
-        
+
         return Task.FromResult<string?>(null);
     }
 

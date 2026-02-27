@@ -3,99 +3,112 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Nodus.Client.ViewModels"
              x:Class="Nodus.Client.Views.SettingsPage"
-             Title="Settings">
+             Title="Ajustes"
+             BackgroundColor="#0F172A">
 
     <ScrollView>
-        <VerticalStackLayout Spacing="25" Padding="30">
+        <VerticalStackLayout Spacing="16" Padding="16,40,16,24">
 
-            <Label Text="Sync Status"
-                   Style="{StaticResource Headline}" />
+            <!-- ══ HEADER ══════════════════════════════════════════════ -->
+            <Label Text="Sincronización" FontSize="22" FontAttributes="Bold" TextColor="White" Margin="8,0,0,4" />
 
             <!-- Sync Statistics Card -->
-            <Frame BorderColor="{StaticResource Primary}" 
-                   CornerRadius="10" 
-                   Padding="15"
-                   HasShadow="True">
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="Sync Statistics" 
-                           FontSize="18" 
-                           FontAttributes="Bold" />
+            <Border StrokeShape="RoundRectangle 16"
+                    StrokeThickness="1" Stroke="#1E293B"
+                    BackgroundColor="#1E293B"
+                    Padding="20,16">
+                <VerticalStackLayout Spacing="16">
+                    <Label Text="Estadísticas de Sincronización" 
+                           FontSize="17" FontAttributes="Bold" TextColor="White" />
                     
-                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="8">
-                        <Label Grid.Row="0" Grid.Column="0" Text="Pending Votes:" />
+                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="12">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Votos Pendientes:" TextColor="#94A3B8" FontSize="14" />
                         <Label Grid.Row="0" Grid.Column="1" 
                                Text="{Binding PendingVotesCount}" 
-                               FontAttributes="Bold"
-                               TextColor="{StaticResource Primary}" />
+                               FontAttributes="Bold" FontSize="14"
+                               TextColor="#F59E0B" />
                         
-                        <Label Grid.Row="1" Grid.Column="0" Text="Pending Media:" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="Archivos Pendientes:" TextColor="#94A3B8" FontSize="14" />
                         <Label Grid.Row="1" Grid.Column="1" 
                                Text="{Binding PendingMediaCount}" 
-                               FontAttributes="Bold"
-                               TextColor="{StaticResource Primary}" />
+                               FontAttributes="Bold" FontSize="14"
+                               TextColor="#F59E0B" />
                         
-                        <Label Grid.Row="2" Grid.Column="0" Text="Overall Sync:" />
+                        <Label Grid.Row="2" Grid.Column="0" Text="Sincronización Total:" TextColor="#94A3B8" FontSize="14" />
                         <Label Grid.Row="2" Grid.Column="1" 
                                Text="{Binding SyncStatsText}" 
-                               FontAttributes="Bold"
-                               TextColor="{StaticResource Primary}" />
+                               FontAttributes="Bold" FontSize="14"
+                               TextColor="#22C55E" />
                     </Grid>
 
-                    <Button Text="↻ Refresh Stats"
-                            Command="{Binding RefreshStatsCommand}"
+                    <Border StrokeShape="RoundRectangle 10"
+                            StrokeThickness="1" Stroke="#6366F1"
                             BackgroundColor="Transparent"
-                            TextColor="{StaticResource Primary}"
-                            BorderColor="{StaticResource Primary}"
-                            BorderWidth="1"
-                            HeightRequest="35"
-                            FontSize="14" />
+                            Padding="0">
+                        <Button Text="↻  Refrescar Estadísticas"
+                                Command="{Binding RefreshStatsCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="#6366F1"
+                                HeightRequest="40"
+                                FontSize="14" FontAttributes="Bold"
+                                CornerRadius="10" />
+                    </Border>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
 
-            <BoxView HeightRequest="1" Color="LightGray" />
+            <!-- ═══════════════════════════════════════════════════════ -->
+            <BoxView HeightRequest="1" Color="#1E293B" Margin="0,4" />
 
-            <Label Text="Developer Options"
-                   Style="{StaticResource Headline}" />
+            <Label Text="Opciones de Desarrollador" FontSize="22" FontAttributes="Bold" TextColor="White" Margin="8,0,0,4" />
 
-            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" ColumnSpacing="10" RowSpacing="10">
-                
-                <Label Grid.Row="0" Grid.Column="0" 
-                       Text="Media Sync (Force Mode)"
-                       VerticalOptions="Center" 
-                       FontSize="16"/>
+            <!-- Media Sync Card -->
+            <Border StrokeShape="RoundRectangle 16"
+                    StrokeThickness="1" Stroke="#1E293B"
+                    BackgroundColor="#1E293B"
+                    Padding="20,16">
+                <VerticalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                        <Label Grid.Column="0" 
+                               Text="Media Sync (Force Mode)"
+                               VerticalOptions="Center" 
+                               FontSize="15" TextColor="#CBD5E1" />
 
-                <Button Grid.Row="0" Grid.Column="1"
-                        Text="Trigger Sync"
-                        Command="{Binding ForceMediaSyncCommand}"
-                        IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
-                        BackgroundColor="{StaticResource Primary}"
-                        TextColor="White"/>
+                        <Button Grid.Column="1"
+                                Text="Trigger Sync"
+                                Command="{Binding ForceMediaSyncCommand}"
+                                IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                                BackgroundColor="#6366F1"
+                                TextColor="White"
+                                CornerRadius="10"
+                                HeightRequest="38"
+                                FontSize="13" FontAttributes="Bold"
+                                Padding="16,0" />
+                    </Grid>
 
-                <StackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Spacing="5">
                     <ProgressBar Progress="{Binding SyncProgress}" 
                                  IsVisible="{Binding IsSyncing}"
-                                 ProgressColor="{StaticResource Primary}" />
-                    
-                    <StackLayout Orientation="Horizontal" HorizontalOptions="End" Spacing="10">
+                                 ProgressColor="#6366F1" />
+
+                    <HorizontalStackLayout HorizontalOptions="End" Spacing="8">
                         <ActivityIndicator IsRunning="{Binding IsSyncing}" 
                                            IsVisible="{Binding IsSyncing}"
-                                           HeightRequest="20" WidthRequest="20" 
-                                           Color="{StaticResource Primary}"/>
+                                           HeightRequest="18" WidthRequest="18" 
+                                           Color="#6366F1" />
                         <Label Text="{Binding StatusMessage}"
-                               TextColor="Gray"
-                               FontSize="14"
+                               TextColor="#64748B"
+                               FontSize="13"
                                VerticalOptions="Center" />
-                    </StackLayout>
-                </StackLayout>
-            
-            </Grid>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
 
-            <BoxView HeightRequest="1" Color="LightGray" />
+            <!-- ═══════════════════════════════════════════════════════ -->
+            <BoxView HeightRequest="1" Color="#1E293B" Margin="0,4" />
 
-            <Label Text="About"
-                   Style="{StaticResource SubHeadline}" />
+            <Label Text="Acerca de" FontSize="18" FontAttributes="Bold" TextColor="#CBD5E1" Margin="8,0,0,4" />
             
-            <Label Text="Nodus Client v1.0 (Offline Mode)" 
+            <Label Text="Nodus Client v1.0 — Modo Offline First" 
+                   TextColor="#64748B" FontSize="13"
                    HorizontalOptions="Center" />
 
         </VerticalStackLayout>

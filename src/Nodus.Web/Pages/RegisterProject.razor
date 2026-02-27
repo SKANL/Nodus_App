@@ -5,17 +5,17 @@
 @inject EventService EventService
 @inject NavigationManager Navigation
 
-<PageTitle>Register Project | Nodus</PageTitle>
+<PageTitle>Registro de Proyecto | Nodus</PageTitle>
 
 <div class="row justify-content-center">
     <div class="col-12 col-lg-8">
         <div class="card-premium">
             <div class="mb-5 text-center">
-                <h1 class="display-5 mb-2">@(isEditMode ? "Edit Project" : "Project Registration")</h1>
-                <p class="text-muted lead">@(isEditMode ? "Update your project details below." : "Join the Nodus network and share your innovation.")</p>
+                <h1 class="display-5 mb-2">@(isEditMode ? "Editar Proyecto" : "Registro de Proyecto")</h1>
+                <p class="text-muted lead">@(isEditMode ? "Actualiza los detalles de tu proyecto a continuación." : "Únete a la red Nodus y comparte tu innovación.")</p>
                 <div class="d-flex justify-content-center mt-3">
                     <span class="badge bg-light text-primary border px-3 py-2 rounded-pill">
-                        <i class="bi bi-shield-check me-1"></i> Data saved locally & synced to Atlas
+                        <i class="bi bi-shield-check me-1"></i> Datos guardados localmente y sincronizados con Atlas
                     </span>
                 </div>
             </div>
@@ -26,15 +26,15 @@
                 <div class="row g-4">
                     <div class="col-md-7">
                         <div class="form-group-premium">
-                            <label class="form-label-premium">Project Name</label>
-                            <InputText @bind-Value="project.Name" class="form-control-premium w-100" placeholder="e.g. AI-Powered Drone" />
+                            <label class="form-label-premium">Nombre del Proyecto</label>
+                            <InputText @bind-Value="project.Name" class="form-control-premium w-100" placeholder="Ej. Dron impulsado por IA" />
                             <ValidationMessage For="@(() => project.Name)" class="text-danger small mt-1" />
                         </div>
                     </div>
 
                     <div class="col-md-5">
                         <div class="form-group-premium">
-                            <label class="form-label-premium">Category</label>
+                            <label class="form-label-premium">Categoría</label>
                             <InputSelect @bind-Value="project.Category" class="form-control-premium w-100">
                                 @if (categories != null)
                                 {
@@ -43,23 +43,23 @@
                                         <option value="@cat">@cat</option>
                                     }
                                 }
-                                <option value="Other">Other</option>
+                                <option value="Otra">Otra</option>
                             </InputSelect>
                         </div>
                     </div>
 
                     <div class="col-12">
                         <div class="form-group-premium">
-                            <label class="form-label-premium">Project Description</label>
+                            <label class="form-label-premium">Descripción del Proyecto</label>
                             <InputTextArea @bind-Value="project.Description" class="form-control-premium w-100" 
-                                           rows="4" placeholder="Briefly describe what your project does..." />
+                                           rows="4" placeholder="Describe brevemente qué hace tu proyecto..." />
                             <ValidationMessage For="@(() => project.Description)" class="text-danger small mt-1" />
                         </div>
                     </div>
 
                     <div class="col-md-6">
                         <div class="form-group-premium">
-                            <label class="form-label-premium">Authors</label>
+                            <label class="form-label-premium">Autores</label>
                             <InputText @bind-Value="project.Authors" class="form-control-premium w-100" placeholder="Alice, Bob, Charlie" />
                             <ValidationMessage For="@(() => project.Authors)" class="text-danger small mt-1" />
                         </div>
@@ -67,7 +67,7 @@
 
                     <div class="col-md-6">
                         <div class="form-group-premium">
-                            <label class="form-label-premium">GitHub URL (Optional)</label>
+                            <label class="form-label-premium">URL de GitHub (Opcional)</label>
                             <InputText @bind-Value="project.GithubUrl" class="form-control-premium w-100" placeholder="https://github.com/..." />
                         </div>
                     </div>
@@ -75,17 +75,17 @@
 
                 <div class="mt-5 pt-3 border-top d-flex justify-content-between align-items-center">
                     <div class="text-muted small">
-                        <i class="bi bi-info-circle me-1"></i> Fields marked as required must be filled.
+                        <i class="bi bi-info-circle me-1"></i> Los campos marcados como requeridos deben ser completados.
                     </div>
                     <button type="submit" class="btn-premium px-5" disabled="@isSubmitting">
                         @if (isSubmitting)
                         {
                             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                            <span>Registering...</span>
+                            <span>Registrando...</span>
                         }
                         else
                         {
-                            <span>@(isEditMode ? "Update Project" : "Register Project")</span>
+                            <span>@(isEditMode ? "Actualizar Proyecto" : "Registrar Proyecto")</span>
                         }
                     </button>
                 </div>

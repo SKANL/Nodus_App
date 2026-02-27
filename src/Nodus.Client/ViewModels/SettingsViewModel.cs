@@ -14,7 +14,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     private readonly ILogger<SettingsViewModel> _logger;
 
     [ObservableProperty]
-    private string _statusMessage = "Ready";
+    private string _statusMessage = "Listo";
 
     [ObservableProperty]
     private double _syncProgress;
@@ -32,17 +32,17 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     private int _pendingMediaCount;
 
     [ObservableProperty]
-    private string _syncStatsText = "Loading...";
+    private string _syncStatsText = "Cargando...";
 
     public SettingsViewModel(
-        MediaSyncService mediaSyncService, 
+        MediaSyncService mediaSyncService,
         IDatabaseService databaseService,
         ILogger<SettingsViewModel> logger)
     {
         _mediaSyncService = mediaSyncService;
         _databaseService = databaseService;
         _logger = logger;
-        
+
         // Subscribe to events
         _mediaSyncService.SyncStatusChanged += OnSyncStatusChanged;
         _mediaSyncService.SyncProgressChanged += OnSyncProgressChanged;
@@ -62,20 +62,20 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
                 var stats = statsResult.Value;
                 PendingVotesCount = stats.PendingVotes;
                 PendingMediaCount = stats.PendingMedia;
-                SyncStatsText = $"{stats.SyncedVotes}/{stats.TotalVotes} synced ({stats.SyncPercentage:F0}%)";
+                SyncStatsText = $"{stats.SyncedVotes}/{stats.TotalVotes} sincronizados ({stats.SyncPercentage:F0}%)";
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to load sync stats");
-            SyncStatsText = "Error loading stats";
+            SyncStatsText = "Error al cargar estadísticas";
         }
     }
 
     private void OnSyncStatusChanged(object? sender, string status)
     {
         // Ensure UI update on MainThread
-        MainThread.BeginInvokeOnMainThread(() => 
+        MainThread.BeginInvokeOnMainThread(() =>
         {
             StatusMessage = status;
             // Reload stats when sync completes
@@ -90,7 +90,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     {
         MainThread.BeginInvokeOnMainThread(() => SyncProgress = progress);
     }
-    
+
     private void OnSyncStateChanged(object? sender, bool isSyncing)
     {
         MainThread.BeginInvokeOnMainThread(() => IsSyncing = isSyncing);
@@ -104,30 +104,30 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         IsBusy = true;
         IsSyncing = true;
         SyncProgress = 0;
-        StatusMessage = "Starting Manual Sync...";
+        StatusMessage = "Iniciando Sincronización Manual...";
         try
         {
             if (!_mediaSyncService.IsConnected)
             {
-                StatusMessage = "Error: Bluetooth not connected";
+                StatusMessage = "Error: Bluetooth no conectado";
                 var errorPage = Application.Current?.Windows[0].Page;
                 if (errorPage != null)
                 {
-                    await errorPage.DisplayAlertAsync("Error", "Please connect to a Nodus Server first.", "OK");
+                    await errorPage.DisplayAlertAsync("Error", "Primero conéctate a un Servidor Nodus.", "OK");
                 }
                 return;
             }
 
-            StatusMessage = "Starting Manual Sync...";
+            StatusMessage = "Iniciando Sincronización Manual...";
             // CheckAndSyncAsync uses RSSI threshold, but for manual sync we might want to bypass or use a lenient one.
             // Using -90dBm for manual override to ensure it tries even with weak signal if user requested.
             await _mediaSyncService.CheckAndSyncAsync(-90);
-            
-            StatusMessage = "Sync process completed.";
+
+            StatusMessage = "Proceso de sincronización completado.";
             var successPage = Application.Current?.Windows[0].Page;
             if (successPage != null)
             {
-                await successPage.DisplayAlertAsync("Sync Complete", "Media sync process finished.", "OK");
+                await successPage.DisplayAlertAsync("Sincronización Completa", "El proceso de sincronización de archivos ha finalizado.", "OK");
             }
         }
         catch (Exception ex)
@@ -137,7 +137,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
             var exceptionPage = Application.Current?.Windows[0].Page;
             if (exceptionPage != null)
             {
-                await exceptionPage.DisplayAlertAsync("Error", $"Sync Failed: {ex.Message}", "OK");
+                await exceptionPage.DisplayAlertAsync("Error", $"Sincronización Fallida: {ex.Message}", "OK");
             }
         }
         finally

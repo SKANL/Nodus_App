@@ -13,10 +13,10 @@ public class PacketTracker
     private const int MaxCacheSize = 10000;
     // Thread-safe dictionary: PacketID -> ExpiryTime
     private readonly ConcurrentDictionary<string, DateTime> _seenPackets = new();
-    
+
     // How long to remember a packet
     private readonly TimeSpan _retentionPeriod = TimeSpan.FromMinutes(10);
-    
+
     // Cleanup interval
     private DateTime _lastCleanup = DateTime.MinValue;
     private readonly TimeSpan _cleanupInterval = TimeSpan.FromMinutes(1);
@@ -71,7 +71,7 @@ public class PacketTracker
             if (now - _lastCleanup < _cleanupInterval) return; // Double-check locking pattern
 
             _lastCleanup = now;
-            
+
             // Remove expired entries
             foreach (var kvp in _seenPackets)
             {

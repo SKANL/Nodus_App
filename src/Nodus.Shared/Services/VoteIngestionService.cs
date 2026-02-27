@@ -32,7 +32,7 @@ public class VoteIngestionService
     public async Task<byte[]?> ProcessPayloadAsync(byte[] payload)
     {
         if (payload == null || payload.Length < 1) return null;
-        
+
         byte type = payload[0];
 
         try
@@ -77,8 +77,8 @@ public class VoteIngestionService
         _logger.LogInformation("Received Media for Vote {VoteId} ({Size} bytes)", voteId, imageBytes.Length);
 
         // 1. Verify Vote Exists
-        var voteResult = await _db.GetVoteByIdAsync(voteId); 
-        
+        var voteResult = await _db.GetVoteByIdAsync(voteId);
+
         string targetFolder;
         // Simplified Logic: We need to store it regardless
         if (voteResult.IsSuccess && voteResult.Value != null)
@@ -97,7 +97,7 @@ public class VoteIngestionService
             // Let's stick to the original logic but we need the path.
             // I'll add `GetAppDataPath()` to `IFileService`?
             // Or just use `System.Environment.GetFolderPath(...)`.
-            
+
             // Let's use a safe default for now.
             targetFolder = Path.Combine(_fileService.GetAppDataDirectory(), "Media", eventId);
         }
@@ -105,11 +105,11 @@ public class VoteIngestionService
         {
             targetFolder = Path.Combine(_fileService.GetAppDataDirectory(), "Media", "Orphaned");
         }
-        
+
         _fileService.CreateDirectory(targetFolder);
         string fileName = $"{voteId}.jpg";
         string path = Path.Combine(targetFolder, fileName);
-        
+
         await _fileService.WriteAllBytesAsync(path, imageBytes);
         _logger.LogInformation("Saved media to {Path}", path);
 
@@ -121,11 +121,11 @@ public class VoteIngestionService
             vote.IsMediaSynced = true;
             await _db.SaveVoteAsync(vote);
             _logger.LogInformation("Updated Vote {VoteId} with media path", voteId);
-            
+
             // Return ACK payload
             return CreateAckPayload(voteId);
         }
-        
+
         return null;
     }
 
@@ -148,28 +148,28 @@ public class VoteIngestionService
 
         if (packet.EncryptedPayload != null && packet.EncryptedPayload.Length > 0 && _currentEventAesKey != null)
         {
-             try 
-             {
-                 var decryptedBytes = CryptoHelper.Decrypt(packet.EncryptedPayload, _currentEventAesKey);
-                 var decryptedJson = Encoding.UTF8.GetString(decryptedBytes);
-                 
-                 if (packet.Type == MessageType.Vote)
-                 {
-                      var vote = JsonSerializer.Deserialize<Vote>(decryptedJson);
-                      if (vote != null)
-                      {
-                          vote.SyncedAtUtc = DateTime.UtcNow;
-                          await _db.SaveVoteAsync(vote);
-                          await _aggregator.ProcessVoteAsync(vote);
-                          _logger.LogInformation("Successfully ingested Vote {VoteId} for Project {ProjectId} from Judge {JudgeId}", 
-                              vote.Id, vote.ProjectId, vote.JudgeId);
-                      }
-                 }
-             }
-             catch (Exception decEx)
-             {
-                 _logger.LogWarning(decEx, "Decryption failed");
-             }
+            try
+            {
+                var decryptedBytes = CryptoHelper.Decrypt(packet.EncryptedPayload, _currentEventAesKey);
+                var decryptedJson = Encoding.UTF8.GetString(decryptedBytes);
+
+                if (packet.Type == MessageType.Vote)
+                {
+                    var vote = JsonSerializer.Deserialize<Vote>(decryptedJson);
+                    if (vote != null)
+                    {
+                        vote.SyncedAtUtc = DateTime.UtcNow;
+                        await _db.SaveVoteAsync(vote);
+                        await _aggregator.ProcessVoteAsync(vote);
+                        _logger.LogInformation("Successfully ingested Vote {VoteId} for Project {ProjectId} from Judge {JudgeId}",
+                            vote.Id, vote.ProjectId, vote.JudgeId);
+                    }
+                }
+            }
+            catch (Exception decEx)
+            {
+                _logger.LogWarning(decEx, "Decryption failed");
+            }
         }
     }
 }

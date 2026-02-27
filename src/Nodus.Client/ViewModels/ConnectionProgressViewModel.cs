@@ -27,9 +27,27 @@ public partial class ConnectionProgressViewModel : ObservableObject
 
     public async void OnNavigatedTo()
     {
-        _connectionSub = _bleService.ConnectionState.Subscribe(state => 
+        try
         {
-            MainThread.BeginInvokeOnMainThread(() => 
+            await OnNavigatedToCoreAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unhandled exception in ConnectionProgressViewModel.OnNavigatedTo");
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                StatusMessage = "Error inesperado";
+                DetailMessage = ex.Message;
+                IsConnecting = false;
+            });
+        }
+    }
+
+    private async Task OnNavigatedToCoreAsync()
+    {
+        _connectionSub = _bleService.ConnectionState.Subscribe(state =>
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
             {
                 if (state == "Connected")
                 {
@@ -45,33 +63,32 @@ public partial class ConnectionProgressViewModel : ObservableObject
                 }
             });
         });
-        
-        // Start scanning (triggered from here or previous page, ensure it starts)
+
         var startResult = await _bleService.StartScanningForServerAsync();
         if (startResult.IsFailure)
         {
-            MainThread.BeginInvokeOnMainThread(() => 
+            MainThread.BeginInvokeOnMainThread(() =>
             {
                 StatusMessage = "Error de Bluetooth";
-                DetailMessage = startResult.Error;
+                DetailMessage = startResult.Error ?? "No se puede iniciar el escanéo BLE. Verifica que el Bluetooth esté habilitado.";
                 IsConnecting = false;
             });
+            return;
         }
 
-        // Timeout check after 15s
-        _ = Task.Run(async () => 
+        // Timeout check — 15 seconds is generous for BLE discovery
+        _ = Task.Delay(TimeSpan.FromSeconds(15)).ContinueWith(_ =>
         {
-            await Task.Delay(15000);
             if (!IsConnected && IsConnecting)
             {
-                MainThread.BeginInvokeOnMainThread(() => 
+                MainThread.BeginInvokeOnMainThread(() =>
                 {
                     StatusMessage = "Tiempo de espera agotado";
-                    DetailMessage = "No se pudo conectar con el servidor.";
+                    DetailMessage = "No se pudo conectar con el servidor. Asegúrate de estar cerca.";
                     IsConnecting = false;
                 });
             }
-        });
+        }, TaskScheduler.Default);
     }
 
     public void OnNavigatedFrom()

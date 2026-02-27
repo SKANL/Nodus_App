@@ -53,12 +53,12 @@ public static class ChunkHelper
     public static List<byte[]> Split(byte[] payload, byte messageId, int maxChunkSize = DEFAULT_CHUNK_SIZE)
     {
         var chunks = new List<byte[]>();
-        
+
         // 1. Calculate chunks required
         // We use (maxChunkSize - 0) for data because Chunk 0 is purely Header? 
         // Docs say: "Sender writes Chunk 0 (Header). Sender writes Chunk 1..N (Data)"
         // So Header is its own standalone packet.
-        
+
         var totalChunks = (int)Math.Ceiling((double)payload.Length / maxChunkSize);
         if (totalChunks > 255) throw new ArgumentException("Payload too large for 1-byte chunk count");
 
@@ -77,7 +77,7 @@ public static class ChunkHelper
         {
             var offset = i * maxChunkSize;
             var length = Math.Min(maxChunkSize, payload.Length - offset);
-            
+
             // We could prepend a mini-header (msgId + index) to every chunk for robustness out-of-order,
             // but the docs describe a "Burst" logic where order is assumed or managed by L2cap/GATT ordering.
             // "Sender writes Chunk 1..N in a burst".
@@ -93,7 +93,7 @@ public static class ChunkHelper
             // Packet 0: [HeaderStruct]
             // Packet 1: [Data...]
             // Packet 2: [Data...]
-            
+
             var chunk = new byte[length];
             Array.Copy(payload, offset, chunk, 0, length);
             chunks.Add(chunk);
@@ -117,9 +117,9 @@ public class ChunkAssembler
         {
             // Heuristic: Is this a Header?
             // Size of Header is: 1+1+1+2 = 5 bytes.
-            if (data.Length == 5) 
+            if (data.Length == 5)
             {
-                try 
+                try
                 {
                     var possibleHeader = ChunkHeader.FromBytes(data);
                     if (possibleHeader.ChunkIndex == 0 && possibleHeader.TotalChunks > 0)

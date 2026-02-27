@@ -13,10 +13,10 @@ public class LocalDatabaseService : IDatabaseService, IDisposable
     {
         var dir = fileService.GetAppDataDirectory();
         fileService.CreateDirectory(dir);
-        
+
         var dbPath = Path.Combine(dir, "nodus_mobile.db");
         _db = new LiteDatabase(dbPath);
-        
+
         // Ensure indices
         _db.GetCollection<Event>("events").EnsureIndex(x => x.IsActive);
         _db.GetCollection<Vote>("votes").EnsureIndex(x => x.ProjectId);
