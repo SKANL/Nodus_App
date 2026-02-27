@@ -8,17 +8,17 @@ namespace Nodus.Web.Services;
 
 public class EventService
 {
-    private readonly MongoDataApiService _atlasApi;
+    private readonly BackendApiService _api;
     private readonly IDatabaseService _localDb;
     private readonly ILogger<EventService> _logger;
     private Event? _activeEvent;
 
     public EventService(
-        MongoDataApiService atlasApi, 
+        BackendApiService api, 
         IDatabaseService localDb,
         ILogger<EventService> logger)
     {
-        _atlasApi = atlasApi;
+        _api = api;
         _localDb = localDb;
         _logger = logger;
     }
@@ -28,7 +28,7 @@ public class EventService
         if (_activeEvent != null) return _activeEvent;
 
         // 1. Try to find an active event in cloud
-        var cloudResult = await _atlasApi.GetEventsAsync();
+        var cloudResult = await _api.GetEventsAsync();
         if (cloudResult.IsSuccess && cloudResult.Value.Any())
         {
             // Pick the first active event, or the last updated one

@@ -20,7 +20,14 @@ builder.Services.AddScoped<EventService>();
 
 builder.Services.AddScoped<ProjectService>();
 builder.Services.AddScoped<QrGeneratorService>();
-builder.Services.AddScoped<MongoDataApiService>();
+
+// Configure HttpClient for Backend API communication
+builder.Services.AddHttpClient<BackendApiService>(client => 
+{
+    // Point this to Nodus.Api using HTTP to avoid local SSL certificate errors in the browser
+    client.BaseAddress = new Uri("http://localhost:5280"); 
+});
+
 builder.Services.AddBlazoredLocalStorage(); // Keep for legacy/migration if needed, or remove later
 
 await builder.Build().RunAsync();

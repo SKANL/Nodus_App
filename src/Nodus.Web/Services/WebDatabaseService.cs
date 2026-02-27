@@ -8,16 +8,16 @@ namespace Nodus.Web.Services;
 public class WebDatabaseService : IDatabaseService
 {
     private readonly ILocalStorageService _localStorage;
-    private readonly MongoDataApiService _atlasApi;
+    private readonly BackendApiService _api;
     private const string ProjectsKey = "nodus_projects";
     private const string VotesKey = "nodus_votes";
     private const string EventsKey = "nodus_events";
     private const string JudgesKey = "nodus_judges";
 
-    public WebDatabaseService(ILocalStorageService localStorage, MongoDataApiService atlasApi)
+    public WebDatabaseService(ILocalStorageService localStorage, BackendApiService api)
     {
         _localStorage = localStorage;
-        _atlasApi = atlasApi;
+        _api = api;
     }
 
     // --- Projects ---
@@ -61,12 +61,12 @@ public class WebDatabaseService : IDatabaseService
             projects.Add(project);
             await _localStorage.SetItemAsync(ProjectsKey, projects, ct);
 
-            // Sync with Atlas Data API (Background/Best-effort)
+            // Sync with Nodus.Api (Background/Best-effort)
             _ = Task.Run(async () => 
             {
                 try 
                 {
-                    await _atlasApi.SaveProjectAsync(project);
+                    await _api.SaveProjectAsync(project);
                 }
                 catch (Exception ex)
                 {

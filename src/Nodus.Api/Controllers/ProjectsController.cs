@@ -30,5 +30,13 @@ namespace Nodus.Api.Controllers
             if (result.IsSuccess) return Ok(result.Value);
             return BadRequest(result.Error);
         }
+
+        [HttpGet("event/{eventId}")]
+        public async Task<IActionResult> GetProjectsByEvent(string eventId)
+        {
+            var result = await _db.GetProjectsAsync(eventId);
+            if (result.IsSuccess) return Ok(result.Value);
+            return BadRequest(result.Error);
+        }
     }
 }
