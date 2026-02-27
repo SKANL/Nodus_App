@@ -114,7 +114,7 @@ public partial class HomeViewModel : ObservableObject, IDisposable
                 });
 
                 var eventResult = await _db.GetEventAsync(eventId, _lifetimeCts.Token);
-                EventName = eventResult.IsSuccess ? eventResult.Value.Name : "Active Event";
+                EventName = eventResult.IsSuccess ? eventResult.Value?.Name ?? "Active Event" : "Active Event";
             }
 
             await UpdateStatusAsync(_lifetimeCts.Token);
@@ -158,7 +158,7 @@ public partial class HomeViewModel : ObservableObject, IDisposable
 
             // Update synced count via SyncStats
             var statsResult = await _db.GetSyncStatsAsync(ct);
-            SyncedVoteCount = statsResult.IsSuccess ? statsResult.Value.SyncedVotes : 0;
+            SyncedVoteCount = statsResult.IsSuccess ? statsResult.Value?.SyncedVotes ?? 0 : 0;
 
             // Traffic Light
             if (!_bleAvailable)
@@ -196,7 +196,7 @@ public partial class HomeViewModel : ObservableObject, IDisposable
                     {
                         var projs = await _db.GetProjectsAsync(this.EventName, ct); // just grab all
                         var allProjsResult = await _db.GetAllProjectsAsync(ct);
-                        if (allProjsResult.IsSuccess && allProjsResult.Value.Count == 0)
+                        if (allProjsResult.IsSuccess && allProjsResult.Value?.Count == 0)
                         {
                             var bleResult = await _bleService.GetProjectsFromServerAsync(ct);
                             if (bleResult.IsSuccess && bleResult.Value != null)

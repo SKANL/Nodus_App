@@ -88,7 +88,7 @@ public partial class VotingViewModel : ObservableObject, IDisposable
 
             // Load Rubric from Event
             var eventResult = await _db.GetEventAsync(EventId, ct);
-            if (eventResult.IsSuccess && !string.IsNullOrWhiteSpace(eventResult.Value.RubricJson))
+            if (eventResult.IsSuccess && !string.IsNullOrWhiteSpace(eventResult.Value?.RubricJson))
             {
                 ParseRubric(eventResult.Value.RubricJson);
             }
