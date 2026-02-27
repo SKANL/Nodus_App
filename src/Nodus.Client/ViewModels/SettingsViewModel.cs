@@ -110,35 +110,22 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
             if (!_mediaSyncService.IsConnected)
             {
                 StatusMessage = "Error: Bluetooth no conectado";
-                var errorPage = Application.Current?.Windows[0].Page;
-                if (errorPage != null)
-                {
-                    await errorPage.DisplayAlertAsync("Error", "Primero conéctate a un Servidor Nodus.", "OK");
-                }
+                await ShowAlertAsync("Error", "Primero conéctate a un Servidor Nodus.", "OK");
                 return;
             }
 
             StatusMessage = "Iniciando Sincronización Manual...";
-            // CheckAndSyncAsync uses RSSI threshold, but for manual sync we might want to bypass or use a lenient one.
-            // Using -90dBm for manual override to ensure it tries even with weak signal if user requested.
+            // Using -90dBm for manual override to ensure it tries even with a weak signal.
             await _mediaSyncService.CheckAndSyncAsync(-90);
 
             StatusMessage = "Proceso de sincronización completado.";
-            var successPage = Application.Current?.Windows[0].Page;
-            if (successPage != null)
-            {
-                await successPage.DisplayAlertAsync("Sincronización Completa", "El proceso de sincronización de archivos ha finalizado.", "OK");
-            }
+            await ShowAlertAsync("Sincronización Completa", "El proceso de sincronización de archivos ha finalizado.", "OK");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Manual sync failed");
             StatusMessage = $"Error: {ex.Message}";
-            var exceptionPage = Application.Current?.Windows[0].Page;
-            if (exceptionPage != null)
-            {
-                await exceptionPage.DisplayAlertAsync("Error", $"Sincronización Fallida: {ex.Message}", "OK");
-            }
+            await ShowAlertAsync("Error", $"Sincronización Fallida: {ex.Message}", "OK");
         }
         finally
         {
@@ -160,5 +147,14 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         _mediaSyncService.SyncStatusChanged -= OnSyncStatusChanged;
         _mediaSyncService.SyncProgressChanged -= OnSyncProgressChanged;
         _mediaSyncService.SyncStateChanged -= OnSyncStateChanged;
+    }
+
+    /// <summary>Safe page-getter: avoids Windows[0] index-out-of-range during transitions.</summary>
+    private static Task ShowAlertAsync(string title, string message, string button)
+    {
+        var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+        return page is not null
+            ? page.DisplayAlertAsync(title, message, button)
+            : Task.CompletedTask;
     }
 }

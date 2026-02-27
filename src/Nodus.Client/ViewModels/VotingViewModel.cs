@@ -158,10 +158,9 @@ public partial class VotingViewModel : ObservableObject, IDisposable
                 _logger.LogInformation("Vote for project {ProjectId} submitted successfully", CurrentProject.Id);
 
                 await Task.Delay(1000, ct);
-                await MainThread.InvokeOnMainThreadAsync(async () =>
-                {
-                    await Application.Current!.Windows[0].Page!.Navigation.PopAsync();
-                });
+                // Use Shell navigation (..) instead of Navigation.PopAsync —
+                // Shell manages its own stack; mixing both causes inconsistent state.
+                await Shell.Current.GoToAsync("..");
             }
             else
             {

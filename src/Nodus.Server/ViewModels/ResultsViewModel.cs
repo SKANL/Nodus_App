@@ -87,11 +87,7 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
         }
         catch (Exception ex)
         {
-            var page = Application.Current?.Windows[0].Page;
-            if (page != null)
-            {
-                await page.DisplayAlertAsync("Error", $"Exportación fallida: {ex.Message}", "OK");
-            }
+            await ShowAlertAsync("Error", $"Exportación fallida: {ex.Message}");
         }
     }
 
@@ -107,11 +103,7 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
         }
         catch (Exception ex)
         {
-            var page = Application.Current?.Windows[0].Page;
-            if (page != null)
-            {
-                await page.DisplayAlertAsync("Error", $"Exportación fallida: {ex.Message}", "OK");
-            }
+            await ShowAlertAsync("Error", $"Exportación fallida: {ex.Message}");
         }
     }
 
@@ -122,23 +114,22 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
         if (result.IsSuccessful)
         {
             _logger.LogInformation("File exported successfully: {FilePath}", result.FilePath);
-            var page = Application.Current?.Windows[0].Page;
-            if (page != null)
-            {
-                await page.DisplayAlertAsync("Éxito", $"Archivo guardado en {result.FilePath}", "OK");
-            }
+            await ShowAlertAsync("Éxito", $"Archivo guardado en {result.FilePath}");
         }
         else
         {
             _logger.LogError(result.Exception, "Failed to save file: {FileName}", fileName);
             if (result.Exception != null)
-            {
-                var page = Application.Current?.Windows[0].Page;
-                if (page != null)
-                {
-                    await page.DisplayAlertAsync("Error", $"Error al guardar: {result.Exception.Message}", "OK");
-                }
-            }
+                await ShowAlertAsync("Error", $"Error al guardar: {result.Exception.Message}");
         }
+    }
+
+    /// <summary>Safe page access — avoids Windows[0] index-out-of-range.</summary>
+    private static Task ShowAlertAsync(string title, string message)
+    {
+        var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+        return page is not null
+            ? page.DisplayAlertAsync(title, message, "OK")
+            : Task.CompletedTask;
     }
 }

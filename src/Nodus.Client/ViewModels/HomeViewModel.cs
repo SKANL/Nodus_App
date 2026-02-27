@@ -315,14 +315,9 @@ public partial class HomeViewModel : ObservableObject, IDisposable
 #endif
         var signal = _bleService.LastRssi != 0 ? $"{_bleService.LastRssi} dBm" : "N/A";
         var peers = _swarmService.NeighborLinkCount;
-
         var message = $"Rol de Nodus: {role}\nSeñal del Servidor: {signal}\nNodos Cercanos: {peers}";
 
-        var page = Application.Current?.Windows[0].Page;
-        if (page != null)
-        {
-            await page.DisplayAlertAsync("Métricas de Conexión", message, "Cerrar");
-        }
+        await ShowAlertOnCurrentPageAsync("Métricas de Conexión", message, "Cerrar");
     }
 
     // ── Sync ───────────────────────────────────────────────────────────────
