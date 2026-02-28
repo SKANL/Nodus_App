@@ -9,8 +9,8 @@ COPY src/Nodus.Api/Nodus.Api.csproj src/Nodus.Api/
 COPY src/Nodus.Shared/Nodus.Shared.csproj src/Nodus.Shared/
 COPY src/Nodus.Infrastructure/Nodus.Infrastructure.csproj src/Nodus.Infrastructure/
 
-# Restaura las dependencias
-RUN dotnet restore src/Nodus.Api/Nodus.Api.csproj
+# Restaura las dependencias (IsServerBuild=true excluye paquetes BLE/SQLite/LiteDB)
+RUN dotnet restore src/Nodus.Api/Nodus.Api.csproj -p:IsServerBuild=true
 
 # Copia el código fuente de esos 3 proyectos (De nuevo, ignorando Nodus.Web)
 COPY src/Nodus.Api/ src/Nodus.Api/
@@ -19,7 +19,7 @@ COPY src/Nodus.Infrastructure/ src/Nodus.Infrastructure/
 
 # Compila y publica en la carpeta /out
 WORKDIR /app/src/Nodus.Api
-RUN dotnet publish -c Release -o /out
+RUN dotnet publish -c Release -o /out -p:IsServerBuild=true
 
 # Usa la imagen ligera para correr la aplicación
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime

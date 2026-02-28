@@ -6,12 +6,26 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <!--
+    IsServerBuild=true se usa en el Dockerfile para excluir paquetes y archivos
+    que solo aplican a móvil/escritorio (BLE, SQLite, LiteDB).
+    El servidor solo necesita MongoDB.Driver.
+  -->
   <ItemGroup>
-    <PackageReference Include="LiteDB" Version="5.0.21" />
     <PackageReference Include="MongoDB.Driver" Version="3.6.0" />
-    <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
-    <PackageReference Include="Shiny.BluetoothLE" Version="3.3.4" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+    <!-- Mobile-only: excluidos cuando se compila para el servidor -->
+    <PackageReference Include="LiteDB" Version="5.0.21" Condition="'$(IsServerBuild)' != 'true'" />
+    <PackageReference Include="sqlite-net-pcl" Version="1.9.172" Condition="'$(IsServerBuild)' != 'true'" />
+    <PackageReference Include="Shiny.BluetoothLE" Version="3.3.4" Condition="'$(IsServerBuild)' != 'true'" />
+  </ItemGroup>
+
+  <!-- Archivos que dependen de paquetes mobile-only: excluidos en build de servidor -->
+  <ItemGroup Condition="'$(IsServerBuild)' == 'true'">
+    <Compile Remove="BleClientService.cs" />
+    <Compile Remove="BlePeripheralWrapper.cs" />
+    <Compile Remove="LocalDatabaseService.cs" />
+    <Compile Remove="MediaSyncService.cs" />
   </ItemGroup>
 
   <ItemGroup>
