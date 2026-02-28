@@ -19,8 +19,8 @@ builder.Services.AddSingleton<IDatabaseService>(sp =>
 {
     var logger = sp.GetRequiredService<ILogger<MongoDbService>>();
     var cfg = sp.GetRequiredService<IConfiguration>();
-    var connStr = cfg["MongoDB:ConnectionString"] ?? Nodus.Shared.Config.AppSecrets.MongoConnectionString;
-    var dbName  = cfg["MongoDB:DatabaseName"]     ?? Nodus.Shared.Config.AppSecrets.MongoDatabaseName;
+    var connStr = cfg["MongoDB:ConnectionString"] ?? "mongodb://localhost:27017";
+    var dbName  = cfg["MongoDB:DatabaseName"]     ?? "nodus";
     return new MongoDbService(connStr, dbName, logger);
 });
 
