@@ -18,8 +18,10 @@ public partial class HomeViewModel : ObservableObject, IDisposable
     private readonly BleClientService _bleService;
     private readonly SwarmService _swarmService;
     private readonly Nodus.Client.Services.CloudProjectSyncService _cloudSync;
+    private readonly Nodus.Client.Services.CloudVoteSyncService _voteSyncService;
     private readonly ILogger<HomeViewModel> _logger;
     private readonly CancellationTokenSource _lifetimeCts = new();
+    private const int NavigationRetryDelayMs = 180;
 
     // ── Status Bar (Traffic Light) ─────────────────────────────────────────
     [ObservableProperty] public partial string StatusMessage { get; set; } = "Iniciando...";
@@ -49,12 +51,14 @@ public partial class HomeViewModel : ObservableObject, IDisposable
         BleClientService bleService,
         SwarmService swarmService,
         Nodus.Client.Services.CloudProjectSyncService cloudSync,
+        Nodus.Client.Services.CloudVoteSyncService voteSyncService,
         ILogger<HomeViewModel> logger)
     {
         _db = db;
         _bleService = bleService;
         _swarmService = swarmService;
         _cloudSync = cloudSync;
+        _voteSyncService = voteSyncService;
         _logger = logger;
 
         // Guard BLE subscriptions — on platforms without Bluetooth (Windows desktop, simulator)
@@ -113,11 +117,8 @@ public partial class HomeViewModel : ObservableObject, IDisposable
             {
                 _currentEventId = eventId; // cache for use in UpdateStatusAsync
 
-                // Trigger cloud sync if possible
-                _ = Task.Run(async () =>
-                {
-                    await _cloudSync.SyncProjectsAsync(eventId, _lifetimeCts.Token);
-                });
+                // Trigger cloud sync if possible (projects down + votes up)
+                _ = SyncCloudDataBestEffortAsync(eventId, _lifetimeCts.Token);
 
                 var eventResult = await _db.GetEventAsync(eventId, _lifetimeCts.Token);
                 EventName = eventResult.IsSuccess ? eventResult.Value?.Name ?? "Active Event" : "Active Event";
@@ -140,6 +141,23 @@ public partial class HomeViewModel : ObservableObject, IDisposable
             try { await UpdateStatusAsync(_lifetimeCts.Token); }
             catch (Exception ex) { _logger.LogError(ex, "Error updating status on connection change"); }
         });
+    }
+
+    private async Task SyncCloudDataBestEffortAsync(string eventId, CancellationToken ct)
+    {
+        try
+        {
+            await _cloudSync.SyncProjectsAsync(eventId, ct);
+            await _voteSyncService.SyncPendingVotesAsync(ct);
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogDebug("Cloud sync cancelled");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Cloud sync background task failed");
+        }
     }
 
     private void OnSwarmServicePropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -242,7 +260,12 @@ public partial class HomeViewModel : ObservableObject, IDisposable
             // Camera permission MUST be granted before navigating to ScanPage.
             // On Android, CameraBarcodeReaderView throws SecurityException without it.
             if (!await EnsureCameraPermissionAsync()) return;
-            await Shell.Current.GoToAsync($"{nameof(Views.ScanPage)}?Mode=JudgeRegistration");
+
+            var route = $"{nameof(Views.ScanPage)}?Mode=JudgeRegistration";
+            if (!await TryNavigateAsync(route, ct))
+            {
+                await ShowNavErrorAsync("No se pudo abrir el escáner. Verifica que la app tenga permisos de cámara en Ajustes del sistema.");
+            }
         }
         catch (Exception ex)
         {
@@ -258,12 +281,44 @@ public partial class HomeViewModel : ObservableObject, IDisposable
         try
         {
             if (!await EnsureCameraPermissionAsync()) return;
-            await Shell.Current.GoToAsync($"{nameof(Views.ScanPage)}?Mode=ProjectScan");
+
+            var route = $"{nameof(Views.ScanPage)}?Mode=ProjectScan";
+            if (!await TryNavigateAsync(route, ct))
+            {
+                await ShowNavErrorAsync("No se pudo abrir el escáner de proyectos. Verifica que la app tenga permisos de cámara.");
+            }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to navigate to ScanPage for ProjectScan");
             await ShowNavErrorAsync("No se pudo abrir el escáner de proyectos. Verifica que la app tenga permisos de cámara.");
+        }
+    }
+
+    private async Task<bool> TryNavigateAsync(string route, CancellationToken ct)
+    {
+        try
+        {
+            await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync(route));
+            return true;
+        }
+        catch (Exception ex) when (ex is InvalidOperationException || ex is ArgumentException || ex is NullReferenceException)
+        {
+            _logger.LogWarning(ex, "Navigation failed on first attempt to {Route}; retrying once", route);
+            if (ct.IsCancellationRequested) return false;
+
+            await Task.Delay(NavigationRetryDelayMs, ct);
+
+            try
+            {
+                await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync(route));
+                return true;
+            }
+            catch (Exception retryEx)
+            {
+                _logger.LogError(retryEx, "Navigation retry failed to {Route}", route);
+                return false;
+            }
         }
     }
 

@@ -86,14 +86,8 @@
                 currentEventId = eventId;
             }
 
-            // This will pull from Cloud (via API) thanks to the WebDatabaseService changes!
-            var db = (IDatabaseService)ProjectService.GetType().GetField("_databaseService", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.GetValue(ProjectService)!;
-            var result = await db.GetProjectsAsync(currentEventId);
-
-            if (result.IsSuccess)
-            {
-                projects = result.Value ?? [];
-            }
+            // GetProjectsByEventAsync triggers a cloud sync inside WebDatabaseService
+            projects = await ProjectService.GetProjectsByEventAsync(currentEventId);
         }
         finally
         {

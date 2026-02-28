@@ -104,6 +104,34 @@ public class WebDatabaseService : IDatabaseService
         }
     }
 
+    private async Task PushProjectBestEffortAsync(Project project)
+    {
+        try
+        {
+            await _apiService.SaveProjectAsync(project);
+        }
+        catch (HttpRequestException httpEx)
+        {
+            Console.WriteLine($"Atlas Sync Failed (Network): {httpEx.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Atlas Sync Failed (System): {ex.Message}");
+        }
+    }
+
+    private async Task PushVoteBestEffortAsync(Vote vote)
+    {
+        try { await _apiService.SaveVoteAsync(vote); }
+        catch (Exception ex) { Console.WriteLine($"[VoteSync] API push failed: {ex.Message}"); }
+    }
+
+    private async Task PushJudgeBestEffortAsync(Judge judge)
+    {
+        try { await _apiService.SaveJudgeAsync(judge); }
+        catch (Exception ex) { Console.WriteLine($"[JudgeSync] API push failed: {ex.Message}"); }
+    }
+
     public async Task<Result> SaveProjectAsync(Project project, CancellationToken ct = default)
     {
         try
@@ -115,22 +143,7 @@ public class WebDatabaseService : IDatabaseService
             await _localStorage.SetItemAsync(ProjectsKey, projects, ct);
 
             // Sync with Nodus API (Background/Best-effort)
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    await _apiService.SaveProjectAsync(project);
-                }
-                catch (HttpRequestException httpEx)
-                {
-                    Console.WriteLine($"Atlas Sync Failed (Network): {httpEx.Message}");
-                }
-                catch (Exception ex)
-                {
-                    // Log but don't fail the local save
-                    Console.WriteLine($"Atlas Sync Failed (System): {ex.Message}");
-                }
-            }, ct);
+            _ = PushProjectBestEffortAsync(project);
 
             return Result.Success();
         }
@@ -178,6 +191,10 @@ public class WebDatabaseService : IDatabaseService
             if (existing != null) votes.Remove(existing);
             votes.Add(vote);
             await _localStorage.SetItemAsync(VotesKey, votes, ct);
+
+            // Best-effort push to API (offline-first: local write already succeeded).
+            _ = PushVoteBestEffortAsync(vote);
+
             return Result.Success();
         }
         catch (Exception ex)
@@ -190,7 +207,9 @@ public class WebDatabaseService : IDatabaseService
     {
         var votes = await GetAllVotesAsync(ct);
         if (!votes.IsSuccess) return Result<List<Vote>>.Failure(votes.Error);
-        return Result<List<Vote>>.Success((votes.Value ?? []).Where(v => v.Status == SyncStatus.Pending).ToList());
+        // Returns both Pending and SyncError so that failed votes are retried.
+        return Result<List<Vote>>.Success(
+            (votes.Value ?? []).Where(v => v.Status == SyncStatus.Pending || v.Status == SyncStatus.SyncError).ToList());
     }
 
     public async Task<Result<List<Vote>>> GetVotesWithPendingMediaAsync(CancellationToken ct = default)
@@ -246,6 +265,9 @@ public class WebDatabaseService : IDatabaseService
             if (existing != null) events.Remove(existing);
             events.Add(evt);
             await _localStorage.SetItemAsync(EventsKey, events, ct);
+            // NOTE: Events are created by admins (Nodus.Server). The Web portal only ever
+            // caches cloud-read events locally. Pushing back to the API would cause a
+            // redundant write-back loop (EventService reads → saves locally → pushes to API).
             return Result.Success();
         }
         catch (Exception ex)
@@ -291,6 +313,10 @@ public class WebDatabaseService : IDatabaseService
             if (existing != null) judges.Remove(existing);
             judges.Add(judge);
             await _localStorage.SetItemAsync(JudgesKey, judges, ct);
+
+            // Best-effort push to API.
+            _ = PushJudgeBestEffortAsync(judge);
+
             return Result.Success();
         }
         catch (Exception ex)
@@ -301,8 +327,26 @@ public class WebDatabaseService : IDatabaseService
 
     public Task<Result> ExecuteInTransactionAsync(Func<Task> action, CancellationToken ct = default)
     {
-        // LocalStorage doesn't support transactions in a meaningful way here.
-        // We'll just execute the action.
-        return action().ContinueWith(_ => Result.Success());
+        // LocalStorage doesn't support real transactions. We still execute the
+        // action and propagate any failure instead of swallowing exceptions.
+        return ExecuteActionBestEffortAsync(action, ct);
+    }
+
+    private static async Task<Result> ExecuteActionBestEffortAsync(Func<Task> action, CancellationToken ct)
+    {
+        try
+        {
+            ct.ThrowIfCancellationRequested();
+            await action();
+            return Result.Success();
+        }
+        catch (OperationCanceledException)
+        {
+            return Result.Failure("Transaction action cancelled.");
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure("Transaction action failed.", ex);
+        }
     }
 }

@@ -57,4 +57,59 @@ public class NodusApiService
             return Result<Project>.Failure($"Exception while saving project to API: {ex.Message}");
         }
     }
+
+    public async Task<Result<Vote>> SaveVoteAsync(Vote vote, CancellationToken ct = default)
+    {
+        try
+        {
+            var response = await _http.PostAsJsonAsync("api/votes", vote, ct);
+            if (response.IsSuccessStatusCode)
+            {
+                var saved = await response.Content.ReadFromJsonAsync<Vote>(cancellationToken: ct);
+                return Result<Vote>.Success(saved ?? vote);
+            }
+            return Result<Vote>.Failure($"Failed to save vote. Status: {response.StatusCode}");
+        }
+        catch (Exception ex)
+        {
+            return Result<Vote>.Failure($"Exception while saving vote to API: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<Judge>> SaveJudgeAsync(Judge judge, CancellationToken ct = default)
+    {
+        try
+        {
+            var response = await _http.PostAsJsonAsync("api/judges", judge, ct);
+            if (response.IsSuccessStatusCode)
+            {
+                var saved = await response.Content.ReadFromJsonAsync<Judge>(cancellationToken: ct);
+                return Result<Judge>.Success(saved ?? judge);
+            }
+            return Result<Judge>.Failure($"Failed to save judge. Status: {response.StatusCode}");
+        }
+        catch (Exception ex)
+        {
+            return Result<Judge>.Failure($"Exception while saving judge to API: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<Event>> SaveEventAsync(Event evt, CancellationToken ct = default)
+    {
+        try
+        {
+            var response = await _http.PostAsJsonAsync("api/events", evt, ct);
+            if (response.IsSuccessStatusCode)
+            {
+                var saved = await response.Content.ReadFromJsonAsync<Event>(cancellationToken: ct);
+                return Result<Event>.Success(saved ?? evt);
+            }
+            return Result<Event>.Failure($"Failed to save event. Status: {response.StatusCode}");
+        }
+        catch (Exception ex)
+        {
+            return Result<Event>.Failure($"Exception while saving event to API: {ex.Message}");
+        }
+    }
 }
+

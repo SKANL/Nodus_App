@@ -25,6 +25,7 @@ public class BleServerService
     private readonly VoteIngestionService _ingestion;
     private readonly Nodus.Shared.Abstractions.IDatabaseService _db;
     private readonly Nodus.Shared.Abstractions.IChunkerService _chunker;
+    private System.Timers.Timer? _projectsSyncTimer;
 
     public BleServerService(IBleHostingManager bleHosting, VoteIngestionService ingestion, Nodus.Shared.Abstractions.IDatabaseService db, Nodus.Shared.Abstractions.IChunkerService chunker, ILogger<BleServerService> logger)
     {
@@ -35,21 +36,31 @@ public class BleServerService
         _assembler = new Nodus.Shared.Services.ChunkerService.ChunkAssembler();
         _logger = logger;
 
-        // Load active event key and projects
-        Task.Run(async () =>
+        _ = InitializeAsync();
+    }
+
+    private async Task InitializeAsync()
+    {
+        try
         {
             await LoadActiveEventKey();
             await SyncProjectsFromDbAsync();
             StartSyncTimer();
-        });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "BLE server initialization failed");
+        }
     }
 
     private void StartSyncTimer()
     {
         // Poll DB every 30 seconds for new projects from Web
-        var timer = new System.Timers.Timer(30000);
-        timer.Elapsed += async (s, e) => await SyncProjectsFromDbAsync();
-        timer.Start();
+        if (_projectsSyncTimer != null) return;
+
+        _projectsSyncTimer = new System.Timers.Timer(30000);
+        _projectsSyncTimer.Elapsed += async (s, e) => await SyncProjectsFromDbAsync();
+        _projectsSyncTimer.Start();
     }
 
     private List<Project> _activeProjects = new();

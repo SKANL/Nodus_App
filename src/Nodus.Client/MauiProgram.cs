@@ -57,9 +57,17 @@ public static class MauiProgram
 
             // HTTP & Cloud Sync
             builder.Services.AddSingleton(sp =>
-                new HttpClient { BaseAddress = new Uri(AppSecrets.ApiBaseUrl + "/") }
-            );
+            {
+                var http = new HttpClient { BaseAddress = new Uri(AppSecrets.ApiBaseUrl + "/") };
+                if (!string.IsNullOrWhiteSpace(AppSecrets.NodusEventApiKey) &&
+                    !AppSecrets.NodusEventApiKey.Contains("YOUR_EVENT_API_KEY", StringComparison.OrdinalIgnoreCase))
+                {
+                    http.DefaultRequestHeaders.Add("X-Api-Key", AppSecrets.NodusEventApiKey);
+                }
+                return http;
+            });
             builder.Services.AddSingleton<CloudProjectSyncService>();
+            builder.Services.AddSingleton<CloudVoteSyncService>();
 
             // UI Services
             builder.Services.AddSingleton<IDialogService, Nodus.Client.Services.DialogService>();

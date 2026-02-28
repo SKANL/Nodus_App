@@ -11,11 +11,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
-// Register MongoDB Service using shared secrets
+// Register MongoDB Service
+// Priority: appsettings[MongoDB:ConnectionString] → AppSecrets (Atlas)
+// Set [MongoDB:ConnectionString] in appsettings.Development.json to
+// "mongodb://localhost:27017" to avoid Atlas TLS issues during local dev.
 builder.Services.AddSingleton<IDatabaseService>(sp =>
 {
     var logger = sp.GetRequiredService<ILogger<MongoDbService>>();
-    return new MongoDbService(Nodus.Shared.Config.AppSecrets.MongoConnectionString, Nodus.Shared.Config.AppSecrets.MongoDatabaseName, logger);
+    var cfg = sp.GetRequiredService<IConfiguration>();
+    var connStr = cfg["MongoDB:ConnectionString"] ?? Nodus.Shared.Config.AppSecrets.MongoConnectionString;
+    var dbName  = cfg["MongoDB:DatabaseName"]     ?? Nodus.Shared.Config.AppSecrets.MongoDatabaseName;
+    return new MongoDbService(connStr, dbName, logger);
 });
 
 // Configure CORS for Blazor WASM

@@ -5,40 +5,126 @@
              xmlns:vm="clr-namespace:Nodus.Client.ViewModels"
              x:Class="Nodus.Client.Views.ScanPage"
              Title="Escáner"
-             Shell.TabBarIsVisible="False">
+             Shell.TabBarIsVisible="False"
+             BackgroundColor="Black">
 
+    <!-- ═══════════════════════════════════════════════════════════
+         SCAN PAGE — QR Camera Overlay
+         Fix: "Lime" (#00FF00) crosshair replaced with brand indigo
+         (#6366F1) corner-bracket viewfinder.  Cancel button now
+         fully styled.  Instruction label moved below the viewfinder
+         for a natural top→center→bottom reading flow on tall phones.
+    ═══════════════════════════════════════════════════════════ -->
     <Grid>
-        <zxing:CameraBarcodeReaderView 
+        <!-- Full-bleed camera preview -->
+        <zxing:CameraBarcodeReaderView
             x:Name="CameraView"
             IsDetecting="{Binding IsScanning}"
             BarcodesDetected="CameraBarcodeReaderView_BarcodesDetected"
-            VerticalOptions="FillAndExpand" 
-            HorizontalOptions="FillAndExpand" />
+            VerticalOptions="FillAndExpand"
+            HorizontalOptions="FillAndExpand"
+            SemanticProperties.Description="Visor de cámara para escanear código QR" />
 
-        <!-- Crosshair Overlay -->
-        <Border Stroke="Lime" 
-                StrokeThickness="3" 
-                HeightRequest="250" 
-                WidthRequest="250" 
-                HorizontalOptions="Center" 
-                VerticalOptions="Center" 
-                BackgroundColor="Transparent">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="20" />
-            </Border.StrokeShape>
+        <!-- ── Dark vignette scrim above & below the viewfinder ── -->
+        <Grid RowDefinitions="*, 260, *">
+            <BoxView Grid.Row="0" Color="#B0000000" />
+            <BoxView Grid.Row="2" Color="#B0000000" />
+        </Grid>
+
+        <!-- ── Corner-bracket viewfinder (4 corners, not a full rect) ── -->
+        <Grid HeightRequest="260" WidthRequest="260"
+              HorizontalOptions="Center"
+              VerticalOptions="Center">
+
+            <!-- Top-left bracket -->
+            <Border HeightRequest="40" WidthRequest="40"
+                    HorizontalOptions="Start" VerticalOptions="Start"
+                    BackgroundColor="Transparent"
+                    StrokeThickness="0">
+                <Border.Background>
+                    <SolidColorBrush Color="Transparent" />
+                </Border.Background>
+                <Grid>
+                    <BoxView Color="{StaticResource Primary}" HeightRequest="4" WidthRequest="40"
+                             VerticalOptions="Start" CornerRadius="2" />
+                    <BoxView Color="{StaticResource Primary}" HeightRequest="40" WidthRequest="4"
+                             HorizontalOptions="Start" CornerRadius="2" />
+                </Grid>
+            </Border>
+
+            <!-- Top-right bracket -->
+            <Border HeightRequest="40" WidthRequest="40"
+                    HorizontalOptions="End" VerticalOptions="Start"
+                    BackgroundColor="Transparent" StrokeThickness="0">
+                <Grid>
+                    <BoxView Color="{StaticResource Primary}" HeightRequest="4" WidthRequest="40"
+                             VerticalOptions="Start" CornerRadius="2" />
+                    <BoxView Color="{StaticResource Primary}" HeightRequest="40" WidthRequest="4"
+                             HorizontalOptions="End" CornerRadius="2" />
+                </Grid>
+            </Border>
+
+            <!-- Bottom-left bracket -->
+            <Border HeightRequest="40" WidthRequest="40"
+                    HorizontalOptions="Start" VerticalOptions="End"
+                    BackgroundColor="Transparent" StrokeThickness="0">
+                <Grid>
+                    <BoxView Color="{StaticResource Primary}" HeightRequest="4" WidthRequest="40"
+                             VerticalOptions="End" CornerRadius="2" />
+                    <BoxView Color="{StaticResource Primary}" HeightRequest="40" WidthRequest="4"
+                             HorizontalOptions="Start" CornerRadius="2" />
+                </Grid>
+            </Border>
+
+            <!-- Bottom-right bracket -->
+            <Border HeightRequest="40" WidthRequest="40"
+                    HorizontalOptions="End" VerticalOptions="End"
+                    BackgroundColor="Transparent" StrokeThickness="0">
+                <Grid>
+                    <BoxView Color="{StaticResource Primary}" HeightRequest="4" WidthRequest="40"
+                             VerticalOptions="End" CornerRadius="2" />
+                    <BoxView Color="{StaticResource Primary}" HeightRequest="40" WidthRequest="4"
+                             HorizontalOptions="End" CornerRadius="2" />
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ── Headline at top (event context) ── -->
+        <Label Text="Escanear QR del Proyecto"
+               TextColor="White"
+               FontSize="17" FontAttributes="Bold"
+               HorizontalOptions="Center"
+               VerticalOptions="Start"
+               Margin="20,56,20,0" />
+
+        <!-- ── Instruction below viewfinder ── -->
+        <Border BackgroundColor="#CC0F172A"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 12"
+                Padding="16,10"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                Margin="0,300,0,0">
+            <Label Text="{Binding InstructionText}"
+                   TextColor="{StaticResource Gray300}"
+                   FontSize="13"
+                   HorizontalTextAlignment="Center"
+                   SemanticProperties.Description="Instrucciones de escaneo" />
         </Border>
 
-        <Label Text="{Binding InstructionText}" 
-               TextColor="White" 
-               BackgroundColor="#80000000"
-               Padding="10,5"
-               HorizontalOptions="Center" 
-               VerticalOptions="Start" 
-               Margin="0,50,0,0" />
-               
+        <!-- ── Cancel ghost-pill at bottom ── -->
         <Button Text="Cancelar"
                 Command="{Binding CancelCommand}"
                 VerticalOptions="End"
-                Margin="20" />
+                HorizontalOptions="Fill"
+                Margin="20,0,20,40"
+                BackgroundColor="#CC0F172A"
+                BorderColor="{StaticResource SurfaceLight}"
+                BorderWidth="1"
+                TextColor="{StaticResource Gray300}"
+                FontSize="15" FontAttributes="Bold"
+                HeightRequest="52"
+                CornerRadius="16"
+                SemanticProperties.Hint="Cancelar y volver a la pantalla anterior" />
     </Grid>
 </ContentPage>

@@ -42,6 +42,16 @@ public class ProjectService
         return result.IsSuccess ? result.Value ?? [] : [];
     }
 
+    /// <summary>
+    /// Returns projects for a specific event. In Blazor WASM this also triggers a
+    /// best-effort sync from the API so the list reflects the latest cloud data.
+    /// </summary>
+    public async Task<List<Project>> GetProjectsByEventAsync(string eventId)
+    {
+        var result = await _databaseService.GetProjectsAsync(eventId);
+        return result.IsSuccess ? result.Value ?? [] : [];
+    }
+
     public async Task<Project> RegisterProjectAsync(Project project)
     {
         if (string.IsNullOrEmpty(project.Id))

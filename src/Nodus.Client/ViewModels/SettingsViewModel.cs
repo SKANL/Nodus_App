@@ -34,6 +34,14 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     public partial string SyncStatsText { get; set; } = "Cargando...";
 
+    /// <summary>
+    /// True in debug builds or when a debugger is attached — gates Developer Options UI visibility.
+    /// Bound from SettingsPage.xaml: IsVisible="{Binding IsDevMode}"
+    /// </summary>
+    public bool IsDevMode =>
+        System.Diagnostics.Debugger.IsAttached ||
+        AppInfo.Current.PackageName.Contains(".debug");
+
     public SettingsViewModel(
         MediaSyncService mediaSyncService,
         IDatabaseService databaseService,

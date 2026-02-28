@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Nodus.Shared.Abstractions;
+using Nodus.Shared.Models;
 
 namespace Nodus.Api.Controllers;
 
@@ -15,6 +16,23 @@ public class JudgesController : ControllerBase
     {
         _db = db;
         _logger = logger;
+    }
+
+    /// <summary>POST /api/judges — Register a new judge (idempotent upsert).</summary>
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] Judge judge, CancellationToken ct)
+    {
+        if (judge == null || string.IsNullOrWhiteSpace(judge.Name))
+            return BadRequest("Judge name is required.");
+
+        if (string.IsNullOrWhiteSpace(judge.Id))
+            judge.Id = $"JUDGE-{judge.Name.Replace(" ", "")}-{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
+
+        var result = await _db.SaveJudgeAsync(judge, ct);
+        if (result.IsSuccess) return Ok(judge);
+
+        _logger.LogError("SaveJudgeAsync failed for judge {JudgeName}: {Error}", judge.Name, result.Error);
+        return StatusCode(500, result.Error);
     }
 
     /// <summary>GET /api/judges/event/{eventId} — List all judges for an event.</summary>
@@ -45,3 +63,4 @@ public class JudgesController : ControllerBase
         return Ok(votes);
     }
 }
+

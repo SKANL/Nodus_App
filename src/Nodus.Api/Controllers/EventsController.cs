@@ -18,6 +18,23 @@ public class EventsController : ControllerBase
         _logger = logger;
     }
 
+    /// <summary>POST /api/events — Create or update an event (idempotent upsert).</summary>
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] Event evt, CancellationToken ct)
+    {
+        if (evt == null || string.IsNullOrWhiteSpace(evt.Name))
+            return BadRequest("Event name is required.");
+
+        if (string.IsNullOrWhiteSpace(evt.Id))
+            evt.Id = $"EVENT-{evt.Name.Replace(" ", "")}-{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
+
+        var result = await _db.SaveEventAsync(evt, ct);
+        if (result.IsSuccess) return Ok(evt);
+
+        _logger.LogError("SaveEventAsync failed for event {EventName}: {Error}", evt.Name, result.Error);
+        return StatusCode(500, result.Error);
+    }
+
     /// <summary>GET /api/events — List all events.</summary>
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken ct)

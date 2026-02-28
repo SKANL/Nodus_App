@@ -3,7 +3,7 @@
 // - Requests de navegación → network-first con fallback a cache
 // - API calls → network-only (datos en tiempo real)
 // - Fuentes externas / CDN → stale-while-revalidate
-const CACHE_NAME = "nodus-web-v3";
+const CACHE_NAME = "nodus-web-v5";
 
 const SHELL_ASSETS = [
   "./",
@@ -14,25 +14,29 @@ const SHELL_ASSETS = [
   "icons/icon.svg",
   "css/app.css",
   "css/display.css",
+  "lib/bootstrap-icons/bootstrap-icons.min.css",
   "_framework/blazor.webassembly.js",
-  "_framework/blazor.boot.json",
 ];
 
-// External CDN resources to cache on first visit (fonts, icon CSS)
+// External CDN resources to cache on first visit (Google Fonts only)
+// Bootstrap Icons is now served locally — no CDN dependency.
 const EXTERNAL_ASSETS = [
   "https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Outfit:wght@300;600;800&display=swap",
-  "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css",
 ];
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
-      // Cache local shell assets
-      await cache.addAll(SHELL_ASSETS).catch((err) => {
-        console.warn("[SW] No se pudo cachear algunos assets del shell:", err);
-      });
-      // Cache external CDN resources (best-effort — may fail on first offline install)
+      // Cache shell assets individually so one missing file doesn't abort the rest
+      for (const asset of SHELL_ASSETS) {
+        try {
+          await cache.add(asset);
+        } catch (err) {
+          console.warn("[SW] No se pudo cachear asset:", asset, err);
+        }
+      }
+      // Cache external resources (Google Fonts — best-effort, may fail offline)
       for (const url of EXTERNAL_ASSETS) {
         try {
           await cache.add(url);
@@ -66,8 +70,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Fuentes externas y CDN → stale-while-revalidate
-  const externalHosts = ["fonts.googleapis.com", "fonts.gstatic.com", "cdn.jsdelivr.net"];
+  // Fuentes externas → stale-while-revalidate (Bootstrap Icons is now local)
+  const externalHosts = ["fonts.googleapis.com", "fonts.gstatic.com"];
   if (externalHosts.some((h) => url.hostname === h)) {
     event.respondWith(
       caches.match(event.request).then((cached) => {

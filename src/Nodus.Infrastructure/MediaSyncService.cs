@@ -8,7 +8,7 @@ using Nodus.Shared.Abstractions;
 
 namespace Nodus.Infrastructure.Services;
 
-public class MediaSyncService
+public class MediaSyncService : IDisposable
 {
     private readonly IBleClientService _bleService;
     private readonly IDatabaseService _databaseService;
@@ -16,6 +16,8 @@ public class MediaSyncService
     private readonly IImageCompressionService _compressor;
     private readonly IFileService _fileService;
     private readonly ILogger<MediaSyncService> _logger;
+    private readonly IDisposable _connectionStateSubscription;
+    private readonly IDisposable _notificationsSubscription;
     private bool _isSyncing;
     private const int RssiThreshold = -70; // Updated per optimization plan
     private CancellationTokenSource? _rssiCts;
@@ -46,8 +48,8 @@ public class MediaSyncService
         _fileService = fileService;
         _logger = logger;
 
-        _bleService.ConnectionState.Subscribe(OnConnectionStateChanged);
-        _bleService.Notifications.Subscribe(OnNotificationReceived);
+        _connectionStateSubscription = _bleService.ConnectionState.Subscribe(OnConnectionStateChanged);
+        _notificationsSubscription = _bleService.Notifications.Subscribe(OnNotificationReceived);
     }
 
     // ...
@@ -288,5 +290,15 @@ public class MediaSyncService
 
         _logger.LogInformation("Synced media for vote {Id}", vote.Id);
         SyncStatusChanged?.Invoke(this, $"Synced media for vote {vote.Id}");
+    }
+
+    public void Dispose()
+    {
+        _rssiCts?.Cancel();
+        _rssiCts?.Dispose();
+        _rssiCts = null;
+
+        _connectionStateSubscription.Dispose();
+        _notificationsSubscription.Dispose();
     }
 }

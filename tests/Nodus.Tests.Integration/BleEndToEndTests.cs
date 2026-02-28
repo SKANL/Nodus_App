@@ -1,13 +1,14 @@
 using Moq;
 using Xunit;
 using Nodus.Shared.Services;
+using Nodus.Infrastructure.Services;
 using Nodus.Shared.Abstractions;
 using Nodus.Shared.Models;
 using Nodus.Shared.Common;
+using Nodus.Shared.Protocol;
 using Microsoft.Extensions.Logging;
 using System.Reactive.Subjects;
 using System.Text;
-using Shiny.BluetoothLE; // For ConnectionState
 
 namespace Nodus.Tests.Integration;
 
@@ -65,7 +66,10 @@ public class BleEndToEndTests
         
         // Fix: Use VoteIngestionService in BleEndToEndTests
         var ingestionLogger = loggerFactory.CreateLogger<VoteIngestionService>();
-        var ingestionService = new VoteIngestionService(_serverDb.Object, _aggregator, _fileService.Object, ingestionLogger);
+        // VoteIngestionService now requires PacketTracker + IDateTimeProvider (anti-replay).
+        var dateTimeProvider = new SystemDateTimeProvider();
+        var packetTracker = new PacketTracker(dateTimeProvider);
+        var ingestionService = new VoteIngestionService(_serverDb.Object, _aggregator, _fileService.Object, packetTracker, dateTimeProvider, ingestionLogger);
 
         // We can test 'BleServerService' wrapper too if we want, OR just test 'VoteIngestionService' directly.
         // Testing BleServerService wrapper on Windows requires 'Mock<IBleHostingManager>', but we know it's guarded by #if ANDROID.
@@ -104,7 +108,7 @@ public class BleEndToEndTests
             
         _bleClientMock.Setup(x => x.IsConnected).Returns(true);
         _bleClientMock.Setup(x => x.LastRssi).Returns(-50);
-        _bleClientMock.Setup(x => x.ConnectionState).Returns(new BehaviorSubject<ConnectionState>(ConnectionState.Connected)); // Now ConnectionState should be resolved
+        _bleClientMock.Setup(x => x.ConnectionState).Returns(new BehaviorSubject<string>("Connected"));
         
         // Setup Client Service normally
         var clientLogger = loggerFactory.CreateLogger<MediaSyncService>();

@@ -1,26 +1,37 @@
 ﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand d-flex align-items-center gap-2" href="">
-            <span class="brand-icon">⬡</span>
+            <!-- aria-hidden: decorative hexagon symbol, not meaningful content -->
+            <span class="brand-icon" aria-hidden="true">⬡</span>
             <span>Nodus Portal</span>
         </a>
     </div>
 </div>
 
-<nav class="nav-scrollable flex-column" @onclick="NotifyClicked">
+<!-- aria-label: identifies this landmark for screen readers (WCAG 1.3.6).
+     Without it, a page with multiple <nav> elements cannot be distinguished. -->
+<nav class="nav-scrollable flex-column" aria-label="Navegación principal" @onclick="NotifyClicked">
 
     <div class="nav-section-label">PRINCIPAL</div>
 
     <div class="nav-item px-3">
-        <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-            <i class="bi bi-house-door nav-icon"></i>
+        <!-- aria-current: Blazor adds 'active' CSS class but NOT aria-current.
+             This is required for WCAG 2.4.4 to communicate current page to
+             screen readers. We set it conditionally via ActiveClass + manual attr.
+             Note: NavLink sets aria-current automatically in newer Blazor preview;
+             for .NET 10 stable, explicit binding via custom NavLink wrapper is the
+             safe approach. Adding the attribute directly for clarity. -->
+        <NavLink class="nav-link" href="" Match="NavLinkMatch.All" ActiveClass="active"
+                 aria-current="@(IsCurrentPage("", exact: true) ? "page" : null)">
+            <i class="bi bi-house-door nav-icon" aria-hidden="true"></i>
             <span>Inicio</span>
         </NavLink>
     </div>
 
     <div class="nav-item px-3">
-        <NavLink class="nav-link" href="register">
-            <i class="bi bi-pencil-square nav-icon"></i>
+        <NavLink class="nav-link" href="register"
+                 aria-current="@(IsCurrentPage("register") ? "page" : null)">
+            <i class="bi bi-pencil-square nav-icon" aria-hidden="true"></i>
             <span>Registrar Proyecto</span>
         </NavLink>
     </div>
@@ -28,15 +39,17 @@
     <div class="nav-section-label mt-2">MI PROYECTO</div>
 
     <div class="nav-item px-3">
-        <NavLink class="nav-link" href="display/current">
-            <i class="bi bi-qr-code nav-icon"></i>
+        <NavLink class="nav-link" href="display/current"
+                 aria-current="@(IsCurrentPage("display/current") ? "page" : null)">
+            <i class="bi bi-qr-code nav-icon" aria-hidden="true"></i>
             <span>Mi Código QR</span>
         </NavLink>
     </div>
 
     <div class="nav-item px-3">
-        <NavLink class="nav-link" href="projects">
-            <i class="bi bi-grid-3x3-gap nav-icon"></i>
+        <NavLink class="nav-link" href="projects"
+                 aria-current="@(IsCurrentPage("projects") ? "page" : null)">
+            <i class="bi bi-grid-3x3-gap nav-icon" aria-hidden="true"></i>
             <span>Ver Todos</span>
         </NavLink>
     </div>
@@ -56,10 +69,22 @@
 @code {
     [Parameter] public EventCallback OnMenuItemClicked { get; set; }
 
+    [Inject] private NavigationManager Navigation { get; set; } = default!;
+
     private async Task NotifyClicked()
     {
         if (OnMenuItemClicked.HasDelegate)
             await OnMenuItemClicked.InvokeAsync();
+    }
+
+    // Returns true when the current URL matches the given href.
+    // Used for aria-current="page" — setting to null omits the attribute from the DOM.
+    private bool IsCurrentPage(string href, bool exact = false)
+    {
+        var currentPath = new Uri(Navigation.Uri).AbsolutePath.TrimStart('/');
+        if (exact || string.IsNullOrEmpty(href))
+            return string.IsNullOrEmpty(currentPath) || currentPath.Equals(href, StringComparison.OrdinalIgnoreCase);
+        return currentPath.StartsWith(href, StringComparison.OrdinalIgnoreCase);
     }
 }
 

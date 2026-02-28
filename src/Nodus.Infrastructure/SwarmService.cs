@@ -63,7 +63,13 @@ public class SwarmService : ISwarmService, INotifyPropertyChanged
     private DateTime _linkStartedAt = DateTime.MinValue;
     private DateTime _lastServerConnectionAt; // Set in ctor
 
-    private const int RSSI_THRESHOLD = -75; // Strong signal required
+    /// <summary>
+    /// Guards against concurrent Seeker→Candidate promotions when heartbeat ticks
+    /// overlap during the Trickle wait period.
+    /// </summary>
+    private volatile bool _candidateInProgress = false;
+
+    private const int RSSI_THRESHOLD = -75; // Strong signal required (doc 12 §3B1)
     private const int MAX_LINK_DURATION_SECONDS = 60;
     private const int COOLDOWN_MINUTES = 5;
     private const int MULE_MODE_THRESHOLD_MINUTES = 10;
@@ -145,36 +151,46 @@ public class SwarmService : ISwarmService, INotifyPropertyChanged
         // 3. Candidate Promotion Logic (Trickle)
         if (CurrentState == SwarmState.Seeker)
         {
-            // Do we have a strong connection to Server?
-            // Note: We need to expose RSSI from BleClientService more robustly. 
-            // For now, assuming if Connected, RSSI is decent enough (simplified).
-            // Ideal: _bleClient.LastRssi > RSSI_THRESHOLD
+            // Guard: only one promotion attempt at a time (heartbeat could fire again during T_wait)
+            if (_candidateInProgress) return;
 
-            // Simplified Check:
-            if (_bleClient.IsConnected)
+            // Signal quality check (doc 12 §3B1): requires RSSI > -75 dBm.
+            // LastRssi is updated by BleClientService on every scan result.
+            bool hasStrongSignal = _bleClient.IsConnected && _bleClient.LastRssi > RSSI_THRESHOLD;
+
+            if (hasStrongSignal)
             {
-                // Enter Candidate Mode
-                // Random Wait (Trickle) to avoid collision
-                CurrentState = SwarmState.Candidate;
-                var randomWait = Random.Shared.Next(2000, 10000);
-                _logger.LogDebug("Candidate! Waiting {RandomWait}ms...", randomWait);
-
-                await _dateTime.Delay(TimeSpan.FromMilliseconds(randomWait));
-
-                // Redundancy Check (The "k" constant)
-                // If we see too many other Relays, abort.
-                if (NeighborLinkCount >= 2)
+                _candidateInProgress = true;
+                try
                 {
-                    _logger.LogDebug("Too many neighbors. Aborting promotion.");
-                    CurrentState = SwarmState.Seeker;
+                    // Enter Candidate Mode
+                    CurrentState = SwarmState.Candidate;
+
+                    // Trickle random wait: 5-30s (doc 12 §3B1 "T_wait = Random(5s, 30s)")
+                    var randomWait = Random.Shared.Next(5000, 30000);
+                    _logger.LogDebug("Candidate! Waiting {RandomWait}ms (RSSI={Rssi})...", randomWait, _bleClient.LastRssi);
+
+                    await _dateTime.Delay(TimeSpan.FromMilliseconds(randomWait));
+
+                    // Redundancy Check — Trickle k=2 (doc 02 §Trickle, doc 11 §1B)
+                    // If ≥2 neighbors are already acting as Links, suppress promotion.
+                    if (NeighborLinkCount >= 2)
+                    {
+                        _logger.LogDebug("Too many neighbors ({Count}). Aborting promotion.", NeighborLinkCount);
+                        CurrentState = SwarmState.Seeker;
+                    }
+                    else
+                    {
+                        // Promote to LINK!
+                        _logger.LogInformation("Promoted to LINK! RSSI={Rssi}", _bleClient.LastRssi);
+                        CurrentState = SwarmState.Link;
+                        _linkStartedAt = _dateTime.UtcNow;
+                        await StartRelayAsync();
+                    }
                 }
-                else
+                finally
                 {
-                    // Promote!
-                    _logger.LogInformation("Promoted to LINK!");
-                    CurrentState = SwarmState.Link;
-                    _linkStartedAt = _dateTime.UtcNow;
-                    await StartRelayAsync();
+                    _candidateInProgress = false;
                 }
             }
         }

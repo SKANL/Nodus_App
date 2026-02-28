@@ -27,7 +27,7 @@
                     <div class="col-md-7">
                         <div class="form-group-premium">
                             <label class="form-label-premium">Nombre del Proyecto</label>
-                            <InputText @bind-Value="project.Name" class="form-control-premium w-100" placeholder="Ej. Dron impulsado por IA" />
+                            <InputText @bind-Value="project.Name" class="form-control-premium w-100" placeholder="Ej. Dron impulsado por IA" autocomplete="organization" />
                             <ValidationMessage For="@(() => project.Name)" class="text-danger small mt-1" />
                         </div>
                     </div>
@@ -35,7 +35,7 @@
                     <div class="col-md-5">
                         <div class="form-group-premium">
                             <label class="form-label-premium">Categoría</label>
-                            <InputSelect @bind-Value="project.Category" class="form-control-premium w-100">
+                            <InputSelect @bind-Value="project.Category" class="form-control-premium w-100" autocomplete="off">
                                 @if (categories != null)
                                 {
                                     @foreach (var cat in categories)
@@ -51,8 +51,8 @@
                     <div class="col-12">
                         <div class="form-group-premium">
                             <label class="form-label-premium">Descripción del Proyecto</label>
-                            <InputTextArea @bind-Value="project.Description" class="form-control-premium w-100" 
-                                           rows="4" placeholder="Describe brevemente qué hace tu proyecto..." />
+                            <InputTextArea @bind-Value="project.Description" class="form-control-premium w-100"
+                                           rows="4" placeholder="Describe brevemente qué hace tu proyecto..." autocomplete="off" />
                             <ValidationMessage For="@(() => project.Description)" class="text-danger small mt-1" />
                         </div>
                     </div>
@@ -60,7 +60,7 @@
                     <div class="col-md-6">
                         <div class="form-group-premium">
                             <label class="form-label-premium">Autores</label>
-                            <InputText @bind-Value="project.Authors" class="form-control-premium w-100" placeholder="Alice, Bob, Charlie" />
+                            <InputText @bind-Value="project.Authors" class="form-control-premium w-100" placeholder="Alice, Bob, Charlie" autocomplete="name" />
                             <ValidationMessage For="@(() => project.Authors)" class="text-danger small mt-1" />
                         </div>
                     </div>
@@ -68,7 +68,7 @@
                     <div class="col-md-6">
                         <div class="form-group-premium">
                             <label class="form-label-premium">URL de GitHub (Opcional)</label>
-                            <InputText @bind-Value="project.GithubUrl" class="form-control-premium w-100" placeholder="https://github.com/..." />
+                            <InputText @bind-Value="project.GithubUrl" class="form-control-premium w-100" placeholder="https://github.com/..." autocomplete="url" />
                         </div>
                     </div>
                 </div>

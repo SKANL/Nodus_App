@@ -14,13 +14,26 @@ public class VoteIngestionService
     private readonly VoteAggregatorService _aggregator;
     private readonly IFileService _fileService;
     private readonly ILogger<VoteIngestionService> _logger;
+    private readonly PacketTracker _packetTracker;
+    private readonly IDateTimeProvider _dateTime;
     private byte[]? _currentEventAesKey;
 
-    public VoteIngestionService(IDatabaseService db, VoteAggregatorService aggregator, IFileService fileService, ILogger<VoteIngestionService> logger)
+    /// <summary>Maximum age of an accepted packet (2 hours). Prevents replay attacks.</summary>
+    private static readonly TimeSpan MaxPacketAge = TimeSpan.FromHours(2);
+
+    public VoteIngestionService(
+        IDatabaseService db,
+        VoteAggregatorService aggregator,
+        IFileService fileService,
+        PacketTracker packetTracker,
+        IDateTimeProvider dateTime,
+        ILogger<VoteIngestionService> logger)
     {
         _db = db;
         _aggregator = aggregator;
         _fileService = fileService;
+        _packetTracker = packetTracker;
+        _dateTime = dateTime;
         _logger = logger;
     }
 
@@ -145,6 +158,28 @@ public class VoteIngestionService
     {
         var packet = NodusPacket.FromJson(json);
         if (packet == null) return;
+
+        // --- Anti-Replay Gate 1: Timestamp age check ---
+        // Reject packets older than 2 hours to prevent replay attacks (doc 04 §Anti-Replay).
+        var packetUtc = DateTimeOffset.FromUnixTimeSeconds(packet.Timestamp).UtcDateTime;
+        var packetAge = _dateTime.UtcNow - packetUtc;
+        if (packetAge > MaxPacketAge)
+        {
+            _logger.LogWarning(
+                "Rejected stale packet {PacketId} from {SenderId}: age={Age:hh\\:mm\\:ss}",
+                packet.Id, packet.SenderId, packetAge);
+            return;
+        }
+
+        // --- Anti-Replay Gate 2: PacketTracker deduplication ---
+        // Drop packets we have already processed within the retention window (10 min).
+        if (!_packetTracker.TryProcess(packet.Id))
+        {
+            _logger.LogWarning(
+                "Rejected duplicate packet {PacketId} from {SenderId}",
+                packet.Id, packet.SenderId);
+            return;
+        }
 
         if (packet.EncryptedPayload != null && packet.EncryptedPayload.Length > 0 && _currentEventAesKey != null)
         {

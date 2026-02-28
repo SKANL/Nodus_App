@@ -27,6 +27,12 @@ public class RelayHostingService : IRelayHostingService
     private IGattService? _gattService;
     private readonly ChunkAssembler _assembler;
 
+    /// <summary>
+    /// Unique identifier for this relay node (runtime-scoped).
+    /// Used in hop-trace to detect routing loops: packet is dropped if this ID is already in Hops.
+    /// </summary>
+    private readonly string _relayNodeId = Guid.NewGuid().ToString("N");
+
     public RelayHostingService(IBleHostingManager bleHosting, IBleClientService upstreamClient, PacketTracker packetTracker, ILogger<RelayHostingService> logger)
     {
         _bleHosting = bleHosting;
@@ -48,18 +54,41 @@ public class RelayHostingService : IRelayHostingService
 
             if (packet == null) return;
 
-            // Loop Prevention (PacketTracker)
-            // If TryProcess returns false, we have seen this packet recently -> DROP IT.
+            // --- Loop Prevention (PacketTracker) ---
+            // If TryProcess returns false, this relay has already processed this packet -> DROP.
             if (!_packetTracker.TryProcess(packet.Id))
             {
                 _logger.LogDebug("Dropped duplicate packet {PacketId} from {SenderId}", packet.Id, packet.SenderId);
                 return;
             }
 
-            _logger.LogInformation("Relaying packet {PacketType} from {SenderId}", packet.Type, packet.SenderId);
+            // --- Hop-Trace Loop Detection (doc 02, doc 12) ---
+            // Drop if our own node ID is already in the trace (would cause a loop).
+            if (packet.Hops.Contains(_relayNodeId))
+            {
+                _logger.LogWarning(
+                    "Dropped looping packet {PacketId}: relay {NodeId} already in hops [{Hops}]",
+                    packet.Id, _relayNodeId, string.Join(",", packet.Hops));
+                return;
+            }
 
-            // Forward to Upstream (Server) without modification
-            // We use the new RelayPacketAsync method which sends raw bytes without re-encryption.
+            // --- TTL Enforcement (doc 02 §MAX_HOPS_TTL = 2) ---
+            // Decrement before forwarding. Drop if TTL hits 0.
+            if (packet.Ttl <= 0)
+            {
+                _logger.LogWarning("Dropped packet {PacketId}: TTL exhausted", packet.Id);
+                return;
+            }
+            packet.Ttl--;
+
+            // Record ourselves in the hop trace so the next relay can detect our presence.
+            packet.Hops.Add(_relayNodeId);
+
+            _logger.LogInformation(
+                "Relaying packet {PacketType} from {SenderId} (TTL={Ttl}, Hops={HopCount})",
+                packet.Type, packet.SenderId, packet.Ttl, packet.Hops.Count);
+
+            // Forward to Upstream (Server) without re-encryption.
             await _upstreamClient.RelayPacketAsync(packet);
 
             _logger.LogInformation("Packet {PacketId} forwarded to upstream", packet.Id);
@@ -92,11 +121,15 @@ public class RelayHostingService : IRelayHostingService
                 });
             });
 
-            // 2. Advertise with MANUFACTURER DATA = 0x02 (Relay)
+            // 2. Advertise with Nodus Relay name and Service UUID.
+            // NOTE: ManufacturerData (Byte0=0x02 relay indicator, Byte1=battery%) is defined
+            // in doc 02 but Shiny.BluetoothLE.Hosting 3.3.4 AdvertisementOptions does NOT
+            // expose a ManufacturerData parameter. Seekers cannot use battery-preference
+            // until this API is available in a future Shiny version or via a custom Android
+            // BLE advertising workaround.
             await _bleHosting.StartAdvertising(new AdvertisementOptions(
                 LocalName: "Nodus Relay",
                 ServiceUuids: new[] { NodusConstants.SERVICE_UUID }
-                // ManufacturerData: Shiny API valid check needed
             ));
 
             _logger.LogInformation("Started advertising as Relay");

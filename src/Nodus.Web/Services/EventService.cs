@@ -31,10 +31,11 @@ public class EventService
         var cloudResult = await _apiService.GetEventsAsync();
         if (cloudResult.IsSuccess && (cloudResult.Value ?? []).Any())
         {
-            // Pick the first active event, or the last updated one
+            // Pick the most recent active event when IDs include unix timestamp
+            // (e.g., EVENT-Name-1740622222). Falls back to stable first active.
             _activeEvent = (cloudResult.Value ?? [])
                 .Where(e => e.IsActive)
-                .OrderByDescending(e => e.Id) // In lieu of a proper timestamp for now
+                .OrderByDescending(e => TryExtractUnixTimestamp(e.Id) ?? 0)
                 .FirstOrDefault();
 
             if (_activeEvent != null)
@@ -63,6 +64,17 @@ public class EventService
         }
 
         return null;
+    }
+
+    private static long? TryExtractUnixTimestamp(string? eventId)
+    {
+        if (string.IsNullOrWhiteSpace(eventId)) return null;
+
+        var lastDash = eventId.LastIndexOf('-');
+        if (lastDash < 0 || lastDash == eventId.Length - 1) return null;
+
+        var suffix = eventId[(lastDash + 1)..];
+        return long.TryParse(suffix, out var ts) ? ts : null;
     }
 
     public async Task<List<string>> GetCategoriesAsync()

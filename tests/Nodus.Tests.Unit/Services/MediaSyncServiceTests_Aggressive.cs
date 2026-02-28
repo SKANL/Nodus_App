@@ -1,10 +1,10 @@
-using Moq;
+﻿using Moq;
 using Xunit;
 using Nodus.Shared.Services;
 using Nodus.Shared.Abstractions;
 using Nodus.Shared.Models;
 using Microsoft.Extensions.Logging;
-using Shiny.BluetoothLE;
+// // using Shiny.BluetoothLE; // ConnectionState->string // ConnectionState replaced by string
 using System.Reactive.Subjects;
 using System.Text;
 using Nodus.Shared;
@@ -38,7 +38,7 @@ public class MediaSyncServiceTests_Aggressive
     private readonly Mock<IFileService> _fileMock;
     private readonly Mock<ILogger<MediaSyncService>> _loggerMock;
     private readonly MediaSyncService _service;
-    private readonly BehaviorSubject<ConnectionState> _connectionSubject;
+    private readonly BehaviorSubject<string> _connectionSubject;
 
     public MediaSyncServiceTests_Aggressive()
     {
@@ -49,7 +49,7 @@ public class MediaSyncServiceTests_Aggressive
         _fileMock = new Mock<IFileService>();
         _loggerMock = new Mock<ILogger<MediaSyncService>>();
         
-        _connectionSubject = new BehaviorSubject<ConnectionState>(ConnectionState.Connected);
+        _connectionSubject = new BehaviorSubject<string>("Connected");
         _bleMock.Setup(x => x.ConnectionState).Returns(_connectionSubject);
         _bleMock.Setup(x => x.IsConnected).Returns(true);
         _bleMock.Setup(x => x.LastRssi).Returns(-50); // Good signal for manual sync

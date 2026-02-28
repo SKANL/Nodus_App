@@ -92,30 +92,32 @@ public partial class ScanViewModel : ObservableObject
 
         try
         {
+            var normalizedContent = NormalizeQrContent(qrContent);
+
             // Haptic Feedback (Optimistic Feedback)
             if (Vibration.Default.IsSupported)
                 Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(100));
 
             // 1. Project QR: "pid=PROJ-123&name=..."
-            if (qrContent.Contains("pid="))
+            if (normalizedContent.Contains("pid=", StringComparison.OrdinalIgnoreCase))
             {
-                var result = await ProcessProjectQrAsync(qrContent, ct);
+                var result = await ProcessProjectQrAsync(normalizedContent, ct);
                 if (result.IsSuccess) return;
 
                 _logger.LogWarning("Failed to process project QR: {Error}", result.Error);
             }
 
             // 2. Judge/Event QR: nodus://judge?eid=...&data=...
-            if (qrContent.StartsWith("nodus://judge"))
+            if (normalizedContent.StartsWith("nodus://judge", StringComparison.OrdinalIgnoreCase))
             {
-                var result = await ProcessEventQrAsync(qrContent, ct);
+                var result = await ProcessEventQrAsync(normalizedContent, ct);
                 if (result.IsSuccess) return;
 
                 _logger.LogWarning("Failed to process event QR: {Error}", result.Error);
             }
 
             // Unknown QR
-            await ShowAlertAsync("Resultado del Escaneo", $"QR desconocido: {qrContent}", "OK", ct: ct);
+            await ShowAlertAsync("Resultado del Escaneo", $"QR desconocido: {normalizedContent}", "OK", ct: ct);
         }
         catch (OperationCanceledException)
         {
@@ -171,7 +173,7 @@ public partial class ScanViewModel : ObservableObject
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(rawContent) || !rawContent.StartsWith("nodus://judge"))
+            if (string.IsNullOrWhiteSpace(rawContent) || !rawContent.StartsWith("nodus://judge", StringComparison.OrdinalIgnoreCase))
             {
                 return Result.Failure("Invalid QR format");
             }
@@ -199,6 +201,7 @@ public partial class ScanViewModel : ObservableObject
             }
 
             // Parse and Decrypt
+            encryptedData = Uri.UnescapeDataString(encryptedData);
             var parts = encryptedData.Split('|');
             if (parts.Length != 2) return Result.Failure("Invalid payload format");
 
@@ -287,6 +290,13 @@ public partial class ScanViewModel : ObservableObject
             _logger.LogError(ex, "Unexpected error during registration");
             return Result.Failure("Registration failed with an internal error", ex);
         }
+    }
+
+    private static string NormalizeQrContent(string content)
+    {
+        if (string.IsNullOrWhiteSpace(content)) return string.Empty;
+        var trimmed = content.Trim();
+        return string.Concat(trimmed.Where(c => !char.IsWhiteSpace(c)));
     }
 
     private Dictionary<string, string> ParseQueryString(string text)

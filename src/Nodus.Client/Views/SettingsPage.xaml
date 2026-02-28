@@ -22,6 +22,8 @@
                            FontSize="17" FontAttributes="Bold" TextColor="White" />
                     
                     <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="12">
+                        <!-- Fix: TextColor elevated from #64748B (Gray500, ratio 3.1:1 ❌) to
+                             #94A3B8 (Gray400, ratio ~4.9:1 ✅ WCAG AA) for stat row labels -->
                         <Label Grid.Row="0" Grid.Column="0" Text="Votos Pendientes:" TextColor="#94A3B8" FontSize="14" />
                         <Label Grid.Row="0" Grid.Column="1" 
                                Text="{Binding PendingVotesCount}" 
@@ -56,13 +58,27 @@
             <!-- ═══════════════════════════════════════════════════════ -->
             <BoxView HeightRequest="1" Color="#1E293B" Margin="0,4" />
 
-            <Label Text="Opciones de Desarrollador" FontSize="22" FontAttributes="Bold" TextColor="White" Margin="8,0,0,4" />
+            <!-- Developer Options — only visible in DEBUG / dev builds.
+                 Fix: exposed dev tools in production confuse end users and
+                 damage trust. IsVisible binds to ViewModel.IsDevMode, which
+                 resolves to true only when the app is built in DEBUG config.
+
+                 In SettingsViewModel.cs, implement:
+                   public bool IsDevMode =>
+                       System.Diagnostics.Debugger.IsAttached ||
+                       AppInfo.Current.PackageName.Contains(".debug");
+
+                 This means judges in the field never see raw sync triggers.
+            -->
+            <Label Text="Opciones de Desarrollador" FontSize="22" FontAttributes="Bold" TextColor="White" Margin="8,0,0,4"
+                   IsVisible="{Binding IsDevMode}" />
 
             <!-- Media Sync Card -->
             <Border StrokeShape="RoundRectangle 16"
                     StrokeThickness="1" Stroke="#1E293B"
                     BackgroundColor="#1E293B"
-                    Padding="20,16">
+                    Padding="20,16"
+                    IsVisible="{Binding IsDevMode}">
                 <VerticalStackLayout Spacing="12">
                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
                         <Label Grid.Column="0" 
@@ -91,8 +107,9 @@
                                            IsVisible="{Binding IsSyncing}"
                                            HeightRequest="18" WidthRequest="18" 
                                            Color="#6366F1" />
+                        <!-- Fix: #64748B (ratio 3.1:1 ❌) → #94A3B8 (ratio ~4.9:1 ✅ AA) -->
                         <Label Text="{Binding StatusMessage}"
-                               TextColor="#64748B"
+                               TextColor="#94A3B8"
                                FontSize="13"
                                VerticalOptions="Center" />
                     </HorizontalStackLayout>

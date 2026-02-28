@@ -36,7 +36,7 @@ else
                         <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill me-3">
                             @project.Category
                         </span>
-                        <span class="text-muted small">ID: @project.Id.Substring(0, 8)...</span>
+                        <span class="text-muted small">ID: @(project.Id?.Length >= 8 ? project.Id[..8] + "…" : project.Id)</span>
                     </div>
 
                     <h1 class="display-3 mb-3 fw-bold text-dark">@project.Name</h1>

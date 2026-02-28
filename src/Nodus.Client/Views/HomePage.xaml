@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Nodus.Client.ViewModels"
              x:Class="Nodus.Client.Views.HomePage"
-             Title=""
+             Title="Nodus"
              BackgroundColor="#0F172A">
 
     <ScrollView>
@@ -70,7 +70,7 @@
                                FontAttributes="Bold" TextColor="#F59E0B"
                                HorizontalOptions="Center" />
                         <Label Text="PENDIENTES" FontSize="10" FontAttributes="Bold"
-                               CharacterSpacing="1.5" TextColor="#64748B"
+                               CharacterSpacing="1.5" TextColor="#94A3B8"
                                HorizontalOptions="Center" />
                     </VerticalStackLayout>
                 </Border>
@@ -84,7 +84,7 @@
                                FontAttributes="Bold" TextColor="#22C55E"
                                HorizontalOptions="Center" />
                         <Label Text="SINCRONIZADOS" FontSize="10" FontAttributes="Bold"
-                               CharacterSpacing="1.5" TextColor="#64748B"
+                               CharacterSpacing="1.5" TextColor="#94A3B8"
                                HorizontalOptions="Center" />
                     </VerticalStackLayout>
                 </Border>
@@ -113,17 +113,27 @@
                         HeightRequest="56"
                         CornerRadius="16" />
 
-                <!-- Sync button: only when syncing -->
-                <Button Text="⏳  Sincronizando votos..."
-                        IsVisible="{Binding IsSyncing}"
+                <!-- Sync status row — replaced fake-disabled Button with a
+                     non-interactive indicator.  A Button that is always
+                     IsEnabled=False misleads users into thinking it is broken.
+                     An ActivityIndicator+Label correctly communicates "status". -->
+                <Border IsVisible="{Binding IsSyncing}"
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="1.5"
+                        Stroke="#F59E0B"
                         BackgroundColor="Transparent"
-                        BorderColor="#F59E0B"
-                        BorderWidth="1.5"
-                        TextColor="#F59E0B"
-                        FontSize="15"
-                        HeightRequest="48"
-                        CornerRadius="14"
-                        IsEnabled="False" />
+                        Padding="16,12">
+                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <ActivityIndicator IsRunning="{Binding IsSyncing}"
+                                           Color="#F59E0B"
+                                           HeightRequest="18" WidthRequest="18" />
+                        <Label Text="Sincronizando votos..."
+                               TextColor="#F59E0B"
+                               FontSize="15" FontAttributes="Bold"
+                               VerticalOptions="Center"
+                               SemanticProperties.Description="Sincronizando votos pendientes" />
+                    </HorizontalStackLayout>
+                </Border>
 
             </VerticalStackLayout>
 
@@ -134,7 +144,7 @@
                 <Label Text="Bienvenido a Nodus" FontSize="20" FontAttributes="Bold"
                        TextColor="White" HorizontalOptions="Center" />
                 <Label Text="Escanea el código QR del evento proyectado para registrarte como juez y comenzar a evaluar proyectos."
-                       FontSize="14" TextColor="#64748B"
+                       FontSize="14" TextColor="#94A3B8"
                        HorizontalOptions="Center"
                        HorizontalTextAlignment="Center"
                        Margin="20,0" />
@@ -152,7 +162,7 @@
                     <Label Text="{Binding JudgeName}"
                            FontSize="20" FontAttributes="Bold" TextColor="White" />
                     <Label Text="Toca 'Escanear Proyecto' para comenzar a evaluar."
-                           FontSize="13" TextColor="#64748B" />
+                           FontSize="13" TextColor="#94A3B8" />
                 </VerticalStackLayout>
             </Border>
 

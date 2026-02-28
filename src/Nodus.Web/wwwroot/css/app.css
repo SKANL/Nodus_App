@@ -179,6 +179,13 @@ main {
     font-weight: 600;
     box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
     transition: all 0.2s;
+    /* Ensure interactive baseline */
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    text-decoration: none;
 }
 
 .btn-premium:hover {
@@ -186,6 +193,28 @@ main {
     transform: translateY(-1px);
     box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
     color: white;
+}
+
+/* ── WCAG 2.4.7: Focus-visible ring for all interactive elements ──
+   Without this, keyboard users cannot tell where focus is,
+   which is a WCAG AA failure. The :focus-visible selector fires
+   only for keyboard navigation, not mouse clicks — so it won't
+   show the ring on btn clicks but WILL show it on Tab navigation. */
+.btn-premium:focus-visible,
+.btn:focus-visible,
+.form-control-premium:focus-visible,
+.nav-item a:focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.2);
+}
+
+.btn-premium:disabled,
+.btn-premium[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    pointer-events: none;
 }
 
 /* Forms */
@@ -279,11 +308,10 @@ main {
     margin-bottom: 0;
 }
 
-/* ============================================================
-   Sidebar backdrop — mobile overlay to close sidebar on tap
-   Rendered conditionally by Blazor when the sidebar is open,
-   so no JS class-toggle needed — just ensure it fills the screen.
-   ============================================================ */
+/* Sidebar backdrop — mobile overlay to close sidebar on tap
+   Renamed keyframe to fadeInBackdrop to avoid collision with the
+   page-enter fadeIn defined above (duplicate names cause the first
+   to be silently overridden, breaking page transition animations). */
 .sidebar-backdrop {
     position: fixed;
     inset: 0;
@@ -291,10 +319,10 @@ main {
     backdrop-filter: blur(2px);
     z-index: 999;
     cursor: pointer;
-    animation: fadeIn 0.2s ease;
+    animation: fadeInBackdrop 0.2s ease;
 }
 
-@keyframes fadeIn {
+@keyframes fadeInBackdrop {
     from { opacity: 0; }
     to   { opacity: 1; }
 }

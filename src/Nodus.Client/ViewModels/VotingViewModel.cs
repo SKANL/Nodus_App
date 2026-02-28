@@ -14,7 +14,9 @@ namespace Nodus.Client.ViewModels;
 public partial class CategoryScore : ObservableObject
 {
     [ObservableProperty] public partial string Name { get; set; } = string.Empty;
-    [ObservableProperty] public partial double Score { get; set; } = 5;
+    // Score default 0 (not 5) after Minimum="0" fix in VotingPage.xaml slider.
+    // This means the badge shows "—" until the judge explicitly interacts.
+    [ObservableProperty] public partial double Score { get; set; } = 0;
     public double MaxScore { get; set; } = 10;
 }
 
@@ -38,6 +40,12 @@ public partial class VotingViewModel : ObservableObject, IDisposable
 
     public ObservableCollection<CategoryScore> Categories { get; } = new();
 
+    // Progress tracking — Fix: Nielsen #1 (Visibility of System Status)
+    // Tells the judge how many criteria they have rated out of the total.
+    // Recomputed whenever any Category.Score changes or Categories collection changes.
+    [ObservableProperty] public partial double EvaluationProgress { get; set; } = 0;
+    [ObservableProperty] public partial string EvaluationProgressLabel { get; set; } = "0 de 0";
+
     [ObservableProperty]
     public partial string ProjectId { get; set; } = string.Empty;
 
@@ -53,6 +61,58 @@ public partial class VotingViewModel : ObservableObject, IDisposable
         _bleService = bleService;
         _logger = logger;
         _logger.LogInformation("VotingViewModel initialized");
+
+        // Wire collection change events so EvaluationProgress updates
+        // whenever a category is added/removed or its Score changes.
+        Categories.CollectionChanged += (_, args) =>
+        {
+            if (args.NewItems != null)
+                foreach (CategoryScore cat in args.NewItems)
+                    cat.PropertyChanged += OnCategoryPropertyChanged;
+
+            if (args.OldItems != null)
+                foreach (CategoryScore cat in args.OldItems)
+                    cat.PropertyChanged -= OnCategoryPropertyChanged;
+
+            RecomputeProgress();
+        };
+    }
+
+    private void OnCategoryPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(CategoryScore.Score))
+            RecomputeProgress();
+    }
+
+    /// <summary>Recomputes progress bar and label when scores change.</summary>
+    private void RecomputeProgress()
+    {
+        int total = Categories.Count;
+        // A score > 0 means the judge has intentionally rated this criterion.
+        int rated  = Categories.Count(c => c.Score > 0);
+        EvaluationProgress = total > 0 ? (double)rated / total : 0;
+        EvaluationProgressLabel = $"{rated} de {total}";
+    }
+
+    /// <summary>
+    /// Cancels the current vote and returns to the scanner.
+    /// Fix: Nielsen #3 — User Control and Freedom.
+    /// Judges who accidentally scan the wrong project need a clear exit.
+    /// </summary>
+    [RelayCommand]
+    private async Task CancelVoteAsync()
+    {
+        bool confirmed = await Shell.Current.DisplayAlertAsync(
+            "Cancelar Evaluación",
+            "¿Deseas cancelar la evaluación de este proyecto y volver al escáner?",
+            "Sí, cancelar",
+            "Continuar evaluando");
+
+        if (confirmed)
+        {
+            _logger.LogInformation("Vote for project {ProjectId} cancelled by judge", ProjectId);
+            await Shell.Current.GoToAsync("..");
+        }
     }
 
     /// <summary>Called by Shell when ProjectId query param arrives.</summary>
@@ -94,10 +154,11 @@ public partial class VotingViewModel : ObservableObject, IDisposable
             }
             else
             {
-                // Fallback rubric
+                // Fallback rubric — Score starts at 0 (not 5) so judges
+                // explicitly rate each criterion. Matches Minimum="0" slider fix.
                 Categories.Clear();
-                Categories.Add(new CategoryScore { Name = "Diseño", Score = 5 });
-                Categories.Add(new CategoryScore { Name = "Funcionalidad", Score = 5 });
+                Categories.Add(new CategoryScore { Name = "Diseño", Score = 0 });
+                Categories.Add(new CategoryScore { Name = "Funcionalidad", Score = 0 });
             }
 
             StatusMessage = "Evaluar Proyecto";
@@ -121,7 +182,8 @@ public partial class VotingViewModel : ObservableObject, IDisposable
                 foreach (var prop in doc.RootElement.EnumerateObject())
                 {
                     double max = prop.Value.TryGetDouble(out var v) ? v : 10;
-                    Categories.Add(new CategoryScore { Name = prop.Name, Score = max / 2, MaxScore = max });
+                    // Score = 0 (not max/2) — judge starts with blank slate
+                    Categories.Add(new CategoryScore { Name = prop.Name, Score = 0, MaxScore = max });
                 }
             }
             else
@@ -129,7 +191,8 @@ public partial class VotingViewModel : ObservableObject, IDisposable
                 var cats = rubricJson.Split(',', StringSplitOptions.RemoveEmptyEntries);
                 foreach (var cat in cats)
                 {
-                    Categories.Add(new CategoryScore { Name = cat.Trim(), Score = 5, MaxScore = 10 });
+                    // Score = 0: unrated until judge interacts with slider
+                    Categories.Add(new CategoryScore { Name = cat.Trim(), Score = 0, MaxScore = 10 });
                 }
             }
         }

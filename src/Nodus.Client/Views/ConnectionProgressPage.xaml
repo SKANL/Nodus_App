@@ -5,35 +5,166 @@
              x:Class="Nodus.Client.Views.ConnectionProgressPage"
              Title="Conectando..."
              Shell.PresentationMode="ModalAnimated"
-             BackgroundColor="{StaticResource BackgroundColor}">
+             BackgroundColor="{StaticResource DeepBackground}">
 
-    <VerticalStackLayout Spacing="25" Padding="30" VerticalOptions="Center" HorizontalOptions="Center">
-        
-        <ActivityIndicator IsRunning="True" Color="{StaticResource Primary}" WidthRequest="60" HeightRequest="60" IsVisible="{Binding IsConnecting}" />
-        <Image Source="dotnet_bot.png" WidthRequest="60" HeightRequest="60" IsVisible="{Binding IsConnected}" />
-        
-        <Label Text="{Binding StatusMessage}" 
-               FontSize="22" 
-               FontAttributes="Bold" 
-               HorizontalTextAlignment="Center" />
-        
-        <Label Text="{Binding DetailMessage}"
-               FontSize="16"
-               TextColor="{StaticResource TextMuted}"
-               HorizontalTextAlignment="Center" />
+    <!-- ═══════════════════════════════════════════════════════════
+         CONNECTION PROGRESS — Progressive stepper design
+         States: IsConnecting (spinner) → IsConnected (success icon)
+         Fix: replaced non-existent resource keys (BackgroundColor,
+              TextMuted) with actual palette tokens (DeepBackground,
+              Gray400). Replaced dotnet_bot.png placeholder with an
+              inline SVG checkmark styled with the brand indigo color.
+    ═══════════════════════════════════════════════════════════ -->
+    <Grid RowDefinitions="*, Auto" Padding="32,56,32,40">
 
-        <Button Text="Cancelar" 
-                Command="{Binding CancelCommand}"
-                BackgroundColor="Transparent"
-                TextColor="{StaticResource TextMuted}"
-                IsVisible="{Binding IsConnecting}"
-                Margin="0, 40, 0, 0"/>
-        
-        <Button Text="Comenzar" 
-                Command="{Binding ContinueCommand}"
-                Style="{StaticResource PrimaryButton}"
-                IsVisible="{Binding IsConnected}"
-                Margin="0, 40, 0, 0"/>
-                
-    </VerticalStackLayout>
+        <!-- ── CENTER CONTENT ── -->
+        <VerticalStackLayout Grid.Row="0"
+                             Spacing="0"
+                             VerticalOptions="Center"
+                             HorizontalOptions="Fill">
+
+            <!-- ── Icon zone ── -->
+            <Grid HeightRequest="96" WidthRequest="96"
+                  HorizontalOptions="Center"
+                  Margin="0,0,0,32">
+
+                <!-- Spinner (connecting) -->
+                <ActivityIndicator IsRunning="{Binding IsConnecting}"
+                                   IsVisible="{Binding IsConnecting}"
+                                   Color="{StaticResource Primary}"
+                                   WidthRequest="96"
+                                   HeightRequest="96" />
+
+                <!-- Success checkmark pill (connected) -->
+                <Border IsVisible="{Binding IsConnected}"
+                        StrokeShape="RoundRectangle 48"
+                        StrokeThickness="0"
+                        BackgroundColor="#1A22C55E"
+                        HeightRequest="96"
+                        WidthRequest="96">
+                    <Label Text="✓"
+                           FontSize="44"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource Success}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           SemanticProperties.Description="Conexión exitosa" />
+                </Border>
+            </Grid>
+
+            <!-- ── Status headline ── -->
+            <Label Text="{Binding StatusMessage}"
+                   FontSize="22"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalTextAlignment="Center"
+                   Margin="0,0,0,10" />
+
+            <!-- ── Detail line ── -->
+            <Label Text="{Binding DetailMessage}"
+                   FontSize="15"
+                   TextColor="{StaticResource Gray400}"
+                   HorizontalTextAlignment="Center"
+                   LineBreakMode="WordWrap"
+                   Margin="0,0,0,40" />
+
+            <!-- ── Step indicators ── -->
+            <!-- Visual stepper: 3 phases shown when connecting -->
+            <VerticalStackLayout IsVisible="{Binding IsConnecting}"
+                                 Spacing="16"
+                                 Margin="0,0,0,0">
+
+                <!-- Step row template:
+                     Phase 1 — Verificando QR -->
+                <Grid ColumnDefinitions="32,*" ColumnSpacing="14">
+                    <Border Grid.Column="0"
+                            StrokeShape="RoundRectangle 16"
+                            StrokeThickness="0"
+                            BackgroundColor="{StaticResource PrimaryDark}"
+                            HeightRequest="32" WidthRequest="32"
+                            VerticalOptions="Center" HorizontalOptions="Center">
+                        <Label Text="1" FontSize="13" FontAttributes="Bold"
+                               TextColor="White"
+                               HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                        <Label Text="Verificando credenciales QR"
+                               FontSize="14" FontAttributes="Bold" TextColor="White" />
+                        <Label Text="Autenticando el token del juez"
+                               FontSize="12" TextColor="{StaticResource Gray500}" />
+                    </VerticalStackLayout>
+                </Grid>
+
+                <!-- Step 2 — Canal BLE -->
+                <Grid ColumnDefinitions="32,*" ColumnSpacing="14">
+                    <Border Grid.Column="0"
+                            StrokeShape="RoundRectangle 16"
+                            StrokeThickness="0"
+                            BackgroundColor="{StaticResource SurfaceLight}"
+                            HeightRequest="32" WidthRequest="32"
+                            VerticalOptions="Center" HorizontalOptions="Center">
+                        <Label Text="2" FontSize="13" FontAttributes="Bold"
+                               TextColor="{StaticResource Gray400}"
+                               HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                        <Label Text="Estableciendo canal BLE"
+                               FontSize="14" FontAttributes="Bold" TextColor="{StaticResource Gray400}" />
+                        <Label Text="Conectando al nodo servidor"
+                               FontSize="12" TextColor="{StaticResource Gray600}" />
+                    </VerticalStackLayout>
+                </Grid>
+
+                <!-- Step 3 — Identidad -->
+                <Grid ColumnDefinitions="32,*" ColumnSpacing="14">
+                    <Border Grid.Column="0"
+                            StrokeShape="RoundRectangle 16"
+                            StrokeThickness="0"
+                            BackgroundColor="{StaticResource SurfaceLight}"
+                            HeightRequest="32" WidthRequest="32"
+                            VerticalOptions="Center" HorizontalOptions="Center">
+                        <Label Text="3" FontSize="13" FontAttributes="Bold"
+                               TextColor="{StaticResource Gray400}"
+                               HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                        <Label Text="Verificando identidad del juez"
+                               FontSize="14" FontAttributes="Bold" TextColor="{StaticResource Gray400}" />
+                        <Label Text="Activando privilegios de votación"
+                               FontSize="12" TextColor="{StaticResource Gray600}" />
+                    </VerticalStackLayout>
+                </Grid>
+
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+
+        <!-- ── BOTTOM ACTIONS ── -->
+        <VerticalStackLayout Grid.Row="1" Spacing="12">
+
+            <!-- Primary: Continuar (solo al conectar con éxito) -->
+            <Button Text="Comenzar a Votar"
+                    Command="{Binding ContinueCommand}"
+                    IsVisible="{Binding IsConnected}"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="White"
+                    FontSize="17" FontAttributes="Bold"
+                    HeightRequest="56"
+                    CornerRadius="16"
+                    SemanticProperties.Hint="Completa la conexión y accede a la pantalla de votación" />
+
+            <!-- Ghost: Cancelar (solo mientras conecta) -->
+            <Button Text="Cancelar"
+                    Command="{Binding CancelCommand}"
+                    IsVisible="{Binding IsConnecting}"
+                    BackgroundColor="Transparent"
+                    BorderColor="{StaticResource SurfaceLight}"
+                    BorderWidth="1"
+                    TextColor="{StaticResource Gray400}"
+                    FontSize="15"
+                    HeightRequest="48"
+                    CornerRadius="12" />
+
+        </VerticalStackLayout>
+    </Grid>
 </ContentPage>

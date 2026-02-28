@@ -6,6 +6,7 @@ using Nodus.Shared.Abstractions;
 using Nodus.Shared.Services;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Text.Json;
 using QRCoder;
 
 namespace Nodus.Server.ViewModels;
@@ -65,12 +66,12 @@ public partial class CreateEventViewModel : ObservableObject
             // 1. Delegate all crypto work to dedicated service (SRP)
             var artifacts = _security.GenerateArtifacts(JudgePassword);
 
-            // 2. Persist event to MongoDB via IDatabaseService
+            // 2. Persist event via IDatabaseService (local-first in Server)
             var newEvent = new Event
             {
                 Name = EventName,
                 GlobalSalt = artifacts.SaltBase64,
-                RubricJson = Categories,
+                RubricJson = BuildRubricJson(Categories),
                 SharedAesKeyEncrypted = artifacts.SharedKeyBase64,
                 IsActive = true
             };
@@ -79,18 +80,24 @@ public partial class CreateEventViewModel : ObservableObject
             var saveResult = await _db.SaveEventAsync(newEvent);
             if (saveResult.IsFailure)
             {
+                _logger.LogWarning("Initial event save failed for {EventId}. Retrying once...", eventId);
+                await Task.Delay(250);
+                saveResult = await _db.SaveEventAsync(newEvent);
+            }
+            if (saveResult.IsFailure)
+            {
                 _logger.LogError("Failed to persist event: {Error}", saveResult.Error);
 
-                // Provide an actionable error that explains the most common cause.
+                // Provide an actionable error aligned with local-first architecture.
                 var userMessage = saveResult.Error ?? "Error desconocido";
                 if (userMessage.Contains("Connection refused", StringComparison.OrdinalIgnoreCase)
                     || userMessage.Contains("No connection could be made", StringComparison.OrdinalIgnoreCase)
                     || userMessage.Contains("A timeout", StringComparison.OrdinalIgnoreCase)
                     || userMessage.Contains("ServerSelectionTimeout", StringComparison.OrdinalIgnoreCase))
                 {
-                    userMessage = "No se pudo conectar con MongoDB.\n\n"
-                        + "• Desarrollo local: asegúrate de que MongoDB esté corriendo en localhost:27017\n"
-                        + "• Producción: verifica el URI de MongoDB Atlas en AppSecrets.cs";
+                    userMessage = "No se pudo guardar el evento localmente.\n\n"
+                        + "• Verifica permisos de escritura en la carpeta de datos de la app\n"
+                        + "• Reintenta la operación; la sincronización a nube ocurre en segundo plano";
                 }
 
                 await ShowAlertAsync("Error al guardar", userMessage);
@@ -110,6 +117,12 @@ public partial class CreateEventViewModel : ObservableObject
 
             // 4. Start Firefly BLE advertising
             await _bleService.StartAdvertisingAsync(EventName);
+            if (!OperatingSystem.IsAndroid())
+            {
+                await ShowAlertAsync(
+                    "BLE no disponible",
+                    "Este Server está ejecutándose en una plataforma sin hosting BLE.\n\nPara conexión Judge↔Server por BLE, ejecuta Nodus.Server en Android.");
+            }
         }
         catch (Exception ex)
         {
@@ -132,6 +145,27 @@ public partial class CreateEventViewModel : ObservableObject
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
+
+    private static string BuildRubricJson(string categoriesInput)
+    {
+        if (string.IsNullOrWhiteSpace(categoriesInput))
+            return "{}";
+
+        var categories = categoriesInput
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(c => !string.IsNullOrWhiteSpace(c))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (categories.Count == 0)
+            return "{}";
+
+        var rubric = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        foreach (var category in categories)
+            rubric[category] = 10;
+
+        return JsonSerializer.Serialize(rubric);
+    }
 
     private static ImageSource GenerateQrImage(string content)
     {

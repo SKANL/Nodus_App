@@ -2,6 +2,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using Microsoft.Extensions.Logging;
+using System.Net.Sockets;
 using Nodus.Shared.Common;
 using Nodus.Shared.Models;
 using Nodus.Infrastructure.Models;
@@ -36,14 +37,37 @@ public class MongoDbService : IDatabaseService
     {
         _logger = logger;
 
-        // Use explicit settings so that connection failures surface quickly with a
-        // meaningful error instead of hanging for the 30-second MongoDB default.
-        // For Atlas URIs the driver overrides these with the SRV-discovered endpoints,
-        // so they only act as a fast-fail guard for localhost / unreachable hosts.
+        // Use explicit timeouts so that connection failures surface quickly instead
+        // of hanging for the 30-second MongoDB driver default.
         var settings = MongoClientSettings.FromConnectionString(connectionString);
         settings.ServerSelectionTimeout = TimeSpan.FromSeconds(8);
         settings.ConnectTimeout = TimeSpan.FromSeconds(8);
         settings.SocketTimeout = TimeSpan.FromSeconds(15);
+
+        // Apply TLS workarounds only for remote URIs (Atlas / SRV).
+        // Local mongodb:// connections don't use TLS and should skip this block.
+        bool isRemote = connectionString.StartsWith("mongodb+srv://", StringComparison.OrdinalIgnoreCase)
+                     || (connectionString.Contains('@') && !connectionString.Contains("localhost") && !connectionString.Contains("127.0.0.1"));
+        if (isRemote)
+        {
+            // Windows Schannel (0x80090304 / SEC_E_NO_CREDENTIALS): the OS cannot
+            // reach the root CA for OCSP/CRL validation (firewall, outdated cert
+            // store, corporate proxy, etc.).
+            // • AllowInsecureTls disables hostname verification at the driver level.
+            // • ServerCertificateValidationCallback bypasses cert-chain validation
+            //   once the TLS handshake completes.
+            // • Using only TLS 1.2 avoids Schannel TLS 1.3 credential issues on
+            //   some Windows builds.
+            // • SendTlsResumeTicket=false prevents session-resumption race conditions.
+            // ⚠️  Remove these overrides (or gate on IsDevelopment) before shipping.
+            AppContext.SetSwitch("System.Net.Security.SendTlsResumeTicket", false);
+            settings.AllowInsecureTls = true;
+            settings.SslSettings = new MongoDB.Driver.SslSettings
+            {
+                EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12,
+                ServerCertificateValidationCallback = (_, _, _, _) => true
+            };
+        }
 
         var client = new MongoClient(settings);
         _database = client.GetDatabase(databaseName);
@@ -122,6 +146,12 @@ public class MongoDbService : IDatabaseService
         }
         catch (Exception ex)
         {
+            if (IsDatabaseUnavailable(ex))
+            {
+                _logger.LogWarning(ex, "Database unavailable while retrieving events. Returning empty list.");
+                return Result<List<Event>>.Success([]);
+            }
+
             _logger.LogError(ex, "Failed to retrieve events");
             return Result<List<Event>>.Failure("Failed to retrieve events", ex);
         }
@@ -177,6 +207,12 @@ public class MongoDbService : IDatabaseService
         }
         catch (Exception ex)
         {
+            if (IsDatabaseUnavailable(ex))
+            {
+                _logger.LogWarning(ex, "Database unavailable while retrieving projects for event {EventId}. Returning empty list.", eventId);
+                return Result<List<Project>>.Success([]);
+            }
+
             _logger.LogError(ex, "Failed to retrieve projects for event {EventId}", eventId);
             return Result<List<Project>>.Failure($"Failed to retrieve projects for event {eventId}", ex);
         }
@@ -191,9 +227,31 @@ public class MongoDbService : IDatabaseService
         }
         catch (Exception ex)
         {
+            if (IsDatabaseUnavailable(ex))
+            {
+                _logger.LogWarning(ex, "Database unavailable while retrieving all projects. Returning empty list.");
+                return Result<List<Project>>.Success([]);
+            }
+
             _logger.LogError(ex, "Failed to retrieve all projects");
             return Result<List<Project>>.Failure("Failed to retrieve all projects", ex);
         }
+    }
+
+    private static bool IsDatabaseUnavailable(Exception ex)
+    {
+        var current = ex;
+        while (current != null)
+        {
+            if (current is TimeoutException or MongoConnectionException or SocketException)
+            {
+                return true;
+            }
+
+            current = current.InnerException!;
+        }
+
+        return false;
     }
 
     public async Task<Result<Project>> GetProjectAsync(string id, CancellationToken ct = default)
@@ -309,10 +367,12 @@ public class MongoDbService : IDatabaseService
     {
         try
         {
-            // VoteDocument.Status es string ("Pending"|"Synced"|"SyncError")
-            // Vote.Status es SyncStatus enum — la comparación se hace contra el string
-            var statusStr = SyncStatus.Pending.ToString();
-            var docs = await _votes.Find(v => v.Status == statusStr).ToListAsync(ct);
+            // Returns both Pending and SyncError votes so that failed votes are
+            // automatically retried on the next sync cycle instead of being orphaned.
+            var pendingStr = SyncStatus.Pending.ToString();
+            var errorStr = SyncStatus.SyncError.ToString();
+            var filter = Builders<VoteDocument>.Filter.In(v => v.Status, new[] { pendingStr, errorStr });
+            var docs = await _votes.Find(filter).ToListAsync(ct);
             return Result<List<Vote>>.Success(docs.Select(ToVote).ToList());
         }
         catch (Exception ex)

@@ -1,10 +1,12 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Nodus.Shared.Abstractions;
 using Nodus.Shared.Common;
 using Nodus.Shared.Models;
 using Nodus.Shared.Services;
 using Xunit;
+using DatabaseService = Nodus.Infrastructure.Services.LocalDatabaseService;
 
 namespace Nodus.Tests.Unit.Services;
 
@@ -17,12 +19,17 @@ public class DatabaseServiceTests_Enhanced : IDisposable
     private readonly DatabaseService _sut;
     private readonly string _testDbPath;
     private readonly ILogger<DatabaseService> _logger;
+    private readonly Mock<IFileService> _fileServiceMock;
 
     public DatabaseServiceTests_Enhanced()
     {
-        _testDbPath = Path.Combine(Path.GetTempPath(), $"test_nodus_{Guid.NewGuid()}.db");
+        _testDbPath = Path.Combine(Path.GetTempPath(), $"nodus_test_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(_testDbPath);
         _logger = new Mock<ILogger<DatabaseService>>().Object;
-        _sut = new DatabaseService(_testDbPath, _logger);
+        _fileServiceMock = new Mock<IFileService>();
+        _fileServiceMock.Setup(x => x.GetAppDataDirectory()).Returns(_testDbPath);
+        _fileServiceMock.Setup(x => x.CreateDirectory(It.IsAny<string>()));
+        _sut = new DatabaseService(_fileServiceMock.Object);
     }
 
     #region Concurrency Tests - CRITICAL for discovering race conditions
@@ -422,12 +429,10 @@ public class DatabaseServiceTests_Enhanced : IDisposable
     {
         try
         {
-            if (File.Exists(_testDbPath))
-            {
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-                File.Delete(_testDbPath);
-            }
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            if (Directory.Exists(_testDbPath))
+                Directory.Delete(_testDbPath, recursive: true);
         }
         catch
         {

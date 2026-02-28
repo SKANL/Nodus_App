@@ -23,6 +23,15 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
     [ObservableProperty] public partial ObservableCollection<ProjectLeaderboardEntry> Remaining { get; set; } = new();
     [ObservableProperty] public partial bool HasResults { get; set; }
 
+    // Podium null-safe bindings — replaces direct Top3[0/1/2] indexing in XAML
+    // which throws IndexOutOfRangeException when fewer than 3 projects have votes.
+    [ObservableProperty] public partial ProjectLeaderboardEntry? PodiumFirst { get; set; }
+    [ObservableProperty] public partial ProjectLeaderboardEntry? PodiumSecond { get; set; }
+    [ObservableProperty] public partial ProjectLeaderboardEntry? PodiumThird { get; set; }
+    [ObservableProperty] public partial bool HasPodiumFirst { get; set; }
+    [ObservableProperty] public partial bool HasPodiumSecond { get; set; }
+    [ObservableProperty] public partial bool HasPodiumThird { get; set; }
+
     public ResultsViewModel(
         IDatabaseService db,
         VoteAggregatorService aggregator,
@@ -63,6 +72,14 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
             foreach (var item in enriched.Skip(3)) Remaining.Add(item);
 
             HasResults = enriched.Any();
+
+            // Populate null-safe podium bindings
+            PodiumFirst  = enriched.Count > 0 ? enriched[0] : null;
+            PodiumSecond = enriched.Count > 1 ? enriched[1] : null;
+            PodiumThird  = enriched.Count > 2 ? enriched[2] : null;
+            HasPodiumFirst  = PodiumFirst  is not null;
+            HasPodiumSecond = PodiumSecond is not null;
+            HasPodiumThird  = PodiumThird  is not null;
         });
     }
 

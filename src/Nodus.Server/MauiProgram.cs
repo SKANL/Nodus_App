@@ -32,12 +32,11 @@ public static class MauiProgram
 			builder.Logging.SetMinimumLevel(LogLevel.Information);
 #endif
 
-            // ─── Database: Single source of truth → MongoDB ───────────────────────
-            // IDatabaseService resolves to MongoDbService everywhere (UI + sync).
-            // LocalDatabaseService (LiteDB) has been removed to eliminate the dual-DB bug
-            // where the UI read from SQLite while cloud writes went to MongoDB.
-            // MongoDbService is registered as BOTH its concrete type (required by CloudSyncService)
-            // and as IDatabaseService abstraction (same singleton instance).
+            // ─── Database: Offline-first (LiteDB local) + Cloud sync (MongoDbService) ──────
+            // IDatabaseService → LocalDatabaseService (LiteDB): all UI reads/writes go here.
+            // MongoDbService is registered as its own concrete type so CloudSyncService can
+            // receive it explicitly — it is NOT exposed as IDatabaseService to avoid the
+            // bug where both sides of sync resolved to the same MongoDB instance.
             LogDebug("Registering Database Services");
             builder.Services.AddSingleton<Nodus.Infrastructure.Services.MongoDbService>(sp =>
             {
@@ -47,8 +46,9 @@ public static class MauiProgram
                     AppSecrets.MongoDatabaseName,
                     logger);
             });
-            builder.Services.AddSingleton<Nodus.Shared.Abstractions.IDatabaseService>(
-                sp => sp.GetRequiredService<Nodus.Infrastructure.Services.MongoDbService>());
+            // Primary local DB (LiteDB) — used by all UI and CloudSyncService._localDb
+            builder.Services.AddSingleton<Nodus.Shared.Abstractions.IDatabaseService,
+                Nodus.Infrastructure.Services.LocalDatabaseService>();
 
             builder.Services.AddSingleton<Nodus.Server.Services.BleServerService>();
 
@@ -62,6 +62,7 @@ public static class MauiProgram
             builder.Services.AddSingleton<Nodus.Shared.Abstractions.IDateTimeProvider, Nodus.Shared.Services.SystemDateTimeProvider>();
             builder.Services.AddSingleton<Nodus.Shared.Abstractions.IFileService, Nodus.Shared.Services.FileService>();
             builder.Services.AddSingleton<Nodus.Shared.Abstractions.IFileSaverService, Nodus.Server.Services.FileSaverService>();
+            builder.Services.AddSingleton<Nodus.Shared.Protocol.PacketTracker>();  // Anti-replay for VoteIngestionService
             builder.Services.AddSingleton<Nodus.Server.Services.CloudSyncService>();
             builder.Services.AddSingleton<Nodus.Shared.Services.EventSecurityService>();
 

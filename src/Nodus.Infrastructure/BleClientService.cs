@@ -237,8 +237,10 @@ public class BleClientService : IBleClientService, IDisposable
 
             ServerDiscovered?.Invoke(this, result.Peripheral.Name ?? "Unknown");
 
-            // Auto-Connect logic (only if not already connected)
-            if (!IsConnected && (isServer || isRelay))
+            // Auto-Connect logic (only if not already connected).
+            // Scan is already filtered by SERVICE_UUID, so a missing peripheral name
+            // must not block connection attempts.
+            if (!IsConnected)
             {
                 // Wrap IPeripheral in testable wrapper
                 var wrapper = new BlePeripheralWrapper(result.Peripheral);

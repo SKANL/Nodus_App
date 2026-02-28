@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Nodus.Shared\Nodus.Shared.csproj" />
+    <ProjectReference Include="..\..\src\Nodus.Infrastructure\Nodus.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
