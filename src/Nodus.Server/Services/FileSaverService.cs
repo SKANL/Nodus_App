@@ -23,7 +23,7 @@ public class FileSaverService : IFileSaverService
             // Use the app's Documents directory for exported files
             var documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             var appFolder = Path.Combine(documentsPath, "NodusExports");
-            
+
             // Create directory if it doesn't exist
             if (!Directory.Exists(appFolder))
             {
@@ -46,8 +46,8 @@ public class FileSaverService : IFileSaverService
 
             // Write the file
             await File.WriteAllBytesAsync(filePath, data);
-            
-            _logger.LogInformation("File saved successfully: {FilePath} ({Size} bytes)", 
+
+            _logger.LogInformation("File saved successfully: {FilePath} ({Size} bytes)",
                 filePath, data.Length);
 
             return FileSaveResult.Success(filePath);

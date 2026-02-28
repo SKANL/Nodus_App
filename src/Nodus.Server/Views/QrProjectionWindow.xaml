@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Nodus.Server.ViewModels"
+             x:Class="Nodus.Server.Views.QrProjectionWindow"
+             Title="Proyección de Acceso"
+             BackgroundColor="White">
+
+    <Grid ColumnDefinitions="*, *" RowDefinitions="*, Auto" Padding="40">
+        
+        <!-- Left: Judge Access -->
+        <VerticalStackLayout Grid.Column="0" Grid.Row="0" Spacing="20" HorizontalOptions="Center" VerticalOptions="Center">
+            <Label Text="👨‍⚖️ ACCESO PARA JUECES" 
+                   FontSize="28" 
+                   FontAttributes="Bold" 
+                   TextColor="Black" 
+                   HorizontalOptions="Center" />
+            
+            <Border Stroke="Black" StrokeThickness="4" StrokeShape="RoundRectangle 20" Padding="30">
+                <Image Source="{Binding JudgeQrCode}" WidthRequest="500" HeightRequest="500" />
+            </Border>
+            
+            <Label Text="Escanea con Nodus Judge App para autenticar" 
+                   FontSize="18" 
+                   TextColor="#475569" 
+                   HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+        <!-- Right: Student Portal -->
+        <VerticalStackLayout Grid.Column="1" Grid.Row="0" Spacing="20" HorizontalOptions="Center" VerticalOptions="Center">
+            <Label Text="🎓 PORTAL DE ESTUDIANTES" 
+                   FontSize="28" 
+                   FontAttributes="Bold" 
+                   TextColor="Black" 
+                   HorizontalOptions="Center" />
+            
+            <Border Stroke="Black" StrokeThickness="4" StrokeShape="RoundRectangle 20" Padding="30">
+                <Image Source="{Binding StudentQrCode}" WidthRequest="500" HeightRequest="500" />
+            </Border>
+            
+            <Label Text="Escanea para registrar tu proyecto en el evento" 
+                   FontSize="18" 
+                   TextColor="#475569" 
+                   HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+        <!-- Close Button -->
+        <Button Grid.Row="1" Grid.ColumnSpan="2" 
+                Text="Cerrar Proyección" 
+                Clicked="OnCloseClicked"
+                BackgroundColor="#EF4444"
+                TextColor="White"
+                FontAttributes="Bold"
+                FontSize="20"
+                HeightRequest="60"
+                HorizontalOptions="Center"
+                Margin="0,40,0,0"/>
+    </Grid>
+
+</ContentPage>

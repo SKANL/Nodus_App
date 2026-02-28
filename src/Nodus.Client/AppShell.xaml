@@ -8,12 +8,12 @@
 
     <TabBar>
         <ShellContent
-            Title="Home"
+            Title="Inicio"
             ContentTemplate="{DataTemplate local:Views.HomePage}"
             Route="HomePage" />
 
         <ShellContent
-            Title="Settings"
+            Title="Ajustes"
             ContentTemplate="{DataTemplate local:Views.SettingsPage}"
             Route="SettingsPage" />
     </TabBar>

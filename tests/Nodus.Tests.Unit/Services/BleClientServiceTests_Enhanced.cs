@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Nodus.Shared;
@@ -58,11 +58,11 @@ public class BleClientServiceTests_Enhanced : IDisposable
     public async Task ConnectAsync_WhenAlreadyConnected_ShouldReturnSuccessWithoutReconnecting()
     {
         // Arrange - First connection
-        var peripheral1 = CreateMockPeripheral("Server1", ConnectionState.Connected);
+        var peripheral1 = CreateMockPeripheral("Server1", "Connected");
         await _sut.ConnectAsync(peripheral1.Object, TimeSpan.FromSeconds(1));
 
         // Act - Try to connect to different peripheral while already connected
-        var peripheral2 = CreateMockPeripheral("Server2", ConnectionState.Connected);
+        var peripheral2 = CreateMockPeripheral("Server2", "Connected");
         var result = await _sut.ConnectAsync(peripheral2.Object, TimeSpan.FromSeconds(1));
 
         // Assert - Should skip connection
@@ -80,9 +80,9 @@ public class BleClientServiceTests_Enhanced : IDisposable
         // Arrange - Peripheral that never connects
         var peripheralMock = new Mock<IBlePeripheralWrapper>();
         peripheralMock.SetupGet(p => p.Name).Returns("SlowServer");
-        peripheralMock.SetupGet(p => p.Status).Returns(ConnectionState.Connecting); // Stuck in connecting
+        peripheralMock.SetupGet(p => p.ConnectionState).Returns("Connecting"); // Stuck in connecting
         peripheralMock.Setup(p => p.WhenStatusChanged())
-            .Returns(Observable.Never<ConnectionState>()); // Never completes
+            .Returns(Observable.Never<string>()); // Never completes
         
         // Simulate ConnectAsync that hangs
         peripheralMock.Setup(p => p.ConnectAsync(It.IsAny<ConnectionConfig>(), It.IsAny<CancellationToken>()))
@@ -104,7 +104,7 @@ public class BleClientServiceTests_Enhanced : IDisposable
     public async Task ConnectAsync_WhenHandshakeFails_ShouldReturnFailure()
     {
         // Arrange - Peripheral connects but write fails
-        var peripheralMock = CreateMockPeripheral("Server", ConnectionState.Connected);
+        var peripheralMock = CreateMockPeripheral("Server", "Connected");
         
         // Make WriteCharacteristic fail
         // Make WriteCharacteristicAsync fail (Task version)
@@ -125,7 +125,7 @@ public class BleClientServiceTests_Enhanced : IDisposable
     public async Task DisconnectAsync_WhenConnected_ShouldDisconnectSuccessfully()
     {
         // Arrange - Connect first
-        var peripheralMock = CreateMockPeripheral("Server", ConnectionState.Connected);
+        var peripheralMock = CreateMockPeripheral("Server", "Connected");
         await _sut.ConnectAsync(peripheralMock.Object, TimeSpan.FromSeconds(1));
         _sut.IsConnected.Should().BeTrue();
 
@@ -159,7 +159,7 @@ public class BleClientServiceTests_Enhanced : IDisposable
     public async Task ConnectAsync_WithRetry_SucceedsAfterFailures()
     {
         // Arrange
-        var peripheralMock = CreateMockPeripheral("RetryServer", ConnectionState.Connected);
+        var peripheralMock = CreateMockPeripheral("RetryServer", "Connected");
         int attempts = 0;
 
         // Mock ConnectAsync to fail twice then succeed
@@ -170,17 +170,17 @@ public class BleClientServiceTests_Enhanced : IDisposable
                 if (attempts <= 2)
                 {
                     // Update status to mimic failure
-                    peripheralMock.SetupGet(p => p.Status).Returns(ConnectionState.Disconnected);
+                    peripheralMock.SetupGet(p => p.ConnectionState).Returns("Disconnected");
                     return Task.CompletedTask; // Connect "completes" but status remains Disconnected
                 }
                 
                 // Success on 3rd attempt
-                peripheralMock.SetupGet(p => p.Status).Returns(ConnectionState.Connected);
+                peripheralMock.SetupGet(p => p.ConnectionState).Returns("Connected");
                 return Task.CompletedTask;
             });
             
         // Initial status Disconnected
-        peripheralMock.SetupGet(p => p.Status).Returns(ConnectionState.Disconnected);
+        peripheralMock.SetupGet(p => p.ConnectionState).Returns("Disconnected");
 
         // Act
         // Use longer timeout to allow retries + backoff
@@ -235,7 +235,7 @@ public class BleClientServiceTests_Enhanced : IDisposable
     public async Task SendVoteAsync_WhenConnectionLostDuringTransmission_ShouldReturnFailure()
     {
         // Arrange - Connect first
-        var peripheralMock = CreateMockPeripheral("Server", ConnectionState.Connected);
+        var peripheralMock = CreateMockPeripheral("Server", "Connected");
         await _sut.ConnectAsync(peripheralMock.Object, TimeSpan.FromSeconds(1));
 
         // Simulate connection loss during write
@@ -248,7 +248,7 @@ public class BleClientServiceTests_Enhanced : IDisposable
                 if (writeCount > 2)
                 {
                     // Simulate disconnection
-                    peripheralMock.SetupGet(p => p.Status).Returns(ConnectionState.Disconnected);
+                    peripheralMock.SetupGet(p => p.ConnectionState).Returns("Disconnected");
                     throw new Exception("Connection lost");
                 }
                 await Task.CompletedTask;
@@ -294,7 +294,7 @@ public class BleClientServiceTests_Enhanced : IDisposable
     public async Task ReadRssiAsync_WhenConnected_ShouldReturnValidRssi()
     {
         // Arrange - Connect first
-        var peripheralMock = CreateMockPeripheral("Server", ConnectionState.Connected);
+        var peripheralMock = CreateMockPeripheral("Server", "Connected");
         peripheralMock.Setup(p => p.ReadRssiAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(-65);
         
@@ -324,7 +324,7 @@ public class BleClientServiceTests_Enhanced : IDisposable
     public async Task ReadRssiAsync_WhenReadFails_ShouldReturnLastKnownValue()
     {
         // Arrange - Connect and set initial RSSI
-        var peripheralMock = CreateMockPeripheral("Server", ConnectionState.Connected);
+        var peripheralMock = CreateMockPeripheral("Server", "Connected");
         peripheralMock.Setup(p => p.ReadRssiAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(-70);
         
@@ -350,7 +350,7 @@ public class BleClientServiceTests_Enhanced : IDisposable
     public async Task ConnectAsync_WithCancellation_ShouldReturnFailure()
     {
         // Arrange
-        var peripheralMock = CreateMockPeripheral("Server", ConnectionState.Connecting);
+        var peripheralMock = CreateMockPeripheral("Server", "Connecting");
         var cts = new CancellationTokenSource();
         
         // Cancel immediately
@@ -368,7 +368,7 @@ public class BleClientServiceTests_Enhanced : IDisposable
     public async Task SendVoteAsync_WithMissingEncryptionKey_ShouldReturnFailure()
     {
         // Arrange - Connect first
-        var peripheralMock = CreateMockPeripheral("Server", ConnectionState.Connected);
+        var peripheralMock = CreateMockPeripheral("Server", "Connected");
         await _sut.ConnectAsync(peripheralMock.Object, TimeSpan.FromSeconds(1));
 
         // Remove encryption key
@@ -466,7 +466,7 @@ public class BleClientServiceTests_Enhanced : IDisposable
     public async Task ConnectAsync_WhenCalledConcurrently_ShouldOnlyConnectOnce()
     {
         // Arrange
-        var peripheralMock = CreateMockPeripheral("Server", ConnectionState.Connected);
+        var peripheralMock = CreateMockPeripheral("Server", "Connected");
         
         // Add delay to simulate slow connection
         peripheralMock.Setup(p => p.ConnectAsync(It.IsAny<ConnectionConfig>(), It.IsAny<CancellationToken>()))
@@ -494,7 +494,7 @@ public class BleClientServiceTests_Enhanced : IDisposable
     public async Task DisconnectAsync_WhileConnecting_ShouldCancelConnection()
     {
         // Arrange - Slow connection
-        var peripheralMock = CreateMockPeripheral("Server", ConnectionState.Connecting);
+        var peripheralMock = CreateMockPeripheral("Server", "Connecting");
         peripheralMock.Setup(p => p.ConnectAsync(It.IsAny<ConnectionConfig>(), It.IsAny<CancellationToken>()))
             .Returns(async (ConnectionConfig config, CancellationToken ct) =>
             {
@@ -522,7 +522,7 @@ public class BleClientServiceTests_Enhanced : IDisposable
     public async Task SendVoteAsync_WithVeryLargePayload_ShouldChunkCorrectly()
     {
         // Arrange - Connect first
-        var peripheralMock = CreateMockPeripheral("Server", ConnectionState.Connected);
+        var peripheralMock = CreateMockPeripheral("Server", "Connected");
         
         var writtenChunks = new List<byte[]>();
         peripheralMock.Setup(p => p.WriteCharacteristicAsync(
@@ -555,7 +555,7 @@ public class BleClientServiceTests_Enhanced : IDisposable
     public void Dispose_ShouldCleanupResources()
     {
         // Arrange
-        var peripheralMock = CreateMockPeripheral("Server", ConnectionState.Connected);
+        var peripheralMock = CreateMockPeripheral("Server", "Connected");
 
         // Act
         _sut.Dispose();
@@ -569,11 +569,11 @@ public class BleClientServiceTests_Enhanced : IDisposable
 
     #region Helper Methods
 
-    private Mock<IBlePeripheralWrapper> CreateMockPeripheral(string name, ConnectionState state)
+    private Mock<IBlePeripheralWrapper> CreateMockPeripheral(string name, string state)
     {
         var mock = new Mock<IBlePeripheralWrapper>();
         mock.SetupGet(p => p.Name).Returns(name);
-        mock.SetupGet(p => p.Status).Returns(state);
+        mock.SetupGet(p => p.ConnectionState).Returns(state);
         mock.SetupGet(p => p.Uuid).Returns(Guid.NewGuid().ToString());
         mock.Setup(p => p.WhenStatusChanged()).Returns(Observable.Return(state));
         
@@ -588,7 +588,7 @@ public class BleClientServiceTests_Enhanced : IDisposable
 
         mock.Setup(p => p.WriteCharacteristic(
             It.IsAny<string>(), It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<bool>()))
-            .Returns(Observable.Return(successResult));
+            .Returns(Observable.Return((NodusConstants.CHARACTERISTIC_UUID, Array.Empty<byte>())));
 
         // Mock WriteCharacteristicAsync for data transfer (now mockable!)
         mock.Setup(p => p.WriteCharacteristicAsync(
@@ -605,3 +605,5 @@ public class BleClientServiceTests_Enhanced : IDisposable
         _sut?.Dispose();
     }
 }
+
+

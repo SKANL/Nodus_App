@@ -20,7 +20,7 @@
                 <!-- Left: Configuration Form -->
                 <VerticalStackLayout Grid.Column="0" Spacing="25">
                     
-                    <Frame Style="{StaticResource PremiumCard}" Padding="30">
+                    <Border Style="{StaticResource PremiumCard}" Padding="30">
                         <VerticalStackLayout Spacing="25">
                             <HorizontalStackLayout Spacing="10">
                                 <Label Text="⚙️" FontSize="18" VerticalOptions="Center"/>
@@ -32,7 +32,7 @@
                             <VerticalStackLayout Spacing="8">
                                 <Label Text="Identidad del Evento" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource Gray100}" />
                                 <Entry Text="{Binding EventName}" 
-                                       Placeholder="e.g., Annual Science Fair 2024" 
+                                       Placeholder="Ej. Feria de Ciencias 2024" 
                                        PlaceholderColor="{StaticResource Gray600}"
                                        Style="{StaticResource PremiumEntry}" />
                                 <Label Text="Visible para todos los participantes en la app móvil" FontSize="11" TextColor="{StaticResource Gray500}" Margin="5,0,0,0"/>
@@ -53,7 +53,7 @@
                             <VerticalStackLayout Spacing="8">
                                 <Label Text="Categorías de Evaluación" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource Gray100}" />
                                 <Entry Text="{Binding Categories}" 
-                                       Placeholder="Software, Hardware, Innovation..." 
+                                       Placeholder="Software, Hardware, Innovación..." 
                                        PlaceholderColor="{StaticResource Gray600}"
                                        Style="{StaticResource PremiumEntry}" />
                                 <Label Text="Separe las categorías por comas" FontSize="11" TextColor="{StaticResource Gray500}" Margin="5,0,0,0"/>
@@ -79,14 +79,28 @@
                                 </FlexLayout>
                             </VerticalStackLayout>
 
+                            <!-- Web Portal URL -->
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="URL del Portal Web (Estudiantes)" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource Gray100}" />
+                                <Entry Text="{Binding WebPortalUrl}" 
+                                       Placeholder="http://192.168.x.x:5000" 
+                                       PlaceholderColor="{StaticResource Gray600}"
+                                       Style="{StaticResource PremiumEntry}"
+                                       Keyboard="Url" />
+                                <Label Text="{Binding NetworkAddresses, StringFormat='Detección automática: {0}'}" 
+                                       FontSize="11" TextColor="{StaticResource Gray500}" Margin="5,0,0,0"
+                                       LineBreakMode="TailTruncation" />
+                            </VerticalStackLayout>
+
                             <Button Text="GENERAR ACTIVOS DE PRODUCCIÓN" 
                                     Command="{Binding CreateAndGenerateCommand}"
+                                    IsEnabled="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}"
                                     Style="{StaticResource PrimaryButton}"
                                     HeightRequest="60"
                                     Margin="0,10,0,0"
                                     FontSize="16" />
                         </VerticalStackLayout>
-                    </Frame>
+                    </Border>
                     
                     <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
                         <Label Text="🔒" VerticalOptions="Center"/>
@@ -98,7 +112,7 @@
                 <VerticalStackLayout Grid.Column="1" Spacing="25">
                     
                     <!-- Judge QR Card -->
-                    <Frame Style="{StaticResource PremiumCard}" Padding="25">
+                    <Border Style="{StaticResource PremiumCard}" Padding="25">
                         <VerticalStackLayout Spacing="15" HorizontalOptions="Center">
                             <Label Text="👨‍⚖️ ACCESO APP JUECES" HorizontalOptions="Center" FontAttributes="Bold" TextColor="{StaticResource White}" FontSize="14" />
                             
@@ -121,10 +135,10 @@
 
                             <Label Text="Escanee con el dispositivo del Juez" HorizontalOptions="Center" FontSize="11" TextColor="{StaticResource Gray400}" IsVisible="{Binding IsGenerated}" />
                         </VerticalStackLayout>
-                    </Frame>
+                    </Border>
 
                     <!-- Student QR Card -->
-                    <Frame Style="{StaticResource PremiumCard}" Padding="25">
+                    <Border Style="{StaticResource PremiumCard}" Padding="25">
                         <VerticalStackLayout Spacing="15" HorizontalOptions="Center">
                             <Label Text="🎓 PORTAL DE PARTICIPANTES" HorizontalOptions="Center" FontAttributes="Bold" TextColor="{StaticResource White}" FontSize="14" />
                             
@@ -147,10 +161,42 @@
 
                             <Label Text="Punto de registro público" HorizontalOptions="Center" FontSize="11" TextColor="{StaticResource Gray400}" IsVisible="{Binding IsGenerated}" />
                         </VerticalStackLayout>
-                    </Frame>
+                    </Border>
+
+                    <!-- Present Fullscreen Action -->
+                    <Button Text="🎬 PROYECTAR EN PANTALLA COMPLETA" 
+                            Command="{Binding PresentQrsCommand}"
+                            IsVisible="{Binding IsGenerated}"
+                            Style="{StaticResource PrimaryButton}"
+                            BackgroundColor="#10B981"
+                            HeightRequest="60"
+                            Margin="0,10,0,0"
+                            FontSize="16" />
 
                 </VerticalStackLayout>
             </Grid>
         </ScrollView>
+
+        <!-- Loading Overlay: shown while MongoDB connection + key generation are in progress -->
+        <Grid Grid.RowSpan="2"
+              IsVisible="{Binding IsLoading}"
+              BackgroundColor="#CC0F172A"
+              ZIndex="99">
+            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="20">
+                <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                   Color="{StaticResource PrimaryAccent}"
+                                   HeightRequest="56" WidthRequest="56" />
+                <Label Text="Generando credenciales seguras..."
+                       TextColor="{StaticResource White}"
+                       FontSize="17" FontAttributes="Bold"
+                       HorizontalOptions="Center" />
+                <Label Text="Conectando a MongoDB • Generando llaves AES-256 • Creando QR codes"
+                       TextColor="{StaticResource Gray400}"
+                       FontSize="12"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+        </Grid>
+
     </Grid>
 </ContentPage>

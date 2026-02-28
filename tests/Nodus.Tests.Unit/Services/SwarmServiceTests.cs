@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Moq;
-using Nodus.Shared.Services; // SwarmService is here now
+using Nodus.Infrastructure.Services; // SwarmService lives in Nodus.Infrastructure
 using Nodus.Shared.Abstractions;
 using Xunit;
 
@@ -43,6 +43,7 @@ public class SwarmServiceTests
         // Arrange
         _sut.CurrentState = SwarmState.Seeker;
         _bleClientMock.Setup(x => x.IsConnected).Returns(true);
+        _bleClientMock.Setup(x => x.LastRssi).Returns(-65); // Strong signal > -75 threshold
         _sut.UpdateNeighborStats(0);
 
         // Act
@@ -128,20 +129,37 @@ public class SwarmServiceTests
     [Fact]
     public async Task TestRssiThreshold_Validation()
     {
-        // Tests that we don't promote if signal is weak (functionality to be added to SwarmService)
-        // Currently SwarmService assumes connected = strong. 
-        // We will mock IsConnected = false to simulate "not strong enough" effectively for now,
-        // or add RSSI logic to SwarmService later. 
-        // For this phase, valid connection is the check.
+        // Verifies that a node does NOT promote to CANDIDATE when RSSI is weak (<= -75 dBm),
+        // even if the BLE connection is active. This tests the real RSSI path (doc 12 §3B1).
 
         // Arrange
         _sut.CurrentState = SwarmState.Seeker;
-        _bleClientMock.Setup(x => x.IsConnected).Returns(false); // Disconnected or Weak
+        _bleClientMock.Setup(x => x.IsConnected).Returns(true);  // Connected but weak signal
+        _bleClientMock.Setup(x => x.LastRssi).Returns(-80);       // Below -75 threshold
 
         // Act
         await _sut.CheckStateAsync();
 
         // Assert
+        Assert.Equal(SwarmState.Seeker, _sut.CurrentState);
+        _relayServiceMock.Verify(x => x.StartAdvertisingAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task TestRssiThreshold_StrongSignal_Promotes()
+    {
+        // Verifies promotion IS suppressed when RSSI is exactly at the boundary (-75 dBm = NOT > threshold).
+
+        // Arrange
+        _sut.CurrentState = SwarmState.Seeker;
+        _bleClientMock.Setup(x => x.IsConnected).Returns(true);
+        _bleClientMock.Setup(x => x.LastRssi).Returns(-75); // Exactly at threshold -> should NOT promote (needs > -75)
+        _sut.UpdateNeighborStats(0);
+
+        // Act
+        await _sut.CheckStateAsync();
+
+        // Assert: -75 is NOT > -75, so stays Seeker
         Assert.Equal(SwarmState.Seeker, _sut.CurrentState);
         _relayServiceMock.Verify(x => x.StartAdvertisingAsync(It.IsAny<CancellationToken>()), Times.Never);
     }

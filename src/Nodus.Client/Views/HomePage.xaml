@@ -3,34 +3,170 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Nodus.Client.ViewModels"
              x:Class="Nodus.Client.Views.HomePage"
-             Title="Nodus Client">
+             Title="Nodus"
+             BackgroundColor="#0F172A">
 
-    <VerticalStackLayout Spacing="25" Padding="30" VerticalOptions="Center">
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
 
-        <Image Source="dotnet_bot.png"
-               HeightRequest="200"
-               HorizontalOptions="Center" />
+            <!-- ══ HEADER ══════════════════════════════════════════════ -->
+            <Grid ColumnDefinitions="*, Auto" Padding="24,52,24,24" BackgroundColor="#0F172A">
+                <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Center">
+                    <Label Text="NODUS" FontSize="11" FontAttributes="Bold"
+                           CharacterSpacing="3" TextColor="#6366F1" />
+                    <Label Text="{Binding EventName, TargetNullValue='Sin evento activo'}"
+                           FontSize="22" FontAttributes="Bold" TextColor="White" />
+                </VerticalStackLayout>
 
-        <Label Text="{Binding JudgeName, StringFormat='Welcome, {0}'}"
-               Style="{StaticResource Headline}"
-               HorizontalOptions="Center" />
+                <!-- Judge avatar initial -->
+                <Border Grid.Column="1"
+                        StrokeShape="RoundRectangle 24"
+                        BackgroundColor="#6366F1"
+                        HeightRequest="48" WidthRequest="48"
+                        VerticalOptions="Center">
+                    <Label Text="{Binding JudgeInitial}"
+                           FontSize="20" FontAttributes="Bold"
+                           TextColor="White"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+            </Grid>
 
-        <Label Text="{Binding StatusMessage}"
-               HorizontalOptions="Center" 
-               TextColor="{Binding StatusColor}"
-               FontAttributes="Bold"
-               FontSize="18"/>
+            <!-- ══ STATUS CARD (Traffic Light) ════════════════════════ -->
+            <Border Margin="16,0,16,16"
+                    StrokeShape="RoundRectangle 16"
+                    StrokeThickness="1"
+                    Stroke="#1E293B"
+                    BackgroundColor="#1E293B"
+                    Padding="20,16">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ShowConnectionMetricsCommand}" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto, *" ColumnSpacing="14">
+                    <!-- Dot indicator -->
+                    <Border Grid.Column="0"
+                            StrokeShape="RoundRectangle 6"
+                            BackgroundColor="{Binding StatusColor}"
+                            HeightRequest="12" WidthRequest="12"
+                            VerticalOptions="Center" />
+                    <Label Grid.Column="1"
+                           Text="{Binding StatusMessage}"
+                           TextColor="#CBD5E1"
+                           FontSize="14"
+                           VerticalOptions="Center" />
+                </Grid>
+            </Border>
 
-        <Button Text="Scan Event QR"
-                Command="{Binding NavigateToRegistrationCommand}"
-                HorizontalOptions="Fill" />
+            <!-- ══ STATS ROW ═══════════════════════════════════════════ -->
+            <Grid ColumnDefinitions="*, *" ColumnSpacing="12" Margin="16,0,16,16"
+                  IsVisible="{Binding IsJudgeRegistered}">
 
-        <Button Text="Sync Pending Votes"
-                Command="{Binding SyncPendingVotesCommand}"
-                BackgroundColor="Orange"
-                TextColor="White"
-                HorizontalOptions="Fill" />
+                <Border Grid.Column="0"
+                        StrokeShape="RoundRectangle 16"
+                        StrokeThickness="1" Stroke="#1E293B"
+                        BackgroundColor="#1E293B" Padding="16,14">
+                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                        <Label Text="{Binding PendingVoteCount}" FontSize="28"
+                               FontAttributes="Bold" TextColor="#F59E0B"
+                               HorizontalOptions="Center" />
+                        <Label Text="PENDIENTES" FontSize="10" FontAttributes="Bold"
+                               CharacterSpacing="1.5" TextColor="#94A3B8"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
 
-    </VerticalStackLayout>
+                <Border Grid.Column="1"
+                        StrokeShape="RoundRectangle 16"
+                        StrokeThickness="1" Stroke="#1E293B"
+                        BackgroundColor="#1E293B" Padding="16,14">
+                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                        <Label Text="{Binding SyncedVoteCount}" FontSize="28"
+                               FontAttributes="Bold" TextColor="#22C55E"
+                               HorizontalOptions="Center" />
+                        <Label Text="SINCRONIZADOS" FontSize="10" FontAttributes="Bold"
+                               CharacterSpacing="1.5" TextColor="#94A3B8"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+            <!-- ══ MAIN ACTION ══════════════════════════════════════════ -->
+            <VerticalStackLayout Spacing="12" Margin="16,0,16,16">
+
+                <!-- Not registered: Show "Scan Judge QR" -->
+                <Button Text="🔑  Escanear QR de Juez"
+                        Command="{Binding NavigateToRegistrationCommand}"
+                        IsVisible="{Binding IsJudgeRegistered, Converter={StaticResource InvertedBoolConverter}}"
+                        BackgroundColor="#6366F1"
+                        TextColor="White"
+                        FontSize="17" FontAttributes="Bold"
+                        HeightRequest="56"
+                        CornerRadius="16" />
+
+                <!-- Registered: Show "Scan Project QR" -->
+                <Button Text="📷  Escanear Proyecto para Votar"
+                        Command="{Binding NavigateToScanCommand}"
+                        IsVisible="{Binding IsJudgeRegistered}"
+                        BackgroundColor="#6366F1"
+                        TextColor="White"
+                        FontSize="17" FontAttributes="Bold"
+                        HeightRequest="56"
+                        CornerRadius="16" />
+
+                <!-- Sync status row — replaced fake-disabled Button with a
+                     non-interactive indicator.  A Button that is always
+                     IsEnabled=False misleads users into thinking it is broken.
+                     An ActivityIndicator+Label correctly communicates "status". -->
+                <Border IsVisible="{Binding IsSyncing}"
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="1.5"
+                        Stroke="#F59E0B"
+                        BackgroundColor="Transparent"
+                        Padding="16,12">
+                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <ActivityIndicator IsRunning="{Binding IsSyncing}"
+                                           Color="#F59E0B"
+                                           HeightRequest="18" WidthRequest="18" />
+                        <Label Text="Sincronizando votos..."
+                               TextColor="#F59E0B"
+                               FontSize="15" FontAttributes="Bold"
+                               VerticalOptions="Center"
+                               SemanticProperties.Description="Sincronizando votos pendientes" />
+                    </HorizontalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+
+            <!-- ══ WELCOME MESSAGE (first time) ════════════════════════ -->
+            <VerticalStackLayout Spacing="12" Margin="16,8,16,32"
+                                 HorizontalOptions="Center"
+                                 IsVisible="{Binding IsJudgeRegistered, Converter={StaticResource InvertedBoolConverter}}">
+                <Label Text="Bienvenido a Nodus" FontSize="20" FontAttributes="Bold"
+                       TextColor="White" HorizontalOptions="Center" />
+                <Label Text="Escanea el código QR del evento proyectado para registrarte como juez y comenzar a evaluar proyectos."
+                       FontSize="14" TextColor="#94A3B8"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"
+                       Margin="20,0" />
+            </VerticalStackLayout>
+
+            <!-- ══ JUDGE PROFILE (post-registration) ═══════════════════ -->
+            <Border Margin="16,0,16,32"
+                    StrokeShape="RoundRectangle 16"
+                    StrokeThickness="1" Stroke="#1E293B"
+                    BackgroundColor="#1E293B" Padding="20,16"
+                    IsVisible="{Binding IsJudgeRegistered}">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="JUEZ" FontSize="10" FontAttributes="Bold"
+                           CharacterSpacing="2" TextColor="#6366F1" />
+                    <Label Text="{Binding JudgeName}"
+                           FontSize="20" FontAttributes="Bold" TextColor="White" />
+                    <Label Text="Toca 'Escanear Proyecto' para comenzar a evaluar."
+                           FontSize="13" TextColor="#94A3B8" />
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
 
 </ContentPage>

@@ -3,42 +3,65 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <!-- Note: For Android please see also Platforms\Android\Resources\values\colors.xml -->
+    <!--
+        Nodus.Client — Premium Cyber-Dark Palette
+        ============================================
+        All hex values match the hardcoded colors used across the XAML views.
+        Centralising them here means a single-source change propagates everywhere.
+        See also: Platforms/Android/Resources/values/colors.xml (status bar colour)
+    -->
 
-    <Color x:Key="Primary">#512BD4</Color>
-    <Color x:Key="PrimaryDark">#ac99ea</Color>
-    <Color x:Key="PrimaryDarkText">#242424</Color>
-    <Color x:Key="Secondary">#DFD8F7</Color>
-    <Color x:Key="SecondaryDarkText">#9880e5</Color>
-    <Color x:Key="Tertiary">#2B0B98</Color>
+    <!-- ── Brand / Accent ─────────────────────────────────── -->
+    <Color x:Key="Primary">#6366F1</Color>          <!-- Indigo 500 -->
+    <Color x:Key="PrimaryDark">#4F46E5</Color>       <!-- Indigo 600 — pressed state -->
+    <Color x:Key="PrimaryAccent">#818CF8</Color>     <!-- Indigo 400 — hover/focus ring -->
 
-    <Color x:Key="White">White</Color>
-    <Color x:Key="Black">Black</Color>
-    <Color x:Key="Magenta">#D600AA</Color>
-    <Color x:Key="MidnightBlue">#190649</Color>
-    <Color x:Key="OffBlack">#1f1f1f</Color>
+    <Color x:Key="Secondary">#A855F7</Color>         <!-- Purple 500 -->
+    <Color x:Key="SecondaryAccent">#C084FC</Color>   <!-- Purple 400 -->
 
-    <Color x:Key="Gray100">#E1E1E1</Color>
-    <Color x:Key="Gray200">#C8C8C8</Color>
-    <Color x:Key="Gray300">#ACACAC</Color>
-    <Color x:Key="Gray400">#919191</Color>
-    <Color x:Key="Gray500">#6E6E6E</Color>
-    <Color x:Key="Gray600">#404040</Color>
-    <Color x:Key="Gray900">#212121</Color>
-    <Color x:Key="Gray950">#141414</Color>
+    <Color x:Key="Success">#22C55E</Color>           <!-- Green 500 — synced votes -->
+    <Color x:Key="Warning">#F59E0B</Color>           <!-- Amber 500 — pending votes -->
+    <Color x:Key="Danger">#EF4444</Color>            <!-- Red 500 — errors / offline -->
+    <Color x:Key="Info">#0EA5E9</Color>              <!-- Sky 500 — informational -->
 
-    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
-    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}"/>
-    <SolidColorBrush x:Key="TertiaryBrush" Color="{StaticResource Tertiary}"/>
-    <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource White}"/>
-    <SolidColorBrush x:Key="BlackBrush" Color="{StaticResource Black}"/>
+    <!-- ── Backgrounds & Surfaces ─────────────────────────── -->
+    <Color x:Key="DeepBackground">#0F172A</Color>    <!-- Slate 900 — page background -->
+    <Color x:Key="CardBackground">#1E293B</Color>    <!-- Slate 800 — card / panel bg -->
+    <Color x:Key="SurfaceLight">#334155</Color>      <!-- Slate 700 — elevated surface -->
+    <Color x:Key="BorderColor">#475569</Color>       <!-- Slate 600 — strokes / dividers -->
 
-    <SolidColorBrush x:Key="Gray100Brush" Color="{StaticResource Gray100}"/>
-    <SolidColorBrush x:Key="Gray200Brush" Color="{StaticResource Gray200}"/>
-    <SolidColorBrush x:Key="Gray300Brush" Color="{StaticResource Gray300}"/>
-    <SolidColorBrush x:Key="Gray400Brush" Color="{StaticResource Gray400}"/>
-    <SolidColorBrush x:Key="Gray500Brush" Color="{StaticResource Gray500}"/>
-    <SolidColorBrush x:Key="Gray600Brush" Color="{StaticResource Gray600}"/>
-    <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900}"/>
-    <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}"/>
+    <!-- ── Neutrals ───────────────────────────────────────── -->
+    <Color x:Key="White">#FFFFFF</Color>
+    <Color x:Key="Black">#000000</Color>
+
+    <Color x:Key="Gray100">#F1F5F9</Color>
+    <Color x:Key="Gray200">#E2E8F0</Color>
+    <Color x:Key="Gray300">#CBD5E1</Color>
+    <Color x:Key="Gray400">#94A3B8</Color>
+    <Color x:Key="Gray500">#64748B</Color>
+    <Color x:Key="Gray600">#475569</Color>
+    <Color x:Key="Gray900">#0F172A</Color>
+    <Color x:Key="Gray950">#020617</Color>
+
+    <!-- ── Brushes (convenience) ─────────────────────────── -->
+    <SolidColorBrush x:Key="PrimaryBrush"          Color="{StaticResource Primary}"/>
+    <SolidColorBrush x:Key="PrimaryAccentBrush"    Color="{StaticResource PrimaryAccent}"/>
+    <SolidColorBrush x:Key="SecondaryBrush"        Color="{StaticResource Secondary}"/>
+    <SolidColorBrush x:Key="SuccessBrush"          Color="{StaticResource Success}"/>
+    <SolidColorBrush x:Key="WarningBrush"          Color="{StaticResource Warning}"/>
+    <SolidColorBrush x:Key="DangerBrush"           Color="{StaticResource Danger}"/>
+    <SolidColorBrush x:Key="DeepBackgroundBrush"   Color="{StaticResource DeepBackground}"/>
+    <SolidColorBrush x:Key="CardBackgroundBrush"   Color="{StaticResource CardBackground}"/>
+    <!-- ── Semantic aliases — keep Styles.xaml references valid ─────── -->
+    <!-- Button text when placed on a dark Primary background -->
+    <Color x:Key="PrimaryDarkText">#FFFFFF</Color>
+    <!-- Headline text in light-mode views -->
+    <Color x:Key="MidnightBlue">#1E293B</Color>       <!-- maps to CardBackground (dark navy) -->
+    <!-- Page & Shell dark-mode background (replaces old "OffBlack" template value) -->
+    <Color x:Key="OffBlack">#0F172A</Color>            <!-- same as DeepBackground -->
+    <!-- Shell nav text in dark mode -->
+    <Color x:Key="SecondaryDarkText">#CBD5E1</Color>   <!-- Gray300 — readable on dark bg -->
+    <!-- Tab bar accent in light mode -->
+    <Color x:Key="Magenta">#A855F7</Color>             <!-- same as Secondary -->
+
 </ResourceDictionary>

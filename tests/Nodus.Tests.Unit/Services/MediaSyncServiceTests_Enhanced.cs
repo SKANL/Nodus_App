@@ -6,7 +6,7 @@ using Nodus.Shared;
 using Nodus.Shared.Abstractions;
 using Nodus.Shared.Common;
 using Nodus.Shared.Models;
-using Shiny.BluetoothLE;
+// // using Shiny.BluetoothLE; // ConnectionState->string // ConnectionState replaced by string
 using System.Reactive.Subjects;
 using Xunit;
 
@@ -22,7 +22,7 @@ public class MediaSyncServiceTests_Enhanced
     private readonly Mock<ILogger<MediaSyncService>> _loggerMock;
     private readonly MediaSyncService _sut;
 
-    private readonly Subject<ConnectionState> _connectionStateSubject;
+    private readonly Subject<string> _connectionStateSubject;
     private readonly Subject<byte[]> _notificationSubject;
 
     public MediaSyncServiceTests_Enhanced()
@@ -34,7 +34,7 @@ public class MediaSyncServiceTests_Enhanced
         _fileServiceMock = new Mock<IFileService>();
         _loggerMock = new Mock<ILogger<MediaSyncService>>();
 
-        _connectionStateSubject = new Subject<ConnectionState>();
+        _connectionStateSubject = new Subject<string>();
         _notificationSubject = new Subject<byte[]>();
 
         _bleServiceMock.Setup(x => x.ConnectionState).Returns(_connectionStateSubject);

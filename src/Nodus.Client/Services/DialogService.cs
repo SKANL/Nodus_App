@@ -35,19 +35,12 @@ public class DialogService : IDialogService
     {
         try
         {
-            if (Application.Current?.Windows.Count == 0)
+            var page = GetCurrentPage();
+            if (page is null)
             {
-                _logger.LogWarning("Cannot show confirm dialog: No windows available");
+                _logger.LogWarning("Cannot show confirm dialog: no active page");
                 return false;
             }
-
-            var page = Application.Current.Windows[0].Page;
-            if (page == null)
-            {
-                _logger.LogWarning("Cannot show confirm dialog: Page is null");
-                return false;
-            }
-
             return await page.DisplayAlertAsync(title, message, accept, cancel);
         }
         catch (Exception ex)
@@ -61,19 +54,12 @@ public class DialogService : IDialogService
     {
         try
         {
-            if (Application.Current?.Windows.Count == 0)
+            var page = GetCurrentPage();
+            if (page is null)
             {
-                _logger.LogWarning("Cannot show prompt: No windows available");
+                _logger.LogWarning("Cannot show prompt: no active page");
                 return null;
             }
-
-            var page = Application.Current.Windows[0].Page;
-            if (page == null)
-            {
-                _logger.LogWarning("Cannot show prompt: Page is null");
-                return null;
-            }
-
             return await page.DisplayPromptAsync(
                 title,
                 message,
@@ -92,19 +78,12 @@ public class DialogService : IDialogService
     {
         try
         {
-            if (Application.Current?.Windows.Count == 0)
+            var page = GetCurrentPage();
+            if (page is null)
             {
-                _logger.LogWarning("Cannot show alert: No windows available");
+                _logger.LogWarning("Cannot show alert: no active page");
                 return;
             }
-
-            var page = Application.Current.Windows[0].Page;
-            if (page == null)
-            {
-                _logger.LogWarning("Cannot show alert: Page is null");
-                return;
-            }
-
             await page.DisplayAlertAsync(title, message, button);
         }
         catch (Exception ex)
@@ -112,4 +91,12 @@ public class DialogService : IDialogService
             _logger.LogError(ex, "Failed to show alert: {Title} - {Message}", title, message);
         }
     }
+
+    /// <summary>
+    /// Returns the current top-level Page using the safe FirstOrDefault pattern.
+    /// Windows[0] index access is avoided: it can throw IndexOutOfRangeException
+    /// when the window list is momentarily empty during navigation transitions.
+    /// </summary>
+    private static Page? GetCurrentPage()
+        => Application.Current?.Windows.FirstOrDefault()?.Page;
 }

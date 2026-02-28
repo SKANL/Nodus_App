@@ -18,7 +18,7 @@ public static class PacketValidator
     /// Validates and parses a raw packet with comprehensive security checks.
     /// </summary>
     public static Result<NodusPacket> ValidateAndParse(
-        byte[] data, 
+        byte[] data,
         PacketTracker tracker)
     {
         if (data == null || data.Length == 0)
@@ -108,12 +108,12 @@ public static class PacketValidator
         {
             // Reconstruct signable block
             var signable = ConstructSignableBlock(packet);
-            
+
             // Verify signature
             var isValid = CryptoHelper.VerifyData(signable, packet.Signature, publicKeyBase64);
-            
-            return isValid 
-                ? Result.Success() 
+
+            return isValid
+                ? Result.Success()
                 : Result.Failure("Signature verification failed");
         }
         catch (Exception ex)
@@ -130,13 +130,13 @@ public static class PacketValidator
         var idBytes = System.Text.Encoding.UTF8.GetBytes(packet.Id);
         var senderBytes = System.Text.Encoding.UTF8.GetBytes(packet.SenderId);
         var tsBytes = BitConverter.GetBytes(packet.Timestamp);
-        
+
         var list = new List<byte>();
         list.AddRange(idBytes);
         list.AddRange(senderBytes);
         list.AddRange(tsBytes);
         list.AddRange(packet.EncryptedPayload);
-        
+
         return list.ToArray();
     }
 

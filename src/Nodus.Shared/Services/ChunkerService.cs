@@ -31,7 +31,7 @@ public class ChunkerService : IChunkerService
             throw new ArgumentException("Payload cannot be empty");
 
         var chunks = new List<byte[]>();
-        
+
         // Calculate chunks
         // Header packet is separate (Index 0)
         // Data packets (Index 1..N) carry payload
@@ -58,12 +58,12 @@ public class ChunkerService : IChunkerService
         {
             int offset = i * maxDataPerChunk;
             int length = Math.Min(maxDataPerChunk, totalPayloadBytes - offset);
-            
+
             var chunkBytes = new byte[length + 2];
             chunkBytes[0] = messageId;
             chunkBytes[1] = (byte)(i + 1); // 1-based index for data chunks
             Array.Copy(payload, offset, chunkBytes, 2, length);
-            
+
             chunks.Add(chunkBytes);
         }
 
@@ -77,13 +77,13 @@ public class ChunkerService : IChunkerService
         bytes[0] = str.MessageId;
         bytes[1] = str.ChunkIndex;
         bytes[2] = str.TotalChunks;
-        
+
         var lenBytes = BitConverter.GetBytes(str.PayloadLength);
         if (!BitConverter.IsLittleEndian) Array.Reverse(lenBytes); // BLE usually LE? Actually custom protocol. Let's stick to LE.
-        
+
         bytes[3] = lenBytes[0];
         bytes[4] = lenBytes[1];
-        
+
         return bytes;
     }
 
@@ -96,16 +96,16 @@ public class ChunkerService : IChunkerService
         private int _totalDataChunks;
         private int _receivedChunksCount;
         private bool[]? _receivedChunksMask; // Tracks which 1-based index chunks we have
-        
+
         public byte MessageId { get; private set; }
 
-        public bool IsComplete 
+        public bool IsComplete
         {
-            get 
+            get
             {
                 if (_buffer == null || _receivedChunksMask == null) return false;
                 return _receivedChunksCount == _totalDataChunks;
-            } 
+            }
         }
 
         public byte[]? GetPayload() => IsComplete ? _buffer : null;
@@ -141,7 +141,7 @@ public class ChunkerService : IChunkerService
                     // Parse header manually to be safe or use Marshal
                     // Structure: [MsgId][Idx][Total][LenLo][LenHi]
                     _totalDataChunks = packet[2];
-                    
+
                     // Manual extraction of PayloadLength
                     // Ensure Little Endian as per serializer
                     ushort payloadLen = (ushort)(packet[3] | (packet[4] << 8));
@@ -151,10 +151,10 @@ public class ChunkerService : IChunkerService
                     _receivedChunksCount = 0;
                     return true;
                 }
-                
+
                 return true; // Already initialized
             }
-            
+
             // Case B: Data Packet (Index > 0)
             if (_buffer == null) return false; // Waiting for header first
             if (msgId != MessageId) return false; // Wrong message

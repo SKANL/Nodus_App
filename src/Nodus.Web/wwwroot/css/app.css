@@ -105,16 +105,18 @@ h1, h2, h3, h4, .navbar-brand {
 .nav-item a {
     color: #94a3b8 !important;
     border-radius: var(--radius-md) !important;
-    margin: 0.5rem 1rem !important;
-    padding: 0.8rem 1.2rem !important;
+    margin: 0.25rem 1rem !important;
+    padding: 0.7rem 1.2rem !important;
     transition: all 0.2s ease !important;
     font-weight: 500 !important;
     display: flex;
     align-items: center;
+    gap: 0.75rem;
+    text-decoration: none !important;
 }
 
 .nav-link span {
-    display: none !important; /* Hide icons as requested */
+    /* Icons are rendered via ::before / Bootstrap Icons font — no hiding needed */
 }
 
 .nav-item a:hover {
@@ -126,6 +128,18 @@ h1, h2, h3, h4, .navbar-brand {
     background-color: var(--primary) !important;
     color: #fff !important;
     box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+/* Nav scrollable area fills remaining height so footer
+   can be anchored to the bottom */
+.nav-scrollable {
+    position: relative;
+    height: calc(100vh - 3.5rem); /* subtract top-row height */
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 100px; /* room for the footer */
+    display: flex;
+    flex-direction: column;
 }
 
 /* Main Content Area */
@@ -165,6 +179,13 @@ main {
     font-weight: 600;
     box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
     transition: all 0.2s;
+    /* Ensure interactive baseline */
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    text-decoration: none;
 }
 
 .btn-premium:hover {
@@ -172,6 +193,28 @@ main {
     transform: translateY(-1px);
     box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
     color: white;
+}
+
+/* ── WCAG 2.4.7: Focus-visible ring for all interactive elements ──
+   Without this, keyboard users cannot tell where focus is,
+   which is a WCAG AA failure. The :focus-visible selector fires
+   only for keyboard navigation, not mouse clicks — so it won't
+   show the ring on btn clicks but WILL show it on Tab navigation. */
+.btn-premium:focus-visible,
+.btn:focus-visible,
+.form-control-premium:focus-visible,
+.nav-item a:focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.2);
+}
+
+.btn-premium:disabled,
+.btn-premium[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    pointer-events: none;
 }
 
 /* Forms */
@@ -211,4 +254,183 @@ main {
     backdrop-filter: blur(8px);
     border-radius: var(--radius-lg);
     border: 1px solid var(--glass-border);
+}
+
+/* ============================================================
+   NavMenu — sidebar navigation structure
+   ============================================================ */
+
+/* Section labels like "PRINCIPAL" / "MI PROYECTO" */
+.nav-section-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #475569;
+    padding: 1.25rem 1.5rem 0.4rem;
+    display: block;
+}
+
+/* Bootstrap Icons inside nav items */
+.nav-icon {
+    font-size: 1rem;
+    width: 1.25rem;
+    text-align: center;
+    flex-shrink: 0;
+    opacity: 0.85;
+}
+
+.nav-item a.active .nav-icon {
+    opacity: 1;
+}
+
+/* Footer pinned to the bottom of the sidebar */
+.nav-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(180deg, transparent 0%, var(--sidebar-bg) 35%);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.nav-footer-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    color: #475569;
+    margin-bottom: 0.35rem;
+}
+
+.nav-footer-item:last-child {
+    margin-bottom: 0;
+}
+
+/* Sidebar backdrop — mobile overlay to close sidebar on tap
+   Renamed keyframe to fadeInBackdrop to avoid collision with the
+   page-enter fadeIn defined above (duplicate names cause the first
+   to be silently overridden, breaking page transition animations). */
+.sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
+    z-index: 999;
+    cursor: pointer;
+    animation: fadeInBackdrop 0.2s ease;
+}
+
+@keyframes fadeInBackdrop {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ============================================================
+   Online / Offline indicator in top-bar
+   ============================================================ */
+.online-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #64748b;
+}
+
+/* Shared dot style — used by top-bar (.online-dot) and nav-footer (.status-dot) */
+.online-dot,
+.status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.online-dot.online,
+.status-dot {
+    background: #22c55e;
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+}
+
+.online-dot.offline {
+    background: #ef4444;
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+    animation: pulse-offline 2s infinite;
+}
+
+@keyframes pulse-offline {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+}
+
+/* ============================================================
+   Skeleton loading states — reemplaza spinners genéricos
+   ============================================================ */
+@keyframes skeleton-shimmer {
+    0%   { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #f0f4f8 25%, #e2e8f0 50%, #f0f4f8 75%);
+    background-size: 800px 100%;
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+    border-radius: var(--radius-md);
+    display: block;
+}
+
+.skeleton-text {
+    height: 1rem;
+    margin-bottom: 0.5rem;
+    width: 100%;
+}
+
+.skeleton-text.w-75 { width: 75%; }
+.skeleton-text.w-50 { width: 50%; }
+.skeleton-text.w-33 { width: 33%; }
+
+.skeleton-title {
+    height: 1.75rem;
+    margin-bottom: 0.75rem;
+    width: 60%;
+}
+
+.skeleton-card {
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    background: var(--bg-card);
+    border: 1px solid #e2e8f0;
+    box-shadow: var(--shadow-md);
+}
+
+.skeleton-badge {
+    height: 1.5rem;
+    width: 7rem;
+    border-radius: 2rem;
+    margin-bottom: 1rem;
+}
+
+.skeleton-button {
+    height: 2.75rem;
+    width: 10rem;
+    border-radius: var(--radius-md);
+    margin-top: 1.5rem;
+}
+
+/* ============================================================
+   Utility overrides
+   ============================================================ */
+
+/* Ensure card-premium inside col fills height properly */
+.h-100.card-premium {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Smooth page-level fade for all route changes */
+.page-enter > article {
+    animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }

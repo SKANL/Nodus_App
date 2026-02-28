@@ -10,8 +10,20 @@ using System.Web;
 namespace Nodus.Client.ViewModels;
 
 /// <summary>
+/// Distinguishes between scanning for Judge event QR vs scanning for a Project QR.
+/// </summary>
+public enum ScanMode { JudgeRegistration, ProjectScan }
+
+/// <summary>
 /// Professional ScanViewModel with proper error handling and async patterns.
 /// </summary>
+/// <remarks>
+/// IMPORTANT: QueryProperty must use a string adapter.
+/// MAUI Shell passes all query parameters as raw strings. Binding [QueryProperty] directly
+/// to an enum property is unreliable across MAUI versions (Enum.Parse may throw on some
+/// Android builds). The string adapter pattern below is the robust idiomatic approach.
+/// </remarks>
+[QueryProperty(nameof(ModeParam), "Mode")]
 public partial class ScanViewModel : ObservableObject
 {
     private readonly ILogger<ScanViewModel> _logger;
@@ -19,7 +31,35 @@ public partial class ScanViewModel : ObservableObject
     private readonly IBleClientService _bleService;
 
     [ObservableProperty]
-    private bool _isScanning = true;
+    public partial bool IsScanning { get; set; } = true;
+
+    /// <summary>
+    /// String adapter for Shell QueryProperty → keeps the enum strongly typed inside the VM.
+    /// Shell always delivers query parameters as strings; parsing happens here.
+    /// </summary>
+    public string ModeParam
+    {
+        set => Mode = Enum.TryParse<ScanMode>(value, ignoreCase: true, out var m)
+            ? m
+            : ScanMode.ProjectScan;
+    }
+
+    /// <summary>Current scanning context — drives UI label and logic branching.</summary>
+    public ScanMode Mode
+    {
+        get => _mode;
+        set
+        {
+            if (SetProperty(ref _mode, value))
+                OnPropertyChanged(nameof(InstructionText));
+        }
+    }
+    private ScanMode _mode = ScanMode.ProjectScan;
+
+    /// <summary>Human-readable instruction shown in the scan overlay.</summary>
+    public string InstructionText => Mode == ScanMode.JudgeRegistration
+        ? "Apunta la cámara al QR de Acceso de Juez proyectado en pantalla"
+        : "Escanea el QR de un Proyecto para comenzar a evaluar";
 
     public ScanViewModel(
         ILogger<ScanViewModel> logger,
@@ -52,30 +92,32 @@ public partial class ScanViewModel : ObservableObject
 
         try
         {
+            var normalizedContent = NormalizeQrContent(qrContent);
+
             // Haptic Feedback (Optimistic Feedback)
             if (Vibration.Default.IsSupported)
-                 Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(100));
+                Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(100));
 
             // 1. Project QR: "pid=PROJ-123&name=..."
-            if (qrContent.Contains("pid="))
+            if (normalizedContent.Contains("pid=", StringComparison.OrdinalIgnoreCase))
             {
-                var result = await ProcessProjectQrAsync(qrContent, ct);
+                var result = await ProcessProjectQrAsync(normalizedContent, ct);
                 if (result.IsSuccess) return;
-                
+
                 _logger.LogWarning("Failed to process project QR: {Error}", result.Error);
             }
 
             // 2. Judge/Event QR: nodus://judge?eid=...&data=...
-            if (qrContent.StartsWith("nodus://judge"))
+            if (normalizedContent.StartsWith("nodus://judge", StringComparison.OrdinalIgnoreCase))
             {
-                var result = await ProcessEventQrAsync(qrContent, ct);
+                var result = await ProcessEventQrAsync(normalizedContent, ct);
                 if (result.IsSuccess) return;
-                
+
                 _logger.LogWarning("Failed to process event QR: {Error}", result.Error);
             }
 
             // Unknown QR
-            await ShowAlertAsync("Scan Result", $"Unknown QR: {qrContent}", "OK", ct: ct);
+            await ShowAlertAsync("Resultado del Escaneo", $"QR desconocido: {normalizedContent}", "OK", ct: ct);
         }
         catch (OperationCanceledException)
         {
@@ -84,12 +126,13 @@ public partial class ScanViewModel : ObservableObject
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing QR code");
-            await ShowAlertAsync("Error", "Failed to process QR code", "OK", ct: ct);
+            await ShowAlertAsync("Error", "No se pudo procesar el código QR", "OK", ct: ct);
         }
         finally
         {
-            // Resume scanning if not navigated
-            IsScanning = true;
+            // Only resume scanning if IsScanning was explicitly set to false without a successful nav.
+            // Successful flows handle their own navigation & scanning state.
+            if (!IsScanning) IsScanning = true;
         }
     }
 
@@ -103,20 +146,34 @@ public partial class ScanViewModel : ObservableObject
                 return Result.Failure("Missing project ID in QR");
             }
 
-            await Shell.Current.GoToAsync($"{nameof(VotingPage)}?ProjectId={pid}");
+            // Pass the current EventId so VotingViewModel can load the correct rubric
+            var eventId = await SecureStorage.Default.GetAsync(Nodus.Shared.NodusConstants.KEY_EVENT_ID) ?? string.Empty;
+            var navUrl = $"{nameof(VotingPage)}?ProjectId={Uri.EscapeDataString(pid)}&EventId={Uri.EscapeDataString(eventId)}";
+
+            try
+            {
+                await Shell.Current.GoToAsync(navUrl);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Routing failed to VotingPage: {Url}", navUrl);
+                await ShowAlertAsync("Error de Navegación", "No se pudo abrir la página de votación para este proyecto. Revisa las rutas.", "OK", ct: ct);
+                return Result.Failure("Routing failed", ex);
+            }
+
             return Result.Success();
         }
         catch (Exception ex)
         {
-            return Result.Failure("Failed to navigate to voting page", ex);
+            return Result.Failure("Failed to process project QR", ex);
         }
     }
 
     private async Task<Result> ProcessEventQrAsync(string rawContent, CancellationToken ct)
     {
-        try 
+        try
         {
-            if (string.IsNullOrWhiteSpace(rawContent) || !rawContent.StartsWith("nodus://judge"))
+            if (string.IsNullOrWhiteSpace(rawContent) || !rawContent.StartsWith("nodus://judge", StringComparison.OrdinalIgnoreCase))
             {
                 return Result.Failure("Invalid QR format");
             }
@@ -133,17 +190,18 @@ public partial class ScanViewModel : ObservableObject
 
             // Prompt for Event Password
             string? password = await ShowPromptAsync(
-                "Security Check", 
-                "Enter Event Password to decrypt credentials:", 
-                maxLength: 50, 
+                "Verificación de Seguridad",
+                "Ingresa la contraseña del evento para descifrar las credenciales:",
+                maxLength: 50,
                 ct: ct);
-            
+
             if (string.IsNullOrWhiteSpace(password))
             {
                 return Result.Failure("Password required for decryption");
             }
 
             // Parse and Decrypt
+            encryptedData = Uri.UnescapeDataString(encryptedData);
             var parts = encryptedData.Split('|');
             if (parts.Length != 2) return Result.Failure("Invalid payload format");
 
@@ -151,23 +209,23 @@ public partial class ScanViewModel : ObservableObject
             var encryptedKeyBlob = Convert.FromBase64String(parts[1]);
 
             // Derive key using PBKDF2 (expensive, run in background)
-            var derivedKey = await Task.Run(() => 
+            var derivedKey = await Task.Run(() =>
                 Nodus.Shared.Security.CryptoHelper.DeriveKeyFromPassword(password, saltBytes), ct);
-            
+
             var sharedKeyBytes = Nodus.Shared.Security.CryptoHelper.Decrypt(encryptedKeyBlob, derivedKey);
             var sharedKeyBase64 = Convert.ToBase64String(sharedKeyBytes);
 
             // Generate My Identity
             var myKeys = Nodus.Shared.Security.CryptoHelper.GenerateSigningKeys();
-            
+
             // Prompt for Judge Name
             string? judgeName = await ShowPromptAsync(
-                "Identity", 
-                "Enter your name (e.g. Dr. Brown):", 
+                "Identidad",
+                "Ingresa tu nombre (ej. Dr. Brown):",
                 maxLength: 20,
                 ct: ct);
-                
-            if (string.IsNullOrWhiteSpace(judgeName)) 
+
+            if (string.IsNullOrWhiteSpace(judgeName))
                 judgeName = "Judge " + new Random().Next(100, 999);
 
             // Persistence (Secure Storage)
@@ -196,15 +254,30 @@ public partial class ScanViewModel : ObservableObject
                 _logger.LogWarning("No se pudo registrar Judge {Name} en MongoDB: {Error}.", judge.Name, judgeResult.Error);
             }
 
-            // Start BLE Protocol
-            var startResult = await _bleService.StartScanningForServerAsync(ct);
-            if (startResult.IsFailure)
+            // Request Permissions before BLE operations
+            var locStatus = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+            if (locStatus != PermissionStatus.Granted)
             {
-                _logger.LogWarning("Failed to start BLE scanning: {Error}", startResult.Error);
+                locStatus = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+                if (locStatus != PermissionStatus.Granted)
+                    return Result.Failure("Location permission required for Bluetooth scanning");
             }
 
-            await ShowAlertAsync("Success", "Keys decrypted and stored securely.", "OK", ct: ct);
-            await Shell.Current.GoToAsync("..");
+#if ANDROID
+            if (OperatingSystem.IsAndroidVersionAtLeast(31))
+            {
+                var bleScanStatus = await Permissions.CheckStatusAsync<Permissions.Bluetooth>();
+                if (bleScanStatus != PermissionStatus.Granted)
+                {
+                    bleScanStatus = await Permissions.RequestAsync<Permissions.Bluetooth>();
+                    if (bleScanStatus != PermissionStatus.Granted)
+                        return Result.Failure("Bluetooth permissions required");
+                }
+            }
+#endif
+
+            // Navigate to Connection Progress
+            await Shell.Current.GoToAsync($"{nameof(ConnectionProgressPage)}?JudgeName={Uri.EscapeDataString(judgeName)}");
 
             return Result.Success();
         }
@@ -219,13 +292,20 @@ public partial class ScanViewModel : ObservableObject
         }
     }
 
+    private static string NormalizeQrContent(string content)
+    {
+        if (string.IsNullOrWhiteSpace(content)) return string.Empty;
+        var trimmed = content.Trim();
+        return string.Concat(trimmed.Where(c => !char.IsWhiteSpace(c)));
+    }
+
     private Dictionary<string, string> ParseQueryString(string text)
     {
         var dict = new Dictionary<string, string>();
-        
+
         // Remove scheme if present
         var query = text.Contains('?') ? text.Split('?')[1] : text;
-        
+
         var parts = query.Split('&');
         foreach (var part in parts)
         {
@@ -240,27 +320,22 @@ public partial class ScanViewModel : ObservableObject
 
     private async Task<bool> ShowAlertAsync(string title, string message, string accept, string? cancel = null, CancellationToken ct = default)
     {
-        if (ct.IsCancellationRequested || Application.Current?.Windows.Count == 0)
-            return false;
+        if (ct.IsCancellationRequested) return false;
 
         try
         {
-            var page = Application.Current.Windows[0].Page;
-            if (page == null)
+            var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+            if (page is null)
             {
-                _logger.LogWarning("Cannot show alert: Page is null");
+                _logger.LogWarning("Cannot show alert: no active page");
                 return false;
             }
 
-            if (cancel != null)
-            {
+            if (cancel is not null)
                 return await page.DisplayAlertAsync(title, message, accept, cancel);
-            }
-            else
-            {
-                await page.DisplayAlertAsync(title, message, accept);
-                return true;
-            }
+
+            await page.DisplayAlertAsync(title, message, accept);
+            return true;
         }
         catch (Exception ex)
         {
@@ -271,22 +346,21 @@ public partial class ScanViewModel : ObservableObject
 
     private async Task<string?> ShowPromptAsync(string title, string message, int maxLength = 50, CancellationToken ct = default)
     {
-        if (ct.IsCancellationRequested || Application.Current?.Windows.Count == 0)
-            return null;
+        if (ct.IsCancellationRequested) return null;
 
         try
         {
-            var page = Application.Current.Windows[0].Page;
-            if (page == null)
+            var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+            if (page is null)
             {
-                _logger.LogWarning("Cannot show prompt: Page is null");
+                _logger.LogWarning("Cannot show prompt: no active page");
                 return null;
             }
 
             return await page.DisplayPromptAsync(
-                title, 
-                message, 
-                maxLength: maxLength, 
+                title,
+                message,
+                maxLength: maxLength,
                 keyboard: Keyboard.Text);
         }
         catch (Exception ex)

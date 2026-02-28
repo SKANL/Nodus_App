@@ -13,10 +13,10 @@ public class LocalDatabaseService : IDatabaseService, IDisposable
     {
         var dir = fileService.GetAppDataDirectory();
         fileService.CreateDirectory(dir);
-        
+
         var dbPath = Path.Combine(dir, "nodus_mobile.db");
         _db = new LiteDatabase(dbPath);
-        
+
         // Ensure indices
         _db.GetCollection<Event>("events").EnsureIndex(x => x.IsActive);
         _db.GetCollection<Vote>("votes").EnsureIndex(x => x.ProjectId);
@@ -133,6 +133,7 @@ public class LocalDatabaseService : IDatabaseService, IDisposable
         {
             try
             {
+                if (string.IsNullOrEmpty(project.Id)) project.Id = Guid.NewGuid().ToString();
                 _db.GetCollection<Project>("projects").Upsert(project);
                 return Result.Success();
             }
@@ -202,6 +203,9 @@ public class LocalDatabaseService : IDatabaseService, IDisposable
         {
             try
             {
+                if (vote is null) return Result.Failure("Vote cannot be null");
+                if (string.IsNullOrEmpty(vote.EventId)) return Result.Failure("Vote.EventId cannot be empty");
+                if (vote.PayloadJson is null) return Result.Failure("Vote.PayloadJson cannot be null");
                 if (string.IsNullOrEmpty(vote.Id)) vote.Id = Guid.NewGuid().ToString();
                 _db.GetCollection<Vote>("votes").Upsert(vote);
                 return Result.Success();
@@ -219,13 +223,10 @@ public class LocalDatabaseService : IDatabaseService, IDisposable
         {
             try
             {
-                // Assuming SyncStatus is an enum, LiteDB stores it as int by default or string if configured.
-                // We'll rely on default behavior (usually int for enums unless BsonMapper configured otherwise).
-                // However, our models use string status in MongoDB, but enum in C# POCO.
-                // LiteDB by default maps enum to Int.
-                // If Vote.Status is SyncStatus (enum), equality check works.
+                // Returns both Pending and SyncError votes so that failed votes are
+                // automatically retried on the next sync cycle instead of being orphaned.
                 var list = _db.GetCollection<Vote>("votes")
-                    .Find(x => x.Status == SyncStatus.Pending)
+                    .Find(x => x.Status == SyncStatus.Pending || x.Status == SyncStatus.SyncError)
                     .ToList();
                 return Result<List<Vote>>.Success(list);
             }
@@ -340,7 +341,29 @@ public class LocalDatabaseService : IDatabaseService, IDisposable
 
     public Task<Result> ExecuteInTransactionAsync(Func<Task> action, CancellationToken ct = default)
     {
-        return Task.FromResult(Result.Failure("Transactions with SQLite connection not supported in LiteDB implementation."));
+        // LiteDB operations are typically atomic per document; multi-document
+        // ACID semantics are limited. We execute the action best-effort and
+        // propagate actual failures to keep behavior consistent with other
+        // IDatabaseService implementations.
+        return ExecuteActionBestEffortAsync(action, ct);
+    }
+
+    private static async Task<Result> ExecuteActionBestEffortAsync(Func<Task> action, CancellationToken ct)
+    {
+        try
+        {
+            ct.ThrowIfCancellationRequested();
+            await action();
+            return Result.Success();
+        }
+        catch (OperationCanceledException)
+        {
+            return Result.Failure("Transaction action cancelled.");
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure("Transaction action failed.", ex);
+        }
     }
 
     public void Dispose()

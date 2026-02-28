@@ -32,8 +32,8 @@ public class TelemetryService
     /// </summary>
     public void UpdateNodeMetrics(string nodeId, Action<NetworkMetrics> updateAction)
     {
-        var metrics = _nodeMetrics.GetOrAdd(nodeId, id => new NetworkMetrics 
-        { 
+        var metrics = _nodeMetrics.GetOrAdd(nodeId, id => new NetworkMetrics
+        {
             NodeId = id,
             LastSeen = _dateTime.UtcNow
         });
@@ -42,13 +42,13 @@ public class TelemetryService
         {
             updateAction(metrics);
             metrics.LastSeen = _dateTime.UtcNow;
-            
+
             // Update status based on metrics
             metrics.Status = CalculateNodeStatus(metrics);
         }
 
         NodeMetricsUpdated?.Invoke(this, metrics);
-        _logger.LogDebug("Updated metrics for node {NodeId}: RSSI={Rssi}, Quality={Quality:F1}%", 
+        _logger.LogDebug("Updated metrics for node {NodeId}: RSSI={Rssi}, Quality={Quality:F1}%",
             nodeId, metrics.Rssi, metrics.ConnectionQuality);
     }
 
@@ -73,7 +73,7 @@ public class TelemetryService
         {
             m.PacketsReceived++;
             m.BytesReceived += bytes;
-            
+
             // Update latency metrics (running average)
             if (m.AverageLatency == 0)
             {
@@ -194,17 +194,17 @@ public class TelemetryService
     private NodeStatus CalculateNodeStatus(NetworkMetrics metrics)
     {
         var timeSinceLastSeen = _dateTime.UtcNow - metrics.LastSeen;
-        
+
         // Offline if not seen in 30 seconds
         if (timeSinceLastSeen.TotalSeconds > 30)
             return NodeStatus.Offline;
-        
+
         // Warning if stale (>10s) or weak signal (<-85 dBm) or high packet loss (>10%)
-        if (timeSinceLastSeen.TotalSeconds > 10 || 
-            metrics.Rssi < -85 || 
+        if (timeSinceLastSeen.TotalSeconds > 10 ||
+            metrics.Rssi < -85 ||
             metrics.PacketLossPercentage > 10)
             return NodeStatus.Warning;
-        
+
         return NodeStatus.Online;
     }
 

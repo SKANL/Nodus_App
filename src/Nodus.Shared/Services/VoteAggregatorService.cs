@@ -24,7 +24,7 @@ public class VoteAggregatorService
     // Usually messages are separate or nested. Previous file had it outside.
     // I'll keep it here for simplicity or define it in Shared.Models if used elsewhere.
     // For now, I'll keep it in this file but public.
-    
+
     public async Task<Result> ProcessVoteAsync(Vote vote)
     {
         // 1. Validate Timestamp
@@ -52,7 +52,7 @@ public class VoteAggregatorService
             {
                 if (doc.RootElement.ValueKind != JsonValueKind.Object)
                     return Result.Failure("Invalid Payload format (not an object)");
-                
+
                 // Optional: Check for 'score' or required fields?
                 // Aggressive test expects "Invalid Payload" if malformed.
                 // Test passes "INVALID JSON" string which Parse throws on.
@@ -68,21 +68,22 @@ public class VoteAggregatorService
         var saveResult = await _databaseService.SaveVoteAsync(vote);
         if (saveResult.IsFailure)
         {
-             _logger.LogError("Failed to save vote {Id}: {Error}", vote.Id, saveResult.Error);
-             return Result.Failure($"Database error: {saveResult.Error}");
+            _logger.LogError("Failed to save vote {Id}: {Error}", vote.Id, saveResult.Error);
+            return Result.Failure($"Database error: {saveResult.Error}");
         }
 
         // 4. Update In-Memory Aggregation
-        _votesByProject.AddOrUpdate(vote.ProjectId, 
-            new List<Vote> { vote }, 
-            (key, list) => {
-                lock(list) // Thread-safe list mod
+        _votesByProject.AddOrUpdate(vote.ProjectId,
+            new List<Vote> { vote },
+            (key, list) =>
+            {
+                lock (list) // Thread-safe list mod
                 {
                     // Dedupe logic: Remove existing vote from same judge if any (update scenario)
                     var existing = list.FirstOrDefault(v => v.JudgeId == vote.JudgeId);
                     if (existing != null)
                         list.Remove(existing);
-                    
+
                     list.Add(vote);
                 }
                 return list;
@@ -91,11 +92,11 @@ public class VoteAggregatorService
         // 5. Notify UI
         // WeakReferenceMessenger.Default.Send(new VoteReceivedMessage(vote));
         // Note: Messenger is loosely coupled.
-        try 
+        try
         {
             WeakReferenceMessenger.Default.Send(new VoteReceivedMessage(vote));
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             _logger.LogWarning("Failed to send UI message: {Error}", ex.Message);
             // Don't fail the operation just because UI didn't update
@@ -105,13 +106,13 @@ public class VoteAggregatorService
     }
 
     public List<Vote> GetAllVotes() => _votesByProject.Values.SelectMany(v => v).ToList();
-    
+
     public Dictionary<string, double> GetProjectScores()
     {
         var scores = new Dictionary<string, double>();
-        foreach(var kvp in _votesByProject)
+        foreach (var kvp in _votesByProject)
         {
-             scores[kvp.Key] = kvp.Value.Count; 
+            scores[kvp.Key] = kvp.Value.Count;
         }
         return scores;
     }
@@ -119,23 +120,23 @@ public class VoteAggregatorService
     public List<ProjectLeaderboardEntry> GetLeaderboard()
     {
         var leaderboard = new List<ProjectLeaderboardEntry>();
-        foreach(var kvp in _votesByProject)
+        foreach (var kvp in _votesByProject)
         {
             var projectId = kvp.Key;
             var votes = kvp.Value;
             double totalScore = 0;
             int validVotes = 0;
 
-            foreach(var vote in votes)
+            foreach (var vote in votes)
             {
-                try 
+                try
                 {
                     using var doc = JsonDocument.Parse(vote.PayloadJson);
                     if (doc.RootElement.TryGetProperty("CategoryScores", out var scoresArray))
                     {
                         double voteTotal = 0;
                         int catCount = 0;
-                        foreach(var scoreObj in scoresArray.EnumerateArray())
+                        foreach (var scoreObj in scoresArray.EnumerateArray())
                         {
                             if (scoreObj.TryGetProperty("Score", out var scoreVal))
                             {
@@ -149,20 +150,20 @@ public class VoteAggregatorService
                             validVotes++;
                         }
                     }
-                } 
+                }
                 catch { }
             }
 
-            leaderboard.Add(new ProjectLeaderboardEntry 
+            leaderboard.Add(new ProjectLeaderboardEntry
             {
                 ProjectId = projectId,
                 AverageScore = validVotes > 0 ? (totalScore / validVotes) : 0,
                 TotalVotes = votes.Count
             });
         }
-        
+
         var sorted = leaderboard.OrderByDescending(x => x.AverageScore).ToList();
-        
+
         // Assign ranks and colors
         for (int i = 0; i < sorted.Count; i++)
         {

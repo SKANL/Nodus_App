@@ -1,10 +1,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using Nodus.Shared.Models;
+using Nodus.Shared.Abstractions;
 using Nodus.Shared.Services;
-using Nodus.Shared.Abstractions; // Added
-using System.Security.Cryptography;
-using System.Text;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
+using System.Text.Json;
 using QRCoder;
 
 namespace Nodus.Server.ViewModels;
@@ -13,131 +15,193 @@ public partial class CreateEventViewModel : ObservableObject
 {
     private readonly IDatabaseService _db;
     private readonly Services.BleServerService _bleService;
-    private readonly Nodus.Infrastructure.Services.MongoDbService _mongoDb;
+    private readonly EventSecurityService _security;
+    private readonly ILogger<CreateEventViewModel> _logger;
 
-    [ObservableProperty] private string _eventName = string.Empty;
-    [ObservableProperty] private string _judgePassword = string.Empty;
-    [ObservableProperty] private string _categories = "Software, Hardware, Innovation";
-    
-    [ObservableProperty] private ImageSource? _judgeQrCode;
-    [ObservableProperty] private ImageSource? _studentQrCode;
-    [ObservableProperty] private bool _isGenerated;
+    // ── Observable State ───────────────────────────────────────────────────
+    [ObservableProperty] public partial string EventName { get; set; } = string.Empty;
+    [ObservableProperty] public partial string JudgePassword { get; set; } = string.Empty;
+    [ObservableProperty] public partial string Categories { get; set; } = "Software, Hardware, Innovación";
+    [ObservableProperty] public partial string WebPortalUrl { get; set; } = string.Empty;
+    [ObservableProperty] public partial string NetworkAddresses { get; set; } = string.Empty;
+
+    [ObservableProperty] public partial ImageSource? JudgeQrCode { get; set; }
+    [ObservableProperty] public partial ImageSource? StudentQrCode { get; set; }
+    [ObservableProperty] public partial bool IsGenerated { get; set; }
+
+    /// <summary>True while the event create/generate operation is running (shows loading overlay).</summary>
+    [ObservableProperty] public partial bool IsLoading { get; set; }
 
     public CreateEventViewModel(
-        IDatabaseService db, 
+        IDatabaseService db,
         Services.BleServerService bleService,
-        Infrastructure.Services.MongoDbService mongoDb)
+        EventSecurityService security,
+        ILogger<CreateEventViewModel> logger)
     {
         _db = db;
         _bleService = bleService;
-        _mongoDb = mongoDb;
+        _security = security;
+        _logger = logger;
+
+        var localIp = GetLocalIpAddress();
+        NetworkAddresses = localIp;
+        WebPortalUrl = localIp;
     }
 
     [RelayCommand]
     private async Task CreateAndGenerate()
     {
-        System.Diagnostics.Debug.WriteLine($"[DEBUG] CreateAndGenerate Command Triggered. Name='{EventName}', Pwd='{JudgePassword}'");
-        
+        _logger.LogDebug("CreateAndGenerate triggered. EventName='{Name}'", EventName);
+
         if (string.IsNullOrWhiteSpace(EventName) || string.IsNullOrWhiteSpace(JudgePassword))
         {
-            System.Diagnostics.Debug.WriteLine("[DEBUG] Validation Failed: Missing Name or Password");
-            var page = Application.Current?.Windows[0].Page;
-            if (page != null)
-            {
-                await page.DisplayAlertAsync("Error de Validación", "Por favor ingrese el nombre del evento y la contraseña", "OK");
-            }
+            _logger.LogWarning("Validation failed: EventName or JudgePassword is empty");
+            await ShowAlertAsync("Validación", "Ingresa el nombre del evento y la contraseña del juez.");
             return;
         }
 
+        IsLoading = true;
         try
         {
-            System.Diagnostics.Debug.WriteLine("[DEBUG] Starting Generation Process...");
-            // 1. Generate Security Artifacts
-            // Salt: 16 bytes for PBKDF2
-            var saltBytes = new byte[16];
-            RandomNumberGenerator.Fill(saltBytes);
-            var saltBase64 = Convert.ToBase64String(saltBytes);
+            // 1. Delegate all crypto work to dedicated service (SRP)
+            var artifacts = _security.GenerateArtifacts(JudgePassword);
 
-            // Shared Key: 32 bytes (AES-256) actually used for the event
-            var sharedKeyBytes = new byte[32];
-            RandomNumberGenerator.Fill(sharedKeyBytes);
-            var sharedKeyBase64 = Convert.ToBase64String(sharedKeyBytes);
-
-            // 2. Encrypt Shared Key with Password
-            // This ensures only judges with the password can unlock the Shared Key from the QR
-            var derivedPasswordKey = Nodus.Shared.Security.CryptoHelper.DeriveKeyFromPassword(JudgePassword, saltBytes);
-            var encryptedSharedKeyBlob = Nodus.Shared.Security.CryptoHelper.Encrypt(sharedKeyBytes, derivedPasswordKey);
-            var encryptedSharedKeyBase64 = Convert.ToBase64String(encryptedSharedKeyBlob);
-            
-            // Payload: Salt|EncryptedKey
-            var qrPayload = $"{saltBase64}|{encryptedSharedKeyBase64}";
-
-            // 3. Save Event
+            // 2. Persist event via IDatabaseService (local-first in Server)
             var newEvent = new Event
             {
                 Name = EventName,
-                GlobalSalt = saltBase64,
-                RubricJson = Categories,
-                SharedAesKeyEncrypted = sharedKeyBase64, // Persist for Admin use
+                GlobalSalt = artifacts.SaltBase64,
+                RubricJson = BuildRubricJson(Categories),
+                SharedAesKeyEncrypted = artifacts.SharedKeyBase64,
                 IsActive = true
             };
-
-            // IMPORTANT: Capture the GUID Id BEFORE saving to the database.
-            // LiteDB can replace string Ids with auto-incremented integers during Upsert,
-            // which would corrupt the URL embedded in the QR code.
-            var eventIdForQr = newEvent.Id;
+            var eventId = newEvent.Id; // Capture before save to prevent any ID mutation
 
             var saveResult = await _db.SaveEventAsync(newEvent);
             if (saveResult.IsFailure)
             {
-                var page = Application.Current?.Windows[0].Page;
-                if (page != null)
+                _logger.LogWarning("Initial event save failed for {EventId}. Retrying once...", eventId);
+                await Task.Delay(250);
+                saveResult = await _db.SaveEventAsync(newEvent);
+            }
+            if (saveResult.IsFailure)
+            {
+                _logger.LogError("Failed to persist event: {Error}", saveResult.Error);
+
+                // Provide an actionable error aligned with local-first architecture.
+                var userMessage = saveResult.Error ?? "Error desconocido";
+                if (userMessage.Contains("Connection refused", StringComparison.OrdinalIgnoreCase)
+                    || userMessage.Contains("No connection could be made", StringComparison.OrdinalIgnoreCase)
+                    || userMessage.Contains("A timeout", StringComparison.OrdinalIgnoreCase)
+                    || userMessage.Contains("ServerSelectionTimeout", StringComparison.OrdinalIgnoreCase))
                 {
-                    await page.DisplayAlertAsync("Error", 
-                        $"Error al guardar el evento localmente: {saveResult.Error}", "OK");
+                    userMessage = "No se pudo guardar el evento localmente.\n\n"
+                        + "• Verifica permisos de escritura en la carpeta de datos de la app\n"
+                        + "• Reintenta la operación; la sincronización a nube ocurre en segundo plano";
                 }
+
+                await ShowAlertAsync("Error al guardar", userMessage);
                 return;
             }
+            _logger.LogInformation("Event '{Name}' persisted with ID: {Id}", EventName, eventId);
 
-            // 4. Sync to Cloud immediately for Web Portal registration
-            _ = Task.Run(async () => {
-                var cloudResult = await _mongoDb.SaveEventAsync(newEvent);
-                if (cloudResult.IsFailure)
-                {
-                    System.Diagnostics.Debug.WriteLine($"[CLOUD] Failed to push event to Atlas: {cloudResult.Error}");
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine($"[CLOUD] Event {newEvent.Name} pushed to Atlas successfully.");
-                }
-            });
+            // 3. Generate QR codes
+            var judgeDeepLink = $"nodus://judge?eid={eventId}&data={System.Net.WebUtility.UrlEncode(artifacts.JudgeQrPayload)}";
+            JudgeQrCode = GenerateQrImage(judgeDeepLink);
 
-            // 5. Generate QR Codes using the pre-saved GUID Id
-            JudgeQrCode = GenerateQrImage($"nodus://judge?eid={eventIdForQr}&data={System.Net.WebUtility.UrlEncode(qrPayload)}");
-            StudentQrCode = GenerateQrImage($"http://192.168.1.1:5000/register?eid={eventIdForQr}");
-            
+            var studentUrl = $"{WebPortalUrl.TrimEnd('/')}/register?eid={eventId}";
+            StudentQrCode = GenerateQrImage(studentUrl);
+            _logger.LogInformation("Student registration URL: {Url}", studentUrl);
+
             IsGenerated = true;
 
-            // 5. Start Firefly Protocol (Advertising)
+            // 4. Start Firefly BLE advertising
             await _bleService.StartAdvertisingAsync(EventName);
+            if (!OperatingSystem.IsAndroid())
+            {
+                await ShowAlertAsync(
+                    "BLE no disponible",
+                    "Este Server está ejecutándose en una plataforma sin hosting BLE.\n\nPara conexión Judge↔Server por BLE, ejecuta Nodus.Server en Android.");
+            }
         }
         catch (Exception ex)
         {
-            var page = Application.Current?.Windows[0].Page;
-            if (page != null)
-            {
-                await page.DisplayAlertAsync("Error", 
-                    $"Error al crear el evento: {ex.Message}", "OK");
-            }
+            _logger.LogError(ex, "Unhandled exception in CreateAndGenerate");
+            await ShowAlertAsync("Error inesperado", ex.Message);
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
 
-    private ImageSource GenerateQrImage(string content)
+    [RelayCommand]
+    private async Task PresentQrs()
     {
-        using var qrGenerator = new QRCodeGenerator();
-        using var qrCodeData = qrGenerator.CreateQrCode(content, QRCodeGenerator.ECCLevel.Q);
-        using var qrCode = new PngByteQRCode(qrCodeData);
-        byte[] qrCodeAsAsBytes = qrCode.GetGraphic(20);
-        return ImageSource.FromStream(() => new MemoryStream(qrCodeAsAsBytes));
+        if (!IsGenerated) return;
+        var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+        if (page is not null)
+            await page.Navigation.PushModalAsync(new Nodus.Server.Views.QrProjectionWindow(this));
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
+    private static string BuildRubricJson(string categoriesInput)
+    {
+        if (string.IsNullOrWhiteSpace(categoriesInput))
+            return "{}";
+
+        var categories = categoriesInput
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(c => !string.IsNullOrWhiteSpace(c))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (categories.Count == 0)
+            return "{}";
+
+        var rubric = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        foreach (var category in categories)
+            rubric[category] = 10;
+
+        return JsonSerializer.Serialize(rubric);
+    }
+
+    private static ImageSource GenerateQrImage(string content)
+    {
+        using var gen = new QRCodeGenerator();
+        using var data = gen.CreateQrCode(content, QRCodeGenerator.ECCLevel.Q);
+        using var code = new PngByteQRCode(data);
+        var bytes = code.GetGraphic(20);
+        return ImageSource.FromStream(() => new MemoryStream(bytes));
+    }
+
+    private static async Task ShowAlertAsync(string title, string message)
+    {
+        var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+        if (page is not null)
+            await page.DisplayAlertAsync(title, message, "OK");
+    }
+
+    /// <summary>Returns the primary LAN IPv4 address for the student portal QR default URL.</summary>
+    private static string GetLocalIpAddress()
+    {
+        try
+        {
+            foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (ni.OperationalStatus != OperationalStatus.Up) continue;
+                if (ni.NetworkInterfaceType == NetworkInterfaceType.Loopback) continue;
+
+                foreach (var ua in ni.GetIPProperties().UnicastAddresses)
+                {
+                    if (ua.Address.AddressFamily == AddressFamily.InterNetwork)
+                        return $"http://{ua.Address}:5000";
+                }
+            }
+        }
+        catch { /* fall through to default */ }
+        return "http://localhost:5000";
     }
 }
+

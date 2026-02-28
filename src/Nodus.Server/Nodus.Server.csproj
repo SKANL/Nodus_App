@@ -28,6 +28,10 @@
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
+		<!-- Enable C# 13 partial property syntax required by CommunityToolkit.Mvvm 8.3+ -->
+		<!-- This eliminates MVVMTK0045 AOT-incompatible ObservableProperty warnings on Windows/WinRT -->
+		<LangVersion>preview</LangVersion>
+
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
 		<WindowsPackageType>None</WindowsPackageType>
 
@@ -64,6 +68,7 @@
 		<PackageReference Include="QRCoder" Version="1.7.0" />
 		<PackageReference Include="Shiny.BluetoothLE" Version="3.3.4" />
 		<PackageReference Include="Shiny.BluetoothLE.Hosting" Version="3.3.4" />
+		<PackageReference Include="Shiny.Hosting.Maui" Version="3.3.4" />
 		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
 		<PackageReference Include="ClosedXML" Version="0.104.2" />
 	</ItemGroup>

@@ -21,7 +21,7 @@ public class ExportService
         var votesResult = await _db.GetAllVotesAsync();
         if (votesResult.IsFailure) return Array.Empty<byte>();
 
-        var votes = votesResult.Value
+        var votes = (votesResult.Value ?? [])
             .Where(v => v.EventId == eventId)
             .ToList();
 
@@ -32,7 +32,7 @@ public class ExportService
         {
             // Escape quotes in payload
             var payload = vote.PayloadJson.Replace("\"", "\"\"");
-            
+
             csv.AppendLine($"{vote.Id},{vote.ProjectId},{vote.JudgeId}," +
                           $"\"{payload}\",{DateTimeOffset.FromUnixTimeSeconds(vote.Timestamp).UtcDateTime}," +
                           $"{vote.SyncedAtUtc}");
@@ -46,7 +46,7 @@ public class ExportService
         var votesResult = await _db.GetAllVotesAsync();
         if (votesResult.IsFailure) return Array.Empty<byte>();
 
-        var votes = votesResult.Value
+        var votes = (votesResult.Value ?? [])
             .Where(v => v.EventId == eventId)
             .ToList();
 

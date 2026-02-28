@@ -14,103 +14,118 @@ namespace Nodus.Client;
 
 public static class MauiProgram
 {
-	public static MauiApp CreateMauiApp()
-	{
-		LogDebug("--- Starting Nodus Client Application ---");
-		try
-		{
-			var builder = MauiApp.CreateBuilder();
-		builder
-			.UseMauiApp<App>()
-            .UseShiny()
-			.ConfigureFonts(fonts =>
-			{
-				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-			})
-            .UseBarcodeReader();
+    public static MauiApp CreateMauiApp()
+    {
+        LogDebug("--- Starting Nodus Client Application ---");
+        try
+        {
+            var builder = MauiApp.CreateBuilder();
+            builder
+                .UseMauiApp<App>()
+                .UseShiny()
+                .ConfigureFonts(fonts =>
+                {
+                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                })
+                .UseBarcodeReader();
 
 #if DEBUG
-		builder.Logging.AddDebug();
-		builder.Logging.SetMinimumLevel(LogLevel.Debug);
+            builder.Logging.AddDebug();
+            builder.Logging.SetMinimumLevel(LogLevel.Debug);
 #else
 		builder.Logging.SetMinimumLevel(LogLevel.Information);
 #endif
 
-        // Core Infrastructure Services — MongoDB Atlas
-        // Database Services
-        // 1. MongoDbService (Concrete) — For synchronization
-        builder.Services.AddSingleton<MongoDbService>(sp =>
-        {
-            var logger = sp.GetRequiredService<ILogger<MongoDbService>>();
-            return new MongoDbService(
-                AppSecrets.MongoConnectionString,
-                AppSecrets.MongoDatabaseName,
-                logger);
-        });
+            // Core Infrastructure Services — MongoDB Atlas
+            // Database Services
+            // 1. MongoDbService (Concrete) — For synchronization
+            builder.Services.AddSingleton<MongoDbService>(sp =>
+            {
+                var logger = sp.GetRequiredService<ILogger<MongoDbService>>();
+                return new MongoDbService(
+                    AppSecrets.MongoConnectionString,
+                    AppSecrets.MongoDatabaseName,
+                    logger);
+            });
 
-        // 2. LocalDatabaseService (Interface) — For UI & Offline use
-        builder.Services.AddSingleton<IDatabaseService, LocalDatabaseService>();
-         
-        // Secure Storage
-        builder.Services.AddSingleton<ISecureStorageService, SecureStorageService>();
-        
-        // UI Services
-        builder.Services.AddSingleton<IDialogService, Nodus.Client.Services.DialogService>();
+            // 2. LocalDatabaseService (Interface) — For UI & Offline use
+            builder.Services.AddSingleton<IDatabaseService, LocalDatabaseService>();
 
-        // BLE Services (Shiny)
-        builder.Services.AddBluetoothLE();
+            // Secure Storage
+            builder.Services.AddSingleton<ISecureStorageService, SecureStorageService>();
+
+            // HTTP & Cloud Sync
+            builder.Services.AddSingleton(sp =>
+            {
+                var http = new HttpClient { BaseAddress = new Uri(AppSecrets.ApiBaseUrl + "/") };
+                if (!string.IsNullOrWhiteSpace(AppSecrets.NodusEventApiKey) &&
+                    !AppSecrets.NodusEventApiKey.Contains("YOUR_EVENT_API_KEY", StringComparison.OrdinalIgnoreCase))
+                {
+                    http.DefaultRequestHeaders.Add("X-Api-Key", AppSecrets.NodusEventApiKey);
+                }
+                return http;
+            });
+            builder.Services.AddSingleton<CloudProjectSyncService>();
+            builder.Services.AddSingleton<CloudVoteSyncService>();
+
+            // UI Services
+            builder.Services.AddSingleton<IDialogService, Nodus.Client.Services.DialogService>();
+
+            // BLE Services (Shiny)
+            builder.Services.AddBluetoothLE();
 #if ANDROID
-        builder.Services.AddBluetoothLeHosting(); // For Relay role
+            builder.Services.AddBluetoothLeHosting(); // For Relay role
 #endif
-        builder.Services.AddSingleton<ITimerFactory, MauiTimerFactory>();
+            builder.Services.AddSingleton<ITimerFactory, MauiTimerFactory>();
 
-        // Protocol Services
-        builder.Services.AddSingleton<Nodus.Shared.Services.TelemetryService>();
-        builder.Services.AddSingleton<IChunkerService, ChunkerService>();
-        builder.Services.AddSingleton<IImageCompressionService, ImageCompressionService>();
-        builder.Services.AddSingleton<IFileService, FileService>();
-        builder.Services.AddSingleton<MediaSyncService>();
-        builder.Services.AddSingleton<Nodus.Shared.Protocol.PacketTracker>();
-        builder.Services.AddSingleton<IBleClientService, BleClientService>();
-        builder.Services.AddSingleton<BleClientService>(); // Register concrete type as well (required by HomeViewModel)
-        builder.Services.AddSingleton<IRelayHostingService, RelayHostingService>();
-        builder.Services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
-        builder.Services.AddSingleton<ISwarmService, SwarmService>();
-        builder.Services.AddSingleton<SwarmService>(); // Register concrete type (required by HomeViewModel and other ViewModels)
+            // Protocol Services
+            builder.Services.AddSingleton<Nodus.Shared.Services.TelemetryService>();
+            builder.Services.AddSingleton<IChunkerService, ChunkerService>();
+            builder.Services.AddSingleton<IImageCompressionService, ImageCompressionService>();
+            builder.Services.AddSingleton<IFileService, FileService>();
+            builder.Services.AddSingleton<MediaSyncService>();
+            builder.Services.AddSingleton<Nodus.Shared.Protocol.PacketTracker>();
+            // Single instance registrations — concrete type registered first, interface resolves to same instance
+            builder.Services.AddSingleton<BleClientService>();
+            builder.Services.AddSingleton<IBleClientService>(sp => sp.GetRequiredService<BleClientService>());
+            builder.Services.AddSingleton<SwarmService>();
+            builder.Services.AddSingleton<ISwarmService>(sp => sp.GetRequiredService<SwarmService>());
+            builder.Services.AddSingleton<IRelayHostingService, RelayHostingService>();
+            builder.Services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
 
-		// Pages & ViewModels (Transient for fresh state)
-		builder.Services.AddTransient<Nodus.Client.Views.HomePage>();
-		builder.Services.AddTransient<Nodus.Client.ViewModels.HomeViewModel>();
-		builder.Services.AddTransient<Nodus.Client.Views.JudgeRegistrationPage>();
-		builder.Services.AddTransient<Nodus.Client.ViewModels.JudgeRegistrationViewModel>();
-		builder.Services.AddTransient<Nodus.Client.Views.VotingPage>();
-		builder.Services.AddTransient<Nodus.Client.ViewModels.VotingViewModel>();
-		builder.Services.AddTransient<Nodus.Client.Views.ScanPage>();
-		builder.Services.AddTransient<Nodus.Client.ViewModels.ScanViewModel>();
-        builder.Services.AddTransient<Nodus.Client.Views.SettingsPage>();
-        builder.Services.AddTransient<Nodus.Client.ViewModels.SettingsViewModel>();
+            // Pages & ViewModels (Transient for fresh state per navigation)
+            builder.Services.AddTransient<Nodus.Client.Views.HomePage>();
+            builder.Services.AddTransient<Nodus.Client.ViewModels.HomeViewModel>();
+            builder.Services.AddTransient<Nodus.Client.Views.VotingPage>();
+            builder.Services.AddTransient<Nodus.Client.ViewModels.VotingViewModel>();
+            builder.Services.AddTransient<Nodus.Client.Views.ScanPage>();
+            builder.Services.AddTransient<Nodus.Client.ViewModels.ScanViewModel>();
+            builder.Services.AddTransient<Nodus.Client.Views.ConnectionProgressPage>();
+            builder.Services.AddTransient<Nodus.Client.ViewModels.ConnectionProgressViewModel>();
+            builder.Services.AddTransient<Nodus.Client.Views.SettingsPage>();
+            builder.Services.AddTransient<Nodus.Client.ViewModels.SettingsViewModel>();
 
-			var app = builder.Build();
-			LogDebug("MauiApp built successfully");
-			return app;
-		}
-		catch (Exception ex)
-		{
-			LogDebug($"FATAL STARTUP ERROR: {ex}");
-			throw;
-		}
-	}
+            var app = builder.Build();
+            LogDebug("MauiApp built successfully");
+            return app;
+        }
+        catch (Exception ex)
+        {
+            LogDebug($"FATAL STARTUP ERROR: {ex}");
+            throw;
+        }
+    }
 
-	private static void LogDebug(string message)
-	{
-		try
-		{
-			var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "NodusClient_Debug.log");
-			var logLine = $"[{DateTime.Now:HH:mm:ss}] {message}";
-			File.AppendAllText(logPath, logLine + Environment.NewLine);
-			Console.WriteLine(logLine);
-		}
-		catch { }
-	}
+    private static void LogDebug(string message)
+    {
+        try
+        {
+            var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "NodusClient_Debug.log");
+            var logLine = $"[{DateTime.Now:HH:mm:ss}] {message}";
+            File.AppendAllText(logPath, logLine + Environment.NewLine);
+            Console.WriteLine(logLine);
+        }
+        catch { }
+    }
 }

@@ -22,6 +22,6 @@ public class ProjectRegistrationDto
     public string? GithubUrl { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    
+
     public bool IsSynced { get; set; } = false;
 }

@@ -2,7 +2,9 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Nodus.Shared.Models;
 using Nodus.Shared.Services;
+using Nodus.Shared.Abstractions;
 using Xunit;
+using DatabaseService = Nodus.Infrastructure.Services.LocalDatabaseService;
 
 namespace Nodus.Tests.Unit.Services;
 
@@ -11,12 +13,17 @@ public class DatabaseServiceTests : IDisposable
     private readonly DatabaseService _sut;
     private readonly string _testDbPath;
     private readonly ILogger<DatabaseService> _logger;
+    private readonly Mock<IFileService> _fileServiceMock;
 
     public DatabaseServiceTests()
     {
-        _testDbPath = Path.Combine(Path.GetTempPath(), $"test_nodus_{Guid.NewGuid()}.db");
+        _testDbPath = Path.Combine(Path.GetTempPath(), $"nodus_test_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(_testDbPath);
         _logger = new Mock<ILogger<DatabaseService>>().Object;
-        _sut = new DatabaseService(_testDbPath, _logger);
+        _fileServiceMock = new Mock<IFileService>();
+        _fileServiceMock.Setup(x => x.GetAppDataDirectory()).Returns(_testDbPath);
+        _fileServiceMock.Setup(x => x.CreateDirectory(It.IsAny<string>()));
+        _sut = new DatabaseService(_fileServiceMock.Object);
     }
 
     [Fact]
@@ -209,14 +216,11 @@ public class DatabaseServiceTests : IDisposable
         try
         {
             // Close connection if we can? DatabaseService doesn't expose it.
-            // Just try to delete the file.
-            if (File.Exists(_testDbPath))
-            {
-                // Force GC to release file locks potentially held by SQLite connection
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-                File.Delete(_testDbPath);
-            }
+            // Force GC to release file locks potentially held by SQLite connection
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            if (Directory.Exists(_testDbPath))
+                Directory.Delete(_testDbPath, recursive: true);
         }
         catch
         {

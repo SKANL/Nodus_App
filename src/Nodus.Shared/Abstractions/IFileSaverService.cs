@@ -23,13 +23,13 @@ public class FileSaveResult
     public bool IsSuccessful { get; set; }
     public string? FilePath { get; set; }
     public Exception? Exception { get; set; }
-    
+
     public static FileSaveResult Success(string filePath) => new()
     {
         IsSuccessful = true,
         FilePath = filePath
     };
-    
+
     public static FileSaveResult Failure(Exception exception) => new()
     {
         IsSuccessful = false,

@@ -16,14 +16,25 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
     private readonly VoteAggregatorService _aggregator;
     private readonly IFileSaverService _fileSaver;
     private readonly ILogger<ResultsViewModel> _logger;
-    
-    [ObservableProperty] private ObservableCollection<ProjectLeaderboardEntry> _top3 = new();
-    [ObservableProperty] private ObservableCollection<ProjectLeaderboardEntry> _remaining = new();
-    [ObservableProperty] private bool _hasResults;
+    private readonly IDatabaseService _db;
+
+    // ── Observable State ───────────────────────────────────────────────────
+    [ObservableProperty] public partial ObservableCollection<ProjectLeaderboardEntry> Top3 { get; set; } = new();
+    [ObservableProperty] public partial ObservableCollection<ProjectLeaderboardEntry> Remaining { get; set; } = new();
+    [ObservableProperty] public partial bool HasResults { get; set; }
+
+    // Podium null-safe bindings — replaces direct Top3[0/1/2] indexing in XAML
+    // which throws IndexOutOfRangeException when fewer than 3 projects have votes.
+    [ObservableProperty] public partial ProjectLeaderboardEntry? PodiumFirst { get; set; }
+    [ObservableProperty] public partial ProjectLeaderboardEntry? PodiumSecond { get; set; }
+    [ObservableProperty] public partial ProjectLeaderboardEntry? PodiumThird { get; set; }
+    [ObservableProperty] public partial bool HasPodiumFirst { get; set; }
+    [ObservableProperty] public partial bool HasPodiumSecond { get; set; }
+    [ObservableProperty] public partial bool HasPodiumThird { get; set; }
 
     public ResultsViewModel(
         IDatabaseService db,
-        VoteAggregatorService aggregator, 
+        VoteAggregatorService aggregator,
         ExportService exportService,
         IFileSaverService fileSaver,
         ILogger<ResultsViewModel> logger)
@@ -33,14 +44,12 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
         _exportService = exportService;
         _fileSaver = fileSaver;
         _logger = logger;
-        
+
         RefreshLeaderboard();
 
         // Register for updates
         WeakReferenceMessenger.Default.Register(this);
     }
-
-    private readonly IDatabaseService _db;
 
     private async void RefreshLeaderboard()
     {
@@ -49,7 +58,8 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
 
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            var enriched = data.Select(entry => {
+            var enriched = data.Select(entry =>
+            {
                 var project = projects.ValueOr(null)?.FirstOrDefault(p => p.Id == entry.ProjectId);
                 entry.ProjectName = project?.Name ?? entry.ProjectId;
                 return entry;
@@ -62,6 +72,14 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
             foreach (var item in enriched.Skip(3)) Remaining.Add(item);
 
             HasResults = enriched.Any();
+
+            // Populate null-safe podium bindings
+            PodiumFirst  = enriched.Count > 0 ? enriched[0] : null;
+            PodiumSecond = enriched.Count > 1 ? enriched[1] : null;
+            PodiumThird  = enriched.Count > 2 ? enriched[2] : null;
+            HasPodiumFirst  = PodiumFirst  is not null;
+            HasPodiumSecond = PodiumSecond is not null;
+            HasPodiumThird  = PodiumThird  is not null;
         });
     }
 
@@ -85,11 +103,7 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
         }
         catch (Exception ex)
         {
-            var page = Application.Current?.Windows[0].Page;
-            if (page != null)
-            {
-                await page.DisplayAlertAsync("Error", $"Exportación fallida: {ex.Message}", "OK");
-            }
+            await ShowAlertAsync("Error", $"Exportación fallida: {ex.Message}");
         }
     }
 
@@ -105,38 +119,33 @@ public partial class ResultsViewModel : ObservableObject, IRecipient<VoteReceive
         }
         catch (Exception ex)
         {
-            var page = Application.Current?.Windows[0].Page;
-            if (page != null)
-            {
-                await page.DisplayAlertAsync("Error", $"Exportación fallida: {ex.Message}", "OK");
-            }
+            await ShowAlertAsync("Error", $"Exportación fallida: {ex.Message}");
         }
     }
 
     private async Task SaveFileAsync(string fileName, byte[] data, string contentType)
     {
         var result = await _fileSaver.SaveAsync(fileName, data, contentType);
-        
+
         if (result.IsSuccessful)
         {
             _logger.LogInformation("File exported successfully: {FilePath}", result.FilePath);
-            var page = Application.Current?.Windows[0].Page;
-            if (page != null)
-            {
-                await page.DisplayAlertAsync("Éxito", $"Archivo guardado en {result.FilePath}", "OK");
-            }
+            await ShowAlertAsync("Éxito", $"Archivo guardado en {result.FilePath}");
         }
         else
         {
             _logger.LogError(result.Exception, "Failed to save file: {FileName}", fileName);
             if (result.Exception != null)
-            {
-                var page = Application.Current?.Windows[0].Page;
-                if (page != null)
-                {
-                    await page.DisplayAlertAsync("Error", $"Error al guardar: {result.Exception.Message}", "OK");
-                }
-            }
+                await ShowAlertAsync("Error", $"Error al guardar: {result.Exception.Message}");
         }
+    }
+
+    /// <summary>Safe page access — avoids Windows[0] index-out-of-range.</summary>
+    private static Task ShowAlertAsync(string title, string message)
+    {
+        var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+        return page is not null
+            ? page.DisplayAlertAsync(title, message, "OK")
+            : Task.CompletedTask;
     }
 }

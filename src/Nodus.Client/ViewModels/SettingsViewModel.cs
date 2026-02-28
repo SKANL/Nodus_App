@@ -14,35 +14,43 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     private readonly ILogger<SettingsViewModel> _logger;
 
     [ObservableProperty]
-    private string _statusMessage = "Ready";
+    public partial string StatusMessage { get; set; } = "Listo";
 
     [ObservableProperty]
-    private double _syncProgress;
+    public partial double SyncProgress { get; set; }
 
     [ObservableProperty]
-    private bool _isSyncing;
+    public partial bool IsSyncing { get; set; }
 
     [ObservableProperty]
-    private bool _isBusy;
+    public partial bool IsBusy { get; set; }
 
     [ObservableProperty]
-    private int _pendingVotesCount;
+    public partial int PendingVotesCount { get; set; }
 
     [ObservableProperty]
-    private int _pendingMediaCount;
+    public partial int PendingMediaCount { get; set; }
 
     [ObservableProperty]
-    private string _syncStatsText = "Loading...";
+    public partial string SyncStatsText { get; set; } = "Cargando...";
+
+    /// <summary>
+    /// True in debug builds or when a debugger is attached — gates Developer Options UI visibility.
+    /// Bound from SettingsPage.xaml: IsVisible="{Binding IsDevMode}"
+    /// </summary>
+    public bool IsDevMode =>
+        System.Diagnostics.Debugger.IsAttached ||
+        AppInfo.Current.PackageName.Contains(".debug");
 
     public SettingsViewModel(
-        MediaSyncService mediaSyncService, 
+        MediaSyncService mediaSyncService,
         IDatabaseService databaseService,
         ILogger<SettingsViewModel> logger)
     {
         _mediaSyncService = mediaSyncService;
         _databaseService = databaseService;
         _logger = logger;
-        
+
         // Subscribe to events
         _mediaSyncService.SyncStatusChanged += OnSyncStatusChanged;
         _mediaSyncService.SyncProgressChanged += OnSyncProgressChanged;
@@ -62,20 +70,20 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
                 var stats = statsResult.Value;
                 PendingVotesCount = stats.PendingVotes;
                 PendingMediaCount = stats.PendingMedia;
-                SyncStatsText = $"{stats.SyncedVotes}/{stats.TotalVotes} synced ({stats.SyncPercentage:F0}%)";
+                SyncStatsText = $"{stats.SyncedVotes}/{stats.TotalVotes} sincronizados ({stats.SyncPercentage:F0}%)";
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to load sync stats");
-            SyncStatsText = "Error loading stats";
+            SyncStatsText = "Error al cargar estadísticas";
         }
     }
 
     private void OnSyncStatusChanged(object? sender, string status)
     {
         // Ensure UI update on MainThread
-        MainThread.BeginInvokeOnMainThread(() => 
+        MainThread.BeginInvokeOnMainThread(() =>
         {
             StatusMessage = status;
             // Reload stats when sync completes
@@ -90,7 +98,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     {
         MainThread.BeginInvokeOnMainThread(() => SyncProgress = progress);
     }
-    
+
     private void OnSyncStateChanged(object? sender, bool isSyncing)
     {
         MainThread.BeginInvokeOnMainThread(() => IsSyncing = isSyncing);
@@ -104,41 +112,28 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         IsBusy = true;
         IsSyncing = true;
         SyncProgress = 0;
-        StatusMessage = "Starting Manual Sync...";
+        StatusMessage = "Iniciando Sincronización Manual...";
         try
         {
             if (!_mediaSyncService.IsConnected)
             {
-                StatusMessage = "Error: Bluetooth not connected";
-                var errorPage = Application.Current?.Windows[0].Page;
-                if (errorPage != null)
-                {
-                    await errorPage.DisplayAlertAsync("Error", "Please connect to a Nodus Server first.", "OK");
-                }
+                StatusMessage = "Error: Bluetooth no conectado";
+                await ShowAlertAsync("Error", "Primero conéctate a un Servidor Nodus.", "OK");
                 return;
             }
 
-            StatusMessage = "Starting Manual Sync...";
-            // CheckAndSyncAsync uses RSSI threshold, but for manual sync we might want to bypass or use a lenient one.
-            // Using -90dBm for manual override to ensure it tries even with weak signal if user requested.
+            StatusMessage = "Iniciando Sincronización Manual...";
+            // Using -90dBm for manual override to ensure it tries even with a weak signal.
             await _mediaSyncService.CheckAndSyncAsync(-90);
-            
-            StatusMessage = "Sync process completed.";
-            var successPage = Application.Current?.Windows[0].Page;
-            if (successPage != null)
-            {
-                await successPage.DisplayAlertAsync("Sync Complete", "Media sync process finished.", "OK");
-            }
+
+            StatusMessage = "Proceso de sincronización completado.";
+            await ShowAlertAsync("Sincronización Completa", "El proceso de sincronización de archivos ha finalizado.", "OK");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Manual sync failed");
             StatusMessage = $"Error: {ex.Message}";
-            var exceptionPage = Application.Current?.Windows[0].Page;
-            if (exceptionPage != null)
-            {
-                await exceptionPage.DisplayAlertAsync("Error", $"Sync Failed: {ex.Message}", "OK");
-            }
+            await ShowAlertAsync("Error", $"Sincronización Fallida: {ex.Message}", "OK");
         }
         finally
         {
@@ -160,5 +155,14 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         _mediaSyncService.SyncStatusChanged -= OnSyncStatusChanged;
         _mediaSyncService.SyncProgressChanged -= OnSyncProgressChanged;
         _mediaSyncService.SyncStateChanged -= OnSyncStateChanged;
+    }
+
+    /// <summary>Safe page-getter: avoids Windows[0] index-out-of-range during transitions.</summary>
+    private static Task ShowAlertAsync(string title, string message, string button)
+    {
+        var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+        return page is not null
+            ? page.DisplayAlertAsync(title, message, button)
+            : Task.CompletedTask;
     }
 }

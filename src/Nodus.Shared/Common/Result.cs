@@ -21,9 +21,9 @@ public readonly struct Result<T>
     public bool HasValue => IsSuccess && _value is not null;
 
     public T? Value => IsSuccess ? _value : throw new InvalidOperationException($"Cannot access Value of a failed Result. Error: {_error}");
-    
+
     public string Error => IsFailure ? _error ?? "Unknown error" : throw new InvalidOperationException("Cannot access Error of a successful Result.");
-    
+
     public Exception? Exception => _exception;
 
     private Result(bool isSuccess, T? value, string? error, Exception? exception)
@@ -35,7 +35,7 @@ public readonly struct Result<T>
     }
 
     public static Result<T> Success(T value) => new(true, value, null, null);
-    
+
     public static Result<T> Failure(string error, Exception? exception = null) => new(false, default, error, exception);
 
     /// <summary>
@@ -108,7 +108,7 @@ public readonly struct Result
     public bool IsFailure => !IsSuccess;
 
     public string Error => IsFailure ? _error ?? "Unknown error" : throw new InvalidOperationException("Cannot access Error of a successful Result.");
-    
+
     public Exception? Exception => _exception;
 
     private Result(bool isSuccess, string? error, Exception? exception)
@@ -119,7 +119,7 @@ public readonly struct Result
     }
 
     public static Result Success() => new(true, null, null);
-    
+
     public static Result Failure(string error, Exception? exception = null) => new(false, error, exception);
 
     public Result OnSuccess(Action action)

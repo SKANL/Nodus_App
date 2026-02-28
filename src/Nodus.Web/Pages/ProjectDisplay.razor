@@ -5,13 +5,24 @@
 @inject QrGeneratorService QrService
 @inject NavigationManager Navigation
 
-<PageTitle>Project Display | Nodus</PageTitle>
+<PageTitle>Mostrar Proyecto | Nodus</PageTitle>
 
-@if (project == null)
+@if (!isLoaded)
 {
     <div class="loading-box shadow-sm">
         <div class="spinner-grow text-primary mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
-        <h3 class="fw-light text-muted">Fetching project details...</h3>
+        <h3 class="fw-light text-muted">Obteniendo detalles del proyecto...</h3>
+    </div>
+}
+else if (project == null)
+{
+    <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 60vh;">
+        <i class="bi bi-exclamation-triangle text-warning mb-3" style="font-size: 3rem;"></i>
+        <h3 class="fw-bold text-dark mb-2">Proyecto no encontrado</h3>
+        <p class="text-muted mb-4">El proyecto solicitado no existe o no ha sido registrado todavía.</p>
+        <button class="btn-premium px-5" @onclick='() => Navigation.NavigateTo("/register")'>
+            <i class="bi bi-plus-circle me-2"></i>Registrar Proyecto
+        </button>
     </div>
 }
 else
@@ -25,7 +36,7 @@ else
                         <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill me-3">
                             @project.Category
                         </span>
-                        <span class="text-muted small">ID: @project.Id.Substring(0, 8)...</span>
+                        <span class="text-muted small">ID: @(project.Id?.Length >= 8 ? project.Id[..8] + "…" : project.Id)</span>
                     </div>
 
                     <h1 class="display-3 mb-3 fw-bold text-dark">@project.Name</h1>
@@ -36,7 +47,7 @@ else
                     <div class="row g-4 mt-2">
                         <div class="col-sm-6">
                             <div class="info-card">
-                                <label>Authors</label>
+                                <label>Autores</label>
                                 <div>@project.Authors</div>
                             </div>
                         </div>
@@ -44,7 +55,7 @@ else
                         {
                             <div class="col-sm-6">
                                 <div class="info-card">
-                                    <label>Source Code</label>
+                                    <label>Código Fuente</label>
                                     <div class="text-truncate">@project.GithubUrl.Replace("https://github.com/", "")</div>
                                 </div>
                             </div>
@@ -54,11 +65,11 @@ else
 
                 <div class="mt-5 d-flex align-items-center justify-content-between border-top pt-4">
                     <button class="btn btn-outline-secondary rounded-pill px-4" @onclick="GoBack">
-                        <i class="bi bi-arrow-left me-2"></i> Edit Project
+                        <i class="bi bi-arrow-left me-2"></i> Editar Proyecto
                     </button>
                     <button class="btn btn-dark rounded-pill px-4" @onclick="ToggleFullscreen">
                         <i class="bi @(isFullscreen ? "bi-fullscreen-exit" : "bi-fullscreen") me-2"></i> 
-                        @(isFullscreen ? "Exit Fullscreen" : "Immersive View")
+                        @(isFullscreen ? "Salir de Pantalla Completa" : "Vista Inmersiva")
                     </button>
                 </div>
             </div>
@@ -68,7 +79,7 @@ else
                 <div class="qr-wrapper shadow-2xl p-4 bg-white rounded-3xl mb-5">
                     @if (!string.IsNullOrEmpty(qrCodeImage))
                     {
-                        <img src="data:image/png;base64,@qrCodeImage" alt="Voting QR Code" class="img-fluid rounded-lg" style="width: 280px; height: 280px;" />
+                        <img src="data:image/png;base64,@qrCodeImage" alt="Código QR para Votar" class="img-fluid rounded-lg" style="width: 280px; height: 280px;" />
                     }
                     else
                     {
@@ -77,12 +88,12 @@ else
                 </div>
                 
                 <div class="text-center max-w-sm">
-                    <h2 class="h1 mb-3">Vote for this Project!</h2>
-                    <p class="opacity-75 lead">Scan the QR code with the Nodus App to cast your vote and support these creators.</p>
+                    <h2 class="h1 mb-3">¡Vota por este Proyecto!</h2>
+                    <p class="opacity-75 lead">Escanea el código QR con la App Nodus para emitir tu voto y apoyar a estos creadores.</p>
                 </div>
 
                 <!-- Subtle Decorative Elements -->
-                <div class="crypto-deco">NODUS PROTOCOL • SECURE VOTING • SWARM MESH</div>
+                <div class="crypto-deco">PROTOCOLO NODUS • VOTACIÓN SEGURA • RED SWARM</div>
             </div>
         </div>
     </div>
@@ -93,22 +104,31 @@ else
     private Project? project;
     private string? qrCodeImage;
     private bool isFullscreen = false;
+    private bool isLoaded = false;
 
     protected override async Task OnInitializedAsync()
     {
-        if (ProjectId == "current")
+        isLoaded = false;
+        try
         {
-            project = await ProjectService.GetCurrentProjectAsync();
-        }
-        else 
-        {
-            project = await ProjectService.GetProjectAsync(ProjectId);
-        }
+            if (ProjectId == "current")
+            {
+                project = await ProjectService.GetCurrentProjectAsync();
+            }
+            else
+            {
+                project = await ProjectService.GetProjectAsync(ProjectId);
+            }
 
-        if (project != null)
+            if (project != null)
+            {
+                var payload = $"nodus://vote?pid={project.Id}&cat={Uri.EscapeDataString(project.Category ?? "")}";
+                qrCodeImage = QrService.GenerateQrCodeBase64(payload);
+            }
+        }
+        finally
         {
-            var payload = $"nodus://vote?pid={project.Id}&cat={Uri.EscapeDataString(project.Category ?? "")}";
-            qrCodeImage = QrService.GenerateQrCodeBase64(payload);
+            isLoaded = true;
         }
     }
 

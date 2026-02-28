@@ -11,11 +11,14 @@
     <PackageReference Include="Blazored.LocalStorage" Version="4.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.2" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.3" />
-    <PackageReference Include="MongoDB.Driver" Version="3.6.0" />
+    <!--
+      MongoDB.Driver, sqlite-net-pcl and SQLitePCLRaw have been intentionally removed.
+      Blazor WebAssembly runs in the browser sandbox and cannot open native TCP sockets
+      (MongoDB) or native file I/O (SQLite). Data persistence is handled by:
+        - BlazoredLocalStorage  → offline reads/writes in the browser
+        - NodusApiService (HTTP) → cloud sync via Nodus.Api (REST → MongoDB Atlas)
+    -->
     <PackageReference Include="QRCoder" Version="1.7.0" />
-    <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
-    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.2" />
   </ItemGroup>
 
   <ItemGroup>

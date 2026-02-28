@@ -15,20 +15,21 @@ public static class NodusConstants
     // Packet Types
     public const byte PACKET_TYPE_JSON = 0x01;
     public const byte PACKET_TYPE_MEDIA = 0x02;
+    public const byte PACKET_TYPE_PROJECTS = 0x03;
     public const byte PACKET_TYPE_ACK = 0xA1;
 
     // Protocol Constraints
     public const int MTU_SIZE = 180; // Safe minimum for Application Data
     public const int MAX_HOPS_TTL = 2; // Prevent loops
-    
+
     // Manufacturer Data IDs
     public const byte MAN_DATA_RELAY_ID = 0x02;
-    
+
     // Crypto Defaults
     public const int SALT_SIZE = 16;
     public const int NONCE_SIZE = 12; // AES-GCM standard
     public const int TAG_SIZE = 16;   // AES-GCM standard
-    
+
     // Keys
     public const string KEY_EVENT_ID = "current_event_id";
     public const string KEY_SHARED_AES = "shared_aes_key";

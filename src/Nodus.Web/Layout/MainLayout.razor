@@ -1,21 +1,32 @@
 ﻿@inherits LayoutComponentBase
+@inject IJSRuntime JS
+@implements IAsyncDisposable
 
 <div class="page">
+    <!-- Mobile backdrop: closes sidebar when clicking outside -->
+    @if (!collapseNavMenu)
+    {
+        <div class="sidebar-backdrop d-md-none" @onclick="CollapseMenu"></div>
+    }
+
     <div class="sidebar shadow-lg @(collapseNavMenu ? "" : "show")">
         <NavMenu OnMenuItemClicked="CollapseMenu" />
     </div>
 
     <main class="page-enter">
         <div class="top-row px-4 d-flex justify-content-between align-items-center">
-            <button class="btn btn-link d-md-none text-white p-0" @onclick="ToggleNavMenu">
-                <i class="bi bi-list fs-2"></i>
+            <button class="btn btn-link d-md-none text-white p-0 hamburger-btn"
+                    @onclick="ToggleNavMenu"
+                    aria-label="Toggle navigation menu">
+                <i class="bi @(collapseNavMenu ? "bi-list" : "bi-x-lg") fs-2"></i>
             </button>
-            
-            <div class="d-flex align-items-center ms-auto">
-                <div class="user-status me-3 d-none d-sm-block">
-                    <span class="badge bg-primary rounded-pill">Student Portal</span>
+
+            <div class="d-flex align-items-center ms-auto gap-3">
+                <div class="d-none d-sm-flex align-items-center gap-2">
+                    <span class="online-dot @(isOnline ? "online" : "offline")"></span>
+                    <span class="text-muted small">@(isOnline ? "Conectado" : "Sin conexión")</span>
                 </div>
-                <a href="/" class="text-muted"><i class="bi bi-person-circle fs-5"></i></a>
+                <span class="badge bg-primary rounded-pill">Portal Nodus</span>
             </div>
         </div>
 
@@ -25,32 +36,69 @@
             </div>
         </article>
     </main>
-    
+
     <OfflineIndicator />
 </div>
 
 @code {
     private bool collapseNavMenu = true;
+    private bool isOnline = true;
+    private DotNetObjectReference<MainLayout>? _dotNetRef;
 
-    private void ToggleNavMenu()
+    private void ToggleNavMenu() => collapseNavMenu = !collapseNavMenu;
+    private void CollapseMenu() => collapseNavMenu = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        collapseNavMenu = !collapseNavMenu;
+        if (firstRender)
+        {
+            _dotNetRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("registerOnlineListener", _dotNetRef);
+        }
     }
 
-    private void CollapseMenu()
+    [JSInvokable]
+    public void UpdateOnlineStatus(bool online)
     {
-        collapseNavMenu = true;
+        isOnline = online;
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _dotNetRef?.Dispose();
+        await ValueTask.CompletedTask;
     }
 }
 
 <style>
-    .user-status {
-        font-family: var(--font-heading);
-        font-weight: 600;
-        font-size: 0.8rem;
+    .hamburger-btn {
+        transition: transform 0.2s ease;
     }
 
-    /* Additional responsiveness */
+    .hamburger-btn:hover {
+        transform: scale(1.1);
+    }
+
+    /* Full-screen overlay to close the sidebar on mobile */
+    .sidebar-backdrop {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        animation: fadeIn 0.2s ease;
+    }
+
+    .online-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .online-dot.online  { background-color: #22c55e; box-shadow: 0 0 6px #22c55e; }
+    .online-dot.offline { background-color: #ef4444; box-shadow: 0 0 6px #ef4444; }
+
     @@media (max-width: 767.98px) {
         .top-row {
             background-color: var(--sidebar-bg) !important;

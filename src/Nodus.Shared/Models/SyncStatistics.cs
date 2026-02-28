@@ -12,7 +12,7 @@ public record SyncStatistics(
 )
 {
     public static SyncStatistics Empty => new(0, 0, 0, 0, 0);
-    
+
     public static SyncStatistics Calculate(int total, int pending, int pendingMedia)
     {
         var synced = total - pending;

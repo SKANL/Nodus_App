@@ -167,32 +167,46 @@
         <Setter Property="ProgressColor" Value="{StaticResource PrimaryAccent}" />
     </Style>
 
-    <Style TargetType="Frame">
+    <!--
+        PremiumCard: Named style for content cards.
+        Uses Border (MAUI 9+) instead of the deprecated Frame control.
+    -->
+    <Style TargetType="Border" x:Key="PremiumCard">
         <Setter Property="BackgroundColor" Value="{StaticResource CardBackground}" />
-        <Setter Property="BorderColor" Value="{StaticResource BorderColor}" />
-        <Setter Property="CornerRadius" Value="12" />
-        <Setter Property="HasShadow" Value="True" />
-    </Style>
-
-    <Style TargetType="Frame" x:Key="PremiumCard">
-        <Setter Property="BackgroundColor" Value="{StaticResource CardBackground}" />
-        <Setter Property="BorderColor" Value="{StaticResource BorderColor}" />
-        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="Stroke" Value="{StaticResource BorderColor}" />
+        <Setter Property="StrokeShape">
+            <Setter.Value>
+                <RoundRectangle CornerRadius="16" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="StrokeThickness" Value="1" />
         <Setter Property="Padding" Value="20" />
-        <Setter Property="HasShadow" Value="True" />
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="#40000000" Offset="0,4" Radius="12" Opacity="0.6" />
+            </Setter.Value>
+        </Setter>
         <Setter Property="VisualStateManager.VisualStateGroups">
             <VisualStateGroupList>
                 <VisualStateGroup x:Name="CommonStates">
                     <VisualState x:Name="Normal" />
                     <VisualState x:Name="PointerOver">
                         <VisualState.Setters>
-                            <Setter Property="BorderColor" Value="{StaticResource PrimaryAccent}" />
+                            <Setter Property="Stroke" Value="{StaticResource PrimaryAccent}" />
                             <Setter Property="Scale" Value="1.005" />
                         </VisualState.Setters>
                     </VisualState>
                 </VisualStateGroup>
             </VisualStateGroupList>
         </Setter>
+    </Style>
+
+    <!-- Legacy Frame styles kept only until all Frame usages are migrated -->
+    <Style TargetType="Frame">
+        <Setter Property="BackgroundColor" Value="{StaticResource CardBackground}" />
+        <Setter Property="BorderColor" Value="{StaticResource BorderColor}" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="HasShadow" Value="True" />
     </Style>
 
     <Style TargetType="Page" ApplyToDerivedTypes="True">

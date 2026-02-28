@@ -32,7 +32,7 @@ public interface IDatabaseService
     Task<Result<List<Judge>>> GetJudgesAsync(string eventId, CancellationToken ct = default);
     Task<Result<Judge>> GetJudgeAsync(string id, CancellationToken ct = default);
     Task<Result> SaveJudgeAsync(Judge judge, CancellationToken ct = default);
-    
+
     /// <summary>
     /// Executes multiple operations in a single transaction.
     /// The action receives a transaction context (if supported by implementation).

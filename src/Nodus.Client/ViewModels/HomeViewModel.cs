@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Nodus.Client.Views;
+using Nodus.Infrastructure.Services;
 using Nodus.Shared.Abstractions;
 using Nodus.Shared.Common;
 using Microsoft.Extensions.Logging;
@@ -8,293 +9,421 @@ using Microsoft.Extensions.Logging;
 namespace Nodus.Client.ViewModels;
 
 /// <summary>
-/// Professional ViewModel for Home page with proper async patterns,
-/// error handling, and cancellation support.
+/// ViewModel for the Home/Dashboard page.
+/// Implements traffic-light status, judge registration state, and optimistic sync.
 /// </summary>
 public partial class HomeViewModel : ObservableObject, IDisposable
 {
     private readonly IDatabaseService _db;
-    private readonly Nodus.Infrastructure.Services.BleClientService _bleService;
-    private readonly Nodus.Infrastructure.Services.SwarmService _swarmService;
+    private readonly BleClientService _bleService;
+    private readonly SwarmService _swarmService;
+    private readonly Nodus.Client.Services.CloudProjectSyncService _cloudSync;
+    private readonly Nodus.Client.Services.CloudVoteSyncService _voteSyncService;
     private readonly ILogger<HomeViewModel> _logger;
     private readonly CancellationTokenSource _lifetimeCts = new();
+    private const int NavigationRetryDelayMs = 180;
 
-    [ObservableProperty]
-    private string _statusMessage = "Initializing...";
-    
-    [ObservableProperty]
-    private Color _statusColor = Colors.Gray;
+    // ── Status Bar (Traffic Light) ─────────────────────────────────────────
+    [ObservableProperty] public partial string StatusMessage { get; set; } = "Iniciando...";
+    [ObservableProperty] public partial Color StatusColor { get; set; } = Colors.Gray;
+    [ObservableProperty] public partial string StatusIcon { get; set; } = "⚪";
 
-    [ObservableProperty]
-    private string _judgeName = "";
+    // ── Judge Identity ─────────────────────────────────────────────────────
+    [ObservableProperty] public partial string JudgeName { get; set; } = "";
+    [ObservableProperty] public partial string JudgeInitial { get; set; } = "?";
+    [ObservableProperty] public partial bool IsJudgeRegistered { get; set; }
+    [ObservableProperty] public partial string EventName { get; set; } = "";
 
-    [ObservableProperty]
-    private bool _isSyncing;
+    // ── Stats Row ──────────────────────────────────────────────────────────
+    [ObservableProperty] public partial int PendingVoteCount { get; set; }
+    [ObservableProperty] public partial int SyncedVoteCount { get; set; }
+    [ObservableProperty] public partial bool IsSyncing { get; set; }
+
+    // ── BLE availability ──────────────────────────────────────────────────
+    private bool _bleAvailable = true;
+
+    // ── Cached event ID from SecureStorage ────────────────────────────────
+    // Separate from EventName (human-readable name) — used for DB queries.
+    private string _currentEventId = "";
 
     public HomeViewModel(
-        IDatabaseService db, 
-        Nodus.Infrastructure.Services.BleClientService bleService, 
-        Nodus.Infrastructure.Services.SwarmService swarmService,
+        IDatabaseService db,
+        BleClientService bleService,
+        SwarmService swarmService,
+        Nodus.Client.Services.CloudProjectSyncService cloudSync,
+        Nodus.Client.Services.CloudVoteSyncService voteSyncService,
         ILogger<HomeViewModel> logger)
     {
         _db = db;
         _bleService = bleService;
         _swarmService = swarmService;
+        _cloudSync = cloudSync;
+        _voteSyncService = voteSyncService;
         _logger = logger;
-        
-        // Subscribe to service events with proper error boundaries
-        _bleService.ConnectionStatusChanged += OnConnectionStatusChanged;
-        _swarmService.PropertyChanged += OnSwarmServicePropertyChanged;
 
-        // Initialize asynchronously (fire-and-forget with error handling)
-        _ = InitializeAsync();
+        // Guard BLE subscriptions — on platforms without Bluetooth (Windows desktop, simulator)
+        // the underlying Shiny manager can throw. We degrade gracefully to offline-only mode.
+        try
+        {
+            _bleService.ConnectionStatusChanged += OnConnectionStatusChanged;
+        }
+        catch (Exception ex)
+        {
+            _bleAvailable = false;
+            _logger.LogWarning(ex, "BLE unavailable — running in offline-only mode");
+        }
+
+        try
+        {
+            _swarmService.PropertyChanged += OnSwarmServicePropertyChanged;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Swarm service subscription failed — relay features disabled");
+        }
+
+        _ = RefreshAsync();
+    }
+
+    /// <summary>
+    /// Reloads judge identity and status. Called on page Appearing and after QR scan.
+    /// </summary>
+    public async Task RefreshAsync()
+    {
+        try
+        {
+            var name = await SecureStorage.Default.GetAsync(Nodus.Shared.NodusConstants.KEY_JUDGE_NAME);
+            var eventId = await SecureStorage.Default.GetAsync(Nodus.Shared.NodusConstants.KEY_EVENT_ID);
+
+            IsJudgeRegistered = !string.IsNullOrEmpty(name);
+
+            if (IsJudgeRegistered)
+            {
+                JudgeName = name!;
+                JudgeInitial = name![0].ToString().ToUpper();
+            }
+            else
+            {
+                JudgeName = "";
+                JudgeInitial = "?";
+                StatusMessage = "Escanea el QR del Evento para comenzar";
+                StatusColor = Colors.Gray;
+                StatusIcon = "⚪";
+                return;
+            }
+
+            // Load event name from DB
+            if (!string.IsNullOrEmpty(eventId))
+            {
+                _currentEventId = eventId; // cache for use in UpdateStatusAsync
+
+                // Trigger cloud sync if possible (projects down + votes up)
+                _ = SyncCloudDataBestEffortAsync(eventId, _lifetimeCts.Token);
+
+                var eventResult = await _db.GetEventAsync(eventId, _lifetimeCts.Token);
+                EventName = eventResult.IsSuccess ? eventResult.Value?.Name ?? "Active Event" : "Active Event";
+            }
+
+            await UpdateStatusAsync(_lifetimeCts.Token);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Refresh failed");
+            StatusMessage = "Error al cargar datos";
+            StatusColor = Colors.Red;
+        }
     }
 
     private void OnConnectionStatusChanged(object? sender, bool isConnected)
     {
         MainThread.BeginInvokeOnMainThread(async () =>
         {
-            try
-            {
-                await UpdateStatusAsync(_lifetimeCts.Token);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating status on connection change");
-            }
+            try { await UpdateStatusAsync(_lifetimeCts.Token); }
+            catch (Exception ex) { _logger.LogError(ex, "Error updating status on connection change"); }
         });
+    }
+
+    private async Task SyncCloudDataBestEffortAsync(string eventId, CancellationToken ct)
+    {
+        try
+        {
+            await _cloudSync.SyncProjectsAsync(eventId, ct);
+            await _voteSyncService.SyncPendingVotesAsync(ct);
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogDebug("Cloud sync cancelled");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Cloud sync background task failed");
+        }
     }
 
     private void OnSwarmServicePropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(Nodus.Infrastructure.Services.SwarmService.IsMuleMode) || 
-            e.PropertyName == nameof(Nodus.Infrastructure.Services.SwarmService.CurrentState))
+        if (e.PropertyName is nameof(SwarmService.IsMuleMode) or nameof(SwarmService.CurrentState))
         {
             MainThread.BeginInvokeOnMainThread(async () =>
             {
-                try
-                {
-                    await UpdateStatusAsync(_lifetimeCts.Token);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error updating status on swarm property change");
-                }
+                try { await UpdateStatusAsync(_lifetimeCts.Token); }
+                catch (Exception ex) { _logger.LogError(ex, "Error updating status on swarm change"); }
             });
         }
     }
 
-    private async Task InitializeAsync()
-    {
-        try
-        {
-            // 1. Load Judge Identity
-            var name = await SecureStorage.Default.GetAsync(Nodus.Shared.NodusConstants.KEY_JUDGE_NAME);
-            if (!string.IsNullOrEmpty(name))
-            {
-                JudgeName = name;
-            }
-            else
-            {
-                StatusMessage = "Welcome. Please Scan Event QR.";
-                StatusColor = Colors.Gray;
-                return;
-            }
-
-            // 2. Verify Database
-            var eventsResult = await _db.GetEventsAsync(_lifetimeCts.Token);
-            if (eventsResult.IsFailure)
-            {
-                _logger.LogError("Failed to load events: {Error}", eventsResult.Error);
-                StatusMessage = "Database Error";
-                StatusColor = Colors.Red;
-                return;
-            }
-
-            // 3. Update UI
-            await UpdateStatusAsync(_lifetimeCts.Token);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Initialization failed");
-            StatusMessage = "Initialization Error";
-            StatusColor = Colors.Red;
-        }
-    }
-
-    /// <summary>
-    /// Updates the status message and color based on current state.
-    /// Called from UI lifecycle and service events.
-    /// </summary>
     public async Task UpdateStatusAsync(CancellationToken ct = default)
     {
         try
         {
             var pendingResult = await _db.GetPendingVotesAsync(ct);
-            if (pendingResult.IsFailure)
+            int pending = pendingResult.IsSuccess ? pendingResult.Value?.Count ?? 0 : 0;
+            PendingVoteCount = pending;
+
+            // Update synced count via SyncStats
+            var statsResult = await _db.GetSyncStatsAsync(ct);
+            SyncedVoteCount = statsResult.IsSuccess ? statsResult.Value?.SyncedVotes ?? 0 : 0;
+
+            // Traffic Light
+            if (!_bleAvailable)
             {
-                _logger.LogWarning("Failed to get pending votes: {Error}", pendingResult.Error);
-                return;
+                // BLE not available on this platform — degrade to offline-only UI
+                StatusIcon = pending > 0 ? "🟡" : "🔵";
+                StatusColor = pending > 0 ? Color.FromArgb("#F59E0B") : Color.FromArgb("#3B82F6");
+                StatusMessage = pending > 0
+                    ? $"{pending} voto{(pending == 1 ? "" : "s")} guardado{(pending == 1 ? "" : "s")} localmente"
+                    : "Modo offline — Bluetooth no disponible en esta plataforma";
             }
-
-            int count = pendingResult.Value?.Count ?? 0;
-
-            // Traffic Light Logic (per UX spec)
-            if (_swarmService.IsMuleMode)
+            else if (_swarmService.IsMuleMode)
             {
+                StatusIcon = "🟣";
                 StatusColor = Colors.Purple;
-                StatusMessage = "Mule Mode: Network Unreachable. Walk to Admin.";
+                StatusMessage = "Modo Mula: Camina a la mesa de control para sincronizar";
             }
             else if (_bleService.IsConnected)
             {
-                StatusColor = Colors.Green;
-                StatusMessage = "Synced: Connected to Server.";
-                
-                // OPTIMISTIC UI: Auto-Sync pending votes
-                if (count > 0 && !IsSyncing)
-                {
-                    _ = Task.Run(async () => 
+                StatusIcon = "🟢";
+                StatusColor = Color.FromArgb("#22C55E");
+                StatusMessage = pending > 0 ? $"Conectado  —  Sincronizando {pending} votos..." : "Conectado  —  Todo sincronizado ✓";
+
+                if (pending > 0 && !IsSyncing)
+                    _ = Task.Run(async () =>
                     {
-                        await Task.Delay(500, ct); // Stabilization delay
+                        await Task.Delay(500, ct);
                         await SyncPendingVotesAsync(ct);
                     }, ct);
-                }
+
+                // Trigger true offline Project sync (BLE via GATT stream)
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        // Use _currentEventId (the actual event ID) not EventName (the display name)
+                        var allProjsResult = await _db.GetAllProjectsAsync(ct);
+                        if (allProjsResult.IsSuccess && allProjsResult.Value?.Count == 0)
+                        {
+                            var bleResult = await _bleService.GetProjectsFromServerAsync(ct);
+                            if (bleResult.IsSuccess && bleResult.Value != null)
+                            {
+                                foreach (var p in bleResult.Value) await _db.SaveProjectAsync(p, ct);
+                            }
+                        }
+                    }
+                    catch (Exception ex) { _logger.LogError(ex, "BLE Project Sync Trigger failed"); }
+                }, ct);
             }
-            else if (count > 0)
+            else if (pending > 0)
             {
-                StatusColor = Colors.Orange; // Amber
-                StatusMessage = $"Pending: {count} votes saved locally.";
+                StatusIcon = "🟡";
+                StatusColor = Color.FromArgb("#F59E0B");
+                StatusMessage = $"{pending} voto{(pending == 1 ? "" : "s")} guardado{(pending == 1 ? "" : "s")} localmente — esperando conexión";
             }
             else
             {
-                StatusColor = Colors.Red;
-                StatusMessage = "Scanning for Event...";
+                StatusIcon = "🔴";
+                StatusColor = Color.FromArgb("#EF4444");
+                StatusMessage = "Buscando Servidor Nodus...";
             }
         }
-        catch (OperationCanceledException)
-        {
-            _logger.LogDebug("Status update cancelled");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error updating status");
-        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex) { _logger.LogError(ex, "Error updating status"); }
     }
 
+    // ── Navigation Commands ────────────────────────────────────────────────
+
+    /// <summary>Scan Event QR to register as judge (first time).</summary>
     [RelayCommand]
     private async Task NavigateToRegistrationAsync(CancellationToken ct)
     {
         try
         {
-            await Shell.Current.GoToAsync(nameof(ScanPage));
+            // Camera permission MUST be granted before navigating to ScanPage.
+            // On Android, CameraBarcodeReaderView throws SecurityException without it.
+            if (!await EnsureCameraPermissionAsync()) return;
+
+            var route = $"{nameof(Views.ScanPage)}?Mode=JudgeRegistration";
+            if (!await TryNavigateAsync(route, ct))
+            {
+                await ShowNavErrorAsync("No se pudo abrir el escáner. Verifica que la app tenga permisos de cámara en Ajustes del sistema.");
+            }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Navigation failed");
-            await ShowErrorAsync("Navigation failed", ct);
+            _logger.LogError(ex, "Failed to navigate to ScanPage for JudgeRegistration");
+            await ShowNavErrorAsync("No se pudo abrir el escáner. Verifica que la app tenga permisos de cámara en Ajustes del sistema.");
         }
     }
+
+    /// <summary>Scan Project QR to vote (after judge is registered).</summary>
+    [RelayCommand]
+    private async Task NavigateToScanAsync(CancellationToken ct)
+    {
+        try
+        {
+            if (!await EnsureCameraPermissionAsync()) return;
+
+            var route = $"{nameof(Views.ScanPage)}?Mode=ProjectScan";
+            if (!await TryNavigateAsync(route, ct))
+            {
+                await ShowNavErrorAsync("No se pudo abrir el escáner de proyectos. Verifica que la app tenga permisos de cámara.");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to navigate to ScanPage for ProjectScan");
+            await ShowNavErrorAsync("No se pudo abrir el escáner de proyectos. Verifica que la app tenga permisos de cámara.");
+        }
+    }
+
+    private async Task<bool> TryNavigateAsync(string route, CancellationToken ct)
+    {
+        try
+        {
+            await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync(route));
+            return true;
+        }
+        catch (Exception ex) when (ex is InvalidOperationException || ex is ArgumentException || ex is NullReferenceException)
+        {
+            _logger.LogWarning(ex, "Navigation failed on first attempt to {Route}; retrying once", route);
+            if (ct.IsCancellationRequested) return false;
+
+            await Task.Delay(NavigationRetryDelayMs, ct);
+
+            try
+            {
+                await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync(route));
+                return true;
+            }
+            catch (Exception retryEx)
+            {
+                _logger.LogError(retryEx, "Navigation retry failed to {Route}", route);
+                return false;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Requests camera permission at runtime. Returns true if granted.
+    /// Must be called from the UI thread (RelayCommand ensures this).
+    /// </summary>
+    private static async Task<bool> EnsureCameraPermissionAsync()
+    {
+        var status = await Permissions.CheckStatusAsync<Permissions.Camera>();
+        if (status == PermissionStatus.Granted) return true;
+
+        // Rationale dialog before system prompt (Android only, ShouldShowRationale is a no-op elsewhere)
+        if (Permissions.ShouldShowRationale<Permissions.Camera>())
+            await ShowAlertOnCurrentPageAsync(
+                "Permiso de Cámara",
+                "Nodus necesita acceso a la cámara para escanear los códigos QR del evento.",
+                "Entendido");
+
+        status = await Permissions.RequestAsync<Permissions.Camera>();
+
+        if (status != PermissionStatus.Granted)
+        {
+            await ShowAlertOnCurrentPageAsync(
+                "Permiso Denegado",
+                "Sin acceso a la cámara no es posible escanear QR. Habilítalo en Ajustes → Aplicaciones → Nodus → Permisos.",
+                "OK");
+            return false;
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// Shows a DisplayAlert on the current page without dereference warnings.
+    /// Uses safe window-first-or-default access pattern.
+    /// </summary>
+    private static async Task ShowAlertOnCurrentPageAsync(string title, string message, string button)
+    {
+        var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+        if (page is null) return;
+        await page.DisplayAlertAsync(title, message, button);
+    }
+
+    private static async Task ShowNavErrorAsync(string message)
+    {
+        await ShowAlertOnCurrentPageAsync("Error de Navegación", message, "OK");
+    }
+
+    [RelayCommand]
+    private async Task ShowConnectionMetricsAsync(CancellationToken ct)
+    {
+        var role = "Client";
+#if ANDROID
+        role = _swarmService.CurrentState == Nodus.Infrastructure.Services.SwarmState.Link ? "Router (Firefly)" : "Client";
+#endif
+        var signal = _bleService.LastRssi != 0 ? $"{_bleService.LastRssi} dBm" : "N/A";
+        var peers = _swarmService.NeighborLinkCount;
+        var message = $"Rol de Nodus: {role}\nSeñal del Servidor: {signal}\nNodos Cercanos: {peers}";
+
+        await ShowAlertOnCurrentPageAsync("Métricas de Conexión", message, "Cerrar");
+    }
+
+    // ── Sync ───────────────────────────────────────────────────────────────
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task SyncPendingVotesAsync(CancellationToken ct)
     {
-        if (IsSyncing)
-        {
-            _logger.LogDebug("Sync already in progress, skipping");
-            return;
-        }
-
+        if (IsSyncing) return;
         IsSyncing = true;
         try
         {
-            _logger.LogInformation("Starting manual sync");
-
             var pendingResult = await _db.GetPendingVotesAsync(ct);
-            if (pendingResult.IsFailure)
-            {
-                await ShowErrorAsync($"Failed to load votes: {pendingResult.Error}", ct);
-                return;
-            }
-
-            var pending = pendingResult.Value ?? new();
-            if (pending.Count == 0)
-            {
-                StatusMessage = "No pending votes to sync.";
-                return;
-            }
+            if (pendingResult.IsFailure || pendingResult.Value?.Count == 0) return;
 
             int successCount = 0;
-            foreach (var vote in pending)
+            foreach (var vote in pendingResult.Value!)
             {
                 ct.ThrowIfCancellationRequested();
-
-                // Send via BLE using the public specialized method
                 try
                 {
                     var syncResult = await _bleService.SendVoteAsync(vote, ct);
-
                     if (syncResult.IsSuccess)
                     {
                         vote.Status = Nodus.Shared.Models.SyncStatus.Synced;
                         vote.SyncedAtUtc = DateTime.UtcNow;
-                        
-                        var saveResult = await _db.SaveVoteAsync(vote, ct);
-                        if (saveResult.IsSuccess)
-                        {
-                            successCount++;
-                        }
+                        await _db.SaveVoteAsync(vote, ct);
+                        successCount++;
                     }
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Failed to sync vote {VoteId}", vote.Id);
-                }
+                catch (Exception ex) { _logger.LogWarning(ex, "Failed to sync vote {VoteId}", vote.Id); }
             }
 
-            StatusMessage = $"Synced {successCount}/{pending.Count} votes.";
-            _logger.LogInformation("Sync completed: {Success}/{Total}", successCount, pending.Count);
+            _logger.LogInformation("Sync completed: {Success}/{Total}", successCount, pendingResult.Value.Count);
+            await UpdateStatusAsync(ct);
         }
-        catch (OperationCanceledException)
-        {
-            _logger.LogInformation("Sync cancelled by user");
-            StatusMessage = "Sync cancelled.";
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Sync failed");
-            await ShowErrorAsync("Sync failed. Please try again.", ct);
-        }
-        finally
-        {
-            IsSyncing = false;
-        }
+        catch (OperationCanceledException) { StatusMessage = "Sincronización cancelada"; }
+        catch (Exception ex) { _logger.LogError(ex, "Sync failed"); StatusMessage = "Sincronización fallida"; }
+        finally { IsSyncing = false; }
     }
 
-    private async Task ShowErrorAsync(string message, CancellationToken ct)
-    {
-        try
-        {
-            if (!ct.IsCancellationRequested && Application.Current?.Windows.Count > 0)
-            {
-                var page = Application.Current.Windows[0].Page;
-                if (page != null)
-                {
-                    await page.DisplayAlertAsync("Error", message, "OK");
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to show error dialog");
-        }
-    }
-
-    // Proper cleanup
     public void Dispose()
     {
         _lifetimeCts.Cancel();
         _lifetimeCts.Dispose();
-        _bleService.ConnectionStatusChanged -= OnConnectionStatusChanged;
-        _swarmService.PropertyChanged -= OnSwarmServicePropertyChanged;
+        try { _bleService.ConnectionStatusChanged -= OnConnectionStatusChanged; } catch { /* BLE may not be initialized */ }
+        try { _swarmService.PropertyChanged -= OnSwarmServicePropertyChanged; } catch { /* Swarm may not be initialized */ }
     }
 }
