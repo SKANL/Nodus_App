@@ -1,0 +1,27 @@
+## Ignora carpetas de build y objetos intermedios
+**/bin/
+**/obj/
+
+## Ignora proyectos que no son parte del build de la API
+src/Nodus.Web/
+src/Nodus.Client/
+src/Nodus.Server/
+tests/
+
+## Ignora archivos MAUI y plataformas móviles (no aplican al contenedor)
+Platforms/
+Resources/
+
+## Ignora archivos de IDE y entorno local
+.vs/
+.idea/
+*.user
+*.suo
+.env
+.env.*
+appsettings.Development.json
+
+## Ignora documentación y archivos de análisis
+docs/
+revisiones/
+*.md
