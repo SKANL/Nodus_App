@@ -48,7 +48,7 @@ public class MongoDbService : IDatabaseService
         // Local mongodb:// connections don't use TLS and should skip this block.
         bool isRemote = connectionString.StartsWith("mongodb+srv://", StringComparison.OrdinalIgnoreCase)
                      || (connectionString.Contains('@') && !connectionString.Contains("localhost") && !connectionString.Contains("127.0.0.1"));
-        if (isRemote)
+        if (isRemote && System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
         {
             // Windows Schannel (0x80090304 / SEC_E_NO_CREDENTIALS): the OS cannot
             // reach the root CA for OCSP/CRL validation (firewall, outdated cert
