@@ -148,8 +148,8 @@ public class MongoDbService : IDatabaseService
         {
             if (IsDatabaseUnavailable(ex))
             {
-                _logger.LogWarning(ex, "Database unavailable while retrieving events. Returning empty list.");
-                return Result<List<Event>>.Success([]);
+                _logger.LogWarning(ex, "Database unavailable while retrieving events. Returning failure.");
+                return Result<List<Event>>.Failure("Database unavailable. Please check MongoDB connection and IP whitelist.", ex);
             }
 
             _logger.LogError(ex, "Failed to retrieve events");
@@ -209,8 +209,8 @@ public class MongoDbService : IDatabaseService
         {
             if (IsDatabaseUnavailable(ex))
             {
-                _logger.LogWarning(ex, "Database unavailable while retrieving projects for event {EventId}. Returning empty list.", eventId);
-                return Result<List<Project>>.Success([]);
+                _logger.LogWarning(ex, "Database unavailable while retrieving projects for event {EventId}. Returning failure.", eventId);
+                return Result<List<Project>>.Failure("Database unavailable. Please check MongoDB connection and IP whitelist.", ex);
             }
 
             _logger.LogError(ex, "Failed to retrieve projects for event {EventId}", eventId);
@@ -229,8 +229,8 @@ public class MongoDbService : IDatabaseService
         {
             if (IsDatabaseUnavailable(ex))
             {
-                _logger.LogWarning(ex, "Database unavailable while retrieving all projects. Returning empty list.");
-                return Result<List<Project>>.Success([]);
+                _logger.LogWarning(ex, "Database unavailable while retrieving all projects. Returning failure.");
+                return Result<List<Project>>.Failure("Database unavailable. Please check MongoDB connection and IP whitelist.", ex);
             }
 
             _logger.LogError(ex, "Failed to retrieve all projects");
